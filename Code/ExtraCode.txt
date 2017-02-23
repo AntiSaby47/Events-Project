@@ -1,0 +1,82 @@
+excelConnection.Open();
+            //DataTable dt = new DataTable();
+            //dt = excelConnection.GetOleDbSchemaTable(OleDbSchemaGuid.Tables, null);
+            //if(dt == null)
+            //{
+            //    showPopup("No data found in excel sheet!");
+            //    return;
+            //}
+
+            //String[] excelSheets = new String[dt.Rows.Count];
+            //for (int i = 0; i < dt.Rows.Count; i++)
+            //    excelSheets[i] = dt.Rows[i]["TABLE_NAME"].ToString();
+
+            //if(excelSheets.Length > 1 || excelSheets[0] != "Sheet1$")
+            //{
+            //    showPopup("Excel file must only have 1 sheet with the name of `Sheet1`");
+            //    return;
+            //}
+
+            //OleDbConnection excelConnection1 = new OleDbConnection(excelConnString);
+            //excelConnection1.Open();
+            string query = "SELECT * from [Sheet1$]";
+            OleDbCommand command = new OleDbCommand(query, excelConnection);
+            DbDataReader dr = command.ExecuteReader();
+
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+                SqlBulkCopy bulkInsert = new SqlBulkCopy(connection);
+                bulkInsert.DestinationTableName = "Customers";
+                bulkInsert.ColumnMappings.Add("ID", "id");
+                bulkInsert.ColumnMappings.Add("Name", "name");
+                bulkInsert.ColumnMappings.Add("City", "city");
+                bulkInsert.ColumnMappings.Add("Phone", "phone");
+                bulkInsert.ColumnMappings.Add("Gender", "gender");
+                bulkInsert.WriteToServer(dr);
+            }
+
+
+            //OleDbDataAdapter adp = new OleDbDataAdapter(query, excelConnection)
+            //adp.Fill(dt);
+            //adp.Dispose();
+            //Debug.WriteLine("Count: " + dt.Rows.Count);
+            //for (int i = 0; i < dt.Rows.Count; i++)
+            //{
+            //    for (int j = 0; j < dt.Rows[i].Table.Columns.Count; j++)
+            //    {
+            //        Debug.Write(" |" + dt.Rows[i][j] + "| ");
+            //    }
+            //    Debug.WriteLine("");
+            //}
+
+
+            //return;
+            //using(SqlConnection connection = new SqlConnection(connectionString))
+            //{
+            //    connection.Open();
+            //    query = "INSERT INTO Customers(Name, City, Phone, Gender) VALUES(@Name, @City, @Phone, @Gender);";
+            //    SqlCommand cmd = new SqlCommand(query, connection);
+            //    SqlTransaction transaction = connection.BeginTransaction();
+            //    cmd.Transaction = transaction;
+            //    Debug.WriteLine("Count: " + dt.Rows.Count); 
+            //    for (int i = 0; i < dt.Rows.Count; i++)
+            //    {
+            //        Debug.WriteLine("Data: " + dt.Rows[i][0]); 
+            //        int phone;
+            //        int.TryParse(dt.Rows[i][2].ToString(), out phone);
+            //        cmd.Parameters.Clear();
+            //        cmd.Parameters.AddWithValue("@Name", SqlDbType.VarChar).Value = dt.Rows[i][0].ToString();
+            //        cmd.Parameters.AddWithValue("@City", SqlDbType.VarChar).Value = dt.Rows[i][1].ToString();
+            //        cmd.Parameters.AddWithValue("@Phone", SqlDbType.Int).Value = phone;
+            //        cmd.Parameters.AddWithValue("@Gender", SqlDbType.VarChar).Value = dt.Rows[i][3].ToString();
+            //        cmd.ExecuteNonQuery();
+            //    }
+
+            //    try { transaction.Commit(); }
+            //    catch (Exception)
+            //    {
+            //        transaction.Rollback();
+            //        throw;
+            //    }
+            //}

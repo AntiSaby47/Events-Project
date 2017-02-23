@@ -95,7 +95,7 @@
             </td>
         </tr>
         <tr>
-            <td></td><td><telerik:RadButton ID="meUploadExcelBTN" runat="server" Text="Upload"></telerik:RadButton></td>
+            <td></td><td><telerik:RadButton ID="meUploadExcelBTN" runat="server" Text="Upload" OnClick="meUploadExcelBTN_Click"></telerik:RadButton></td>
         </tr>
 
     </table>
