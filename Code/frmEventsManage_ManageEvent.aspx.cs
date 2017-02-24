@@ -16,10 +16,14 @@ public partial class frmEventsManage_ManageEvent : System.Web.UI.Page
 {
     private string connectionString = ConfigurationManager.ConnectionStrings["TestCS"].ConnectionString;
     private string TEMP_FOLDER_PATH = "~/Temp/";
+    private static int selectedEventId;
 
     protected void Page_Load(object sender, EventArgs e)
     {
-
+        if(!IsPostBack)
+        {
+            selectedEventId = -1;
+        }
     }
     protected void meSubmitDateBTN_Click(object sender, EventArgs e)
     {
@@ -44,37 +48,50 @@ public partial class frmEventsManage_ManageEvent : System.Web.UI.Page
             return;
         }
 
-        if(checkIfEventExists(eventName, startDate))
+        int id = checkIfEventExists(eventName, startDate);
+        if(id > 0)
         {
-           
+            selectedEventId = id;
+            uploadTable.Style.Remove("display");
         }
-
+        else
+        {
+            showPopup("No Event found with said details!");
+            uploadTable.Style.Add("display","none");
+            selectedEventId = -1;
+        }
     }
 
     protected void meUploadExcelBTN_Click(object sender, EventArgs e)
     {
-        uploadExcelToDB();
+        if (selectedEventId > 0)
+            uploadExcelToDB();
+        else
+            Response.Redirect(Request.RawUrl);
     }
 
     //===================================Database Operations=======================================
 
-    private bool checkIfEventExists(String eventName, DateTime startDate)
+    private int checkIfEventExists(String eventName, DateTime startDate)
     {
         using (SqlConnection connection = new SqlConnection(connectionString))
         {
-            connection.Open();
-            SqlCommand cmd = new SqlCommand("SELECT COUNT(*) FROM EventMaster WHERE EventName = @EN AND StartDate = @SD", connection);
-            cmd.Parameters.Add("@EN", SqlDbType.VarChar).Value = eventName;
-            cmd.Parameters.Add("@SD", SqlDbType.DateTime).Value = startDate;
-            int count = (int)cmd.ExecuteScalar();
-            cmd.Dispose();
-            return count == 1;
+            try
+            {
+                connection.Open();
+                SqlCommand cmd = new SqlCommand("SELECT ID FROM EventMaster WHERE EventName = @EN AND StartDate = @SD", connection);
+                cmd.Parameters.Add("@EN", SqlDbType.VarChar).Value = eventName;
+                cmd.Parameters.Add("@SD", SqlDbType.DateTime).Value = startDate;
+                int id = (int)cmd.ExecuteScalar();
+                cmd.Dispose();
+                return id;
+            }
+            catch(NullReferenceException)
+            {
+                return -1;
+            }
         }
     }
-
-
-
-
 
     //===================================Utilities================================================
     private void showPopup(String text)

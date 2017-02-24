@@ -87,7 +87,7 @@
         </tr>
     </table>
     <br />
-    <table style="width:700px;">
+    <table style="width:700px;display:none;" id="uploadTable" runat="server">
         <tr>
             <td>Upload Excel Data</td>
             <td>
