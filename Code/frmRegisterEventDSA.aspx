@@ -1,4 +1,7 @@
-﻿<%@ Page  MasterPageFile="Main.master" Language="C#" AutoEventWireup="true" CodeFile="frmRegisterEventDSA.aspx.cs" Inherits="frmRegisterEventDSA" %>
+﻿<%@ Page  MasterPageFile="~/MasterPage.master" Language="C#" AutoEventWireup="true" CodeFile="frmRegisterEventDSA.aspx.cs" Inherits="frmRegisterEventDSA" %>
+
+<%@ Register Assembly="Telerik.Web.UI" Namespace="Telerik.Web.UI" TagPrefix="telerik" %>
+<%@ Register Assembly="AjaxControlToolkit" Namespace="AjaxControlToolkit" TagPrefix="ajaxToolkit" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="ContentPlaceHolder1" Runat="Server">
     

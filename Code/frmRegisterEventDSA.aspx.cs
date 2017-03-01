@@ -8,13 +8,10 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Configuration;
 
-public partial class frmRegisterEventDSA : BasePage
+public partial class frmRegisterEventDSA : System.Web.UI.Page
 {
     String connectionString = ConfigurationManager.ConnectionStrings["NewUmsConnectionString"].ConnectionString;
-    protected void Page_Load(object sender, EventArgs e)
-    {
 
-    }
     protected void resERegisterBtn_Click(object sender, EventArgs e)
     {
         String eventName = redENametxt.Text;

@@ -10,7 +10,7 @@ using System.Configuration;
 using System.Collections;
 using Telerik.Web.UI;
 
-public partial class frmRegisterEventSchool : BasePage
+public partial class frmRegisterEventSchool : System.Web.UI.Page
 {
     String connectionString = ConfigurationManager.ConnectionStrings["NewUmsConnectionString"].ConnectionString;
     private static String parentID;
@@ -108,6 +108,7 @@ public partial class frmRegisterEventSchool : BasePage
         }
 
         int i = checkIfAlreadyRegistered(eventName, startDate, endDate, organizedBy);
+        System.Diagnostics.Debug.WriteLine("iiiiiiiiiiiiiiiiiiiiiiiiii" + i);
         if(i>0)
         {
             showPopup("Event already registered");
@@ -122,10 +123,11 @@ public partial class frmRegisterEventSchool : BasePage
             try
             {
                 connection.Open();
+                System.Diagnostics.Debug.WriteLine("aaaaaaaaaa" + eventName + "  " + startDate + "" + endDate + "" + organizedBy);
                 SqlCommand cmd = new SqlCommand("SELECT ID FROM dbo.EventMaster WHERE EventName=@EN AND StartDate=@SD AND EndDate=@ED AND OrganisedBy=@OB", connection);
                 cmd.Parameters.Add("@EN", SqlDbType.VarChar).Value = eventName;
                 cmd.Parameters.Add("@SD", SqlDbType.DateTime).Value = startDate;
-                cmd.Parameters.Add("@ED", SqlDbType.DateTime).Value = startDate;
+                cmd.Parameters.Add("@ED", SqlDbType.DateTime).Value = endDate;
                 cmd.Parameters.Add("@OB", SqlDbType.VarChar).Value = organizedBy;
                 int id = (int)cmd.ExecuteScalar();
                 cmd.Dispose();
