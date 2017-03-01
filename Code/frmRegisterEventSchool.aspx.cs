@@ -20,15 +20,15 @@ public partial class frmRegisterEventSchool : System.Web.UI.Page
         {
             resSEventPanel.Visible = false;
             resEventPanel.Visible = true;
-            RadButton1.Text = "Register Event";
-            resEventPanel.Controls.Add(RadButton1);
+            resRegisterBtn.Text = "Register Event";
+            resEventPanel.Controls.Add(resRegisterBtn);
         }
         else if ( resETypeCombo.SelectedItem.Text == "Sub Event" )
         {
             resEventPanel.Visible = false;
             resSEventPanel.Visible = true;
-            RadButton1.Text = "Register Event Category";
-            resSEventPanel.Controls.Add(RadButton1);
+            resRegisterBtn.Text = "Register Event Category";
+            resSEventPanel.Controls.Add(resRegisterBtn);
             loadEvents();
         }
     }
@@ -66,14 +66,14 @@ public partial class frmRegisterEventSchool : System.Web.UI.Page
         }
     }
 
-    protected void RadButton1_Click(object sender, EventArgs e)
+    protected void resRegisterBtn_Click(object sender, EventArgs e)
     {
         String eventName = null;
         DateTime startDate = new DateTime();
         DateTime endDate = new DateTime();
         String organizedBy = null;
 
-        if (RadButton1.Text == "Register Event")
+        if (resRegisterBtn.Text == "Register Event")
         {
             eventName = resENametxt.Text;
             try
@@ -88,7 +88,7 @@ public partial class frmRegisterEventSchool : System.Web.UI.Page
             organizedBy = resEOrganizedBy.Text;
             parentID = null;
         }
-        if (RadButton1.Text == "Register Event Category")
+        if (resRegisterBtn.Text == "Register Event Category")
         {
             eventName = resSENameTxt.Text;
             String data = null;
@@ -108,7 +108,6 @@ public partial class frmRegisterEventSchool : System.Web.UI.Page
         }
 
         int i = checkIfAlreadyRegistered(eventName, startDate, endDate, organizedBy);
-        System.Diagnostics.Debug.WriteLine("iiiiiiiiiiiiiiiiiiiiiiiiii" + i);
         if(i>0)
         {
             showPopup("Event already registered");
@@ -123,7 +122,6 @@ public partial class frmRegisterEventSchool : System.Web.UI.Page
             try
             {
                 connection.Open();
-                System.Diagnostics.Debug.WriteLine("aaaaaaaaaa" + eventName + "  " + startDate + "" + endDate + "" + organizedBy);
                 SqlCommand cmd = new SqlCommand("SELECT ID FROM dbo.EventMaster WHERE EventName=@EN AND StartDate=@SD AND EndDate=@ED AND OrganisedBy=@OB", connection);
                 cmd.Parameters.Add("@EN", SqlDbType.VarChar).Value = eventName;
                 cmd.Parameters.Add("@SD", SqlDbType.DateTime).Value = startDate;

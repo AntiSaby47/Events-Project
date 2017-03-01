@@ -46,10 +46,11 @@
          </telerik:RadPageView>
          <telerik:RadPageView ID="RadPageView2" runat="server">
                <h3>Invitation for Registeration</h3>
-               <telerik:RadGrid ID="redSERegRequestRG" runat="server" AllowFilteringByColumn="True" AllowPaging="True" AllowSorting="True" DataSourceID="SERegReqDS" GroupPanelPosition="Top">
+               <telerik:RadGrid ID="redSERegRequestRG" runat="server" AllowFilteringByColumn="True" AllowPaging="True" AllowSorting="True" DataSourceID="SERegReqDS" GroupPanelPosition="Top" OnItemCommand="redSERegRequestRG_ItemCommand">
                    <GroupingSettings CollapseAllTooltip="Collapse all groups" />
                    <MasterTableView AutoGenerateColumns="False" DataSourceID="SERegReqDS">
                        <Columns>
+
                            <telerik:GridBoundColumn DataField="EventName" FilterControlAltText="Filter EventName column" HeaderText="Event Name" SortExpression="EventName" UniqueName="EventName">
                            </telerik:GridBoundColumn>
                            <telerik:GridBoundColumn DataField="StartDate" DataType="System.DateTime" DataFormatString="{0:dd/MM/yyyy}" FilterControlAltText="Filter StartDate column" HeaderText="Start Date" SortExpression="StartDate" UniqueName="StartDate">
@@ -58,22 +59,26 @@
                            </telerik:GridCheckBoxColumn>
                            <telerik:GridBoundColumn DataField="OrganisedBy" FilterControlAltText="Filter OrganisedBy column" HeaderText="OrganisedBy" SortExpression="Organised By" UniqueName="OrganisedBy">
                            </telerik:GridBoundColumn>
+                           <telerik:GridBoundColumn DataField="id" Display="false" FilterControlAltText="Filter id column" HeaderText="Event id" SortExpression="id" UniqueName="id">
+                           </telerik:GridBoundColumn>
+                           <telerik:GridBoundColumn DataField="ParentEventID" Display="false" FilterControlAltText="Filter ParentEventID column" HeaderText="ParentEvent ID" SortExpression="ParentEventID" UniqueName="ParentEventID">
+                           </telerik:GridBoundColumn>
 
                            <telerik:GridTemplateColumn HeaderText="Approve Registeration" UniqueName="ButtonColumn1"> 
                                 <ItemTemplate>
-                                    <telerik:RadButton ID="redSEReqAllowBtn" runat="server" Text="Approve" CommandName="IssueCertificate" />
+                                    <telerik:RadButton ID="redSEReqAllowBtn" runat="server" Text="Approve" CommandName="Approve"/>
                                 </ItemTemplate>
                            </telerik:GridTemplateColumn>
                            <telerik:GridTemplateColumn HeaderText="Reject Registeration" UniqueName="ButtonColumn2"> 
                                 <ItemTemplate>
-                                    <telerik:RadButton ID="redSEReqRejectBtn" runat="server" Text="Reject" CommandName="IssueCertificate" />
+                                    <telerik:RadButton ID="redSEReqRejectBtn" runat="server" Text="Reject" CommandName="Reject" />
                                 </ItemTemplate> 
                             </telerik:GridTemplateColumn>
 
                        </Columns>
                    </MasterTableView>
                </telerik:RadGrid>
-               <asp:SqlDataSource ID="SERegReqDS" runat="server" ConnectionString="<%$ ConnectionStrings:NewUmsConnectionString %>" SelectCommand="SELECT EventName, StartDate, Active, OrganisedBy FROM EventMaster WHERE parentEventID is not null AND (Active = 1) AND StartDate>=GETDATE();"></asp:SqlDataSource>
+               <asp:SqlDataSource ID="SERegReqDS" runat="server" ConnectionString="<%$ ConnectionStrings:NewUmsConnectionString %>" SelectCommand="SELECT EventName, StartDate, Active, OrganisedBy, id, ParentEventID FROM EventMaster WHERE parentEventID is not null AND StartDate>=GETDATE() AND EventStatus=0;"></asp:SqlDataSource>
          </telerik:RadPageView>
     </telerik:RadMultiPage> 
 </asp:Content>

@@ -7,6 +7,9 @@ using System.Web.UI.WebControls;
 using System.Data;
 using System.Data.SqlClient;
 using System.Configuration;
+using System.Collections;
+
+using Telerik.Web.UI;
 
 public partial class frmRegisterEventDSA : System.Web.UI.Page
 {
@@ -96,5 +99,38 @@ public partial class frmRegisterEventDSA : System.Web.UI.Page
     private void showPopup(String text)
     {
         Response.Write("<script>alert(' " + text + "');</script>");
+    }
+    protected void redSERegRequestRG_ItemCommand(object sender, Telerik.Web.UI.GridCommandEventArgs e)
+    {
+        String ID,pID;
+        if (e.CommandName == "Approve" || e.CommandName == "Reject")
+        {
+            GridDataItem item = e.Item as GridDataItem;
+            ID = item["id"].Text;
+            pID = item["parentEventID"].Text;
+            String query = null;
+            int status = 0;
+            if (e.CommandName == "Approve") { status = 2; }
+            if (e.CommandName == "Reject") { status = 3; }
+            query = "UPDATE dbo.EventMaster SET eventstatus=@st WHERE id=@id AND ParentEventID=@pid";
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                SqlCommand command = new SqlCommand(query, connection);
+                command.Parameters.Add("@st", SqlDbType.Int).Value = status;
+                command.Parameters.Add("@id", SqlDbType.Int).Value = ID;
+                command.Parameters.Add("@pid", SqlDbType.Int).Value = pID;
+                connection.Open();
+                int rowsAffected = command.ExecuteNonQuery();
+                if (rowsAffected <= 0)
+                {
+                    Response.Write("<script>alert('Something went wrong. Please try again.');</script>");
+                }
+                else
+                {
+                    Response.Redirect(Request.RawUrl);
+                }
+            }
+
+        }
     }
 }

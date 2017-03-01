@@ -44,7 +44,7 @@
     </asp:Panel>
     </div>
     <div>
-    <asp:Panel id="resSEventPanel" Visible="false" runat="server">
+    <asp:Panel id="resSEventPanel" Style="left: 50%;" Visible="false" runat="server">
         <table style="margin-top:30px;">
             <tr>
                 <td>Event Name</td>
@@ -60,7 +60,7 @@
             </tr>
         </table>
     </asp:Panel>
-        <telerik:RadButton ID="RadButton1" runat="server" Text="RadButton" OnClick="RadButton1_Click"></telerik:RadButton>
+        <telerik:RadButton ID="resRegisterBtn" runat="server" Text="RadButton" OnClick="resRegisterBtn_Click" Visible="false"></telerik:RadButton>
         </div>
 </asp:Content>
 
