@@ -152,7 +152,7 @@ public partial class frmEventsManage_ManageEvent : System.Web.UI.Page
 
 
             //---------------------------------Main processing-----------------------------------------------------------------
-            string query = "SELECT * from [Sheet1$]";
+            string query = "SELECT *, " + selectedEventId + " as [EventID], 0 as EventCategoryID from [Sheet1$]";
             OleDbCommand command = new OleDbCommand(query, excelConnection);
             DbDataReader dr = command.ExecuteReader();
 
@@ -160,12 +160,17 @@ public partial class frmEventsManage_ManageEvent : System.Web.UI.Page
             {
                 connection.Open();
                 SqlBulkCopy bulkInsert = new SqlBulkCopy(connection);
-                bulkInsert.DestinationTableName = "Customers";
-                bulkInsert.ColumnMappings.Add("ID", "id"); // Source(Excel column), Destination(Database Table Column)
-                bulkInsert.ColumnMappings.Add("Name", "name");
-                bulkInsert.ColumnMappings.Add("City", "city");
-                bulkInsert.ColumnMappings.Add("Phone", "phone");
-                bulkInsert.ColumnMappings.Add("Gender", "gender");
+                bulkInsert.DestinationTableName = "EventCertificates";
+                bulkInsert.ColumnMappings.Add("Reg No", "RegisterationNumber"); // Source(Excel column), Destination(Database Table Column)
+                bulkInsert.ColumnMappings.Add("Student Name", "StudentName");
+                bulkInsert.ColumnMappings.Add("Father Name", "FatherName");
+                bulkInsert.ColumnMappings.Add("Husband Name", "HusbandName");
+                bulkInsert.ColumnMappings.Add("Program Name", "ProgramName");
+                bulkInsert.ColumnMappings.Add("College/School", "CollegeOrSchool");
+                bulkInsert.ColumnMappings.Add("Position", "Position");
+                bulkInsert.ColumnMappings.Add("Is LPU Student", "IsLPUStudent");
+                bulkInsert.ColumnMappings.Add("EventID", "EventID");
+                bulkInsert.ColumnMappings.Add("EventCategoryID", "EventCategoryID");
                 bulkInsert.WriteToServer(dr);
             }
 
