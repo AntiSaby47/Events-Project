@@ -40,6 +40,9 @@
                 <td>Organized By</td>
                 <td><asp:TextBox ID="resEOrganizedBy" runat="server"></asp:TextBox></td>
             </tr>
+            <tr>
+                <td colspan="2"><telerik:RadButton runat="server" Text="Register" OnClick="resRegisterBtn_Click"></telerik:RadButton></td>
+            </tr>
         </table>
     </asp:Panel>
     </div>
@@ -58,9 +61,11 @@
                 <td>Organized By</td>
                 <td><asp:TextBox ID="resSEOrganizedByTxt" runat="server"></asp:TextBox></td>
             </tr>
+            <tr>
+                <td colspan="2"><telerik:RadButton runat="server" Text="Register" OnClick="resRegisterBtn_Click"></telerik:RadButton></td>
+            </tr>
         </table>
     </asp:Panel>
-        <telerik:RadButton ID="resRegisterBtn" runat="server" Text="RadButton" OnClick="resRegisterBtn_Click" Visible="false"></telerik:RadButton>
         </div>
 </asp:Content>
 

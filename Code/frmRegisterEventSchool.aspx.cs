@@ -9,37 +9,38 @@ using System.Data.SqlClient;
 using System.Configuration;
 using System.Collections;
 using Telerik.Web.UI;
+using System.Diagnostics;
 
 public partial class frmRegisterEventSchool : System.Web.UI.Page
 {
-    String connectionString = ConfigurationManager.ConnectionStrings["NewUmsConnectionString"].ConnectionString;
+    String connectionString = ConfigurationManager.ConnectionStrings["TestCS"].ConnectionString;
     private static String parentID;
+    private static String mode; //Event or Sub Event. Choosen through Combo box
+
     protected void resETypeCombo_SelectedIndexChanged(object sender, Telerik.Web.UI.RadComboBoxSelectedIndexChangedEventArgs e)
     {
+        mode = resETypeCombo.SelectedItem.Text;
         if ( resETypeCombo.SelectedItem.Text == "Event" )
         {
             resSEventPanel.Visible = false;
             resEventPanel.Visible = true;
-            resRegisterBtn.Text = "Register Event";
-            resEventPanel.Controls.Add(resRegisterBtn);
         }
         else if ( resETypeCombo.SelectedItem.Text == "Sub Event" )
         {
             resEventPanel.Visible = false;
             resSEventPanel.Visible = true;
-            resRegisterBtn.Text = "Register Event Category";
-            resSEventPanel.Controls.Add(resRegisterBtn);
             loadEvents();
         }
     }
     private void loadEvents()
     {
+        resENameCombo.Items.Clear(); //Clear the Combo items to make sure duplicates are not made
         try
         {
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 connection.Open();
-                SqlCommand selectCommand = new SqlCommand("SELECT id,EventName,StartDate,EndDate FROM dbo.EventMaster  WHERE HasCategories = 1;", connection);
+                SqlCommand selectCommand = new SqlCommand("SELECT id,EventName,StartDate,EndDate FROM dbo.EventMaster WHERE HasCategories = 1 AND Active = 2", connection);
                 SqlDataAdapter adapter = new SqlDataAdapter(selectCommand);
                 DataTable types = new DataTable();
                 adapter.Fill(types);
@@ -54,7 +55,6 @@ public partial class frmRegisterEventSchool : System.Web.UI.Page
                     String sqlFormattedstartDate = ((DateTime)row["StartDate"]).ToString("yyyy-MM-dd");
                     String sqlFormattedEndDate = ((DateTime)row["EndDate"]).ToString("yyyy-MM-dd");
                     String text = row["EventName"] + " :: " + sqlFormattedstartDate + " to " + sqlFormattedEndDate;
-
                     itemData.Text = text;
                     resENameCombo.Items.Add(itemData);
                 }
@@ -62,7 +62,8 @@ public partial class frmRegisterEventSchool : System.Web.UI.Page
         }
         catch (Exception ex)
         {
-            Response.Write("<script>alert('Something went wrong while loading certificate types.');</script>");
+            Debug.WriteLine(ex.Message);
+            showPopup("Something went wrong while loading events!");
         }
     }
 
@@ -73,9 +74,15 @@ public partial class frmRegisterEventSchool : System.Web.UI.Page
         DateTime endDate = new DateTime();
         String organizedBy = null;
 
-        if (resRegisterBtn.Text == "Register Event")
+        if (mode == "Event")
         {
-            eventName = resENametxt.Text;
+            eventName = resENametxt.Text.Trim();
+            if (eventName.Length < 3)
+            {
+                showPopup("Enter a valid Event name!");
+                return;
+            }
+
             try
             {
                 startDate = (DateTime)resESDateDP.SelectedDate;
@@ -88,9 +95,15 @@ public partial class frmRegisterEventSchool : System.Web.UI.Page
             organizedBy = resEOrganizedBy.Text;
             parentID = null;
         }
-        if (resRegisterBtn.Text == "Register Event Category")
+        else if (mode == "Sub Event")
         {
-            eventName = resSENameTxt.Text;
+            eventName = resSENameTxt.Text.Trim();
+            if (eventName.Length < 3)
+            {
+                showPopup("Enter a valid Sub Event name!");
+                return;
+            }
+
             String data = null;
 
             String St = resENameCombo.SelectedItem.Text;
@@ -107,8 +120,16 @@ public partial class frmRegisterEventSchool : System.Web.UI.Page
             organizedBy = resSEOrganizedByTxt.Text;
         }
 
+        organizedBy.Trim();
+
+        if (organizedBy.Length < 3)
+        {
+            showPopup("Check Input - Organized by");
+            return;
+        }
+           
         int i = checkIfAlreadyRegistered(eventName, startDate, endDate, organizedBy);
-        if(i>0)
+        if(i > 0)
         {
             showPopup("Event already registered");
             return;
@@ -140,16 +161,22 @@ public partial class frmRegisterEventSchool : System.Web.UI.Page
 
     private void registerEvent(String eventName, DateTime startDate, DateTime endDate, string organizedBy, String parentID)
     {
-        int isActive = 0;
+        int isActive;
+
+        //Check this blocks
+        if (parentID == null) //If Event
+            isActive = 2;
+        else
+            isActive = 0;
+
         using (SqlConnection connection = new SqlConnection(connectionString))
         {
-
             {
                 SqlCommand cmd = new SqlCommand("INSERT INTO EventMaster(EventName, StartDate, EndDate, Active, OrganisedBy,ParentEventID) VALUES(@EN, @SD, @ED, @AT, @OB,@pID)", connection);
                 cmd.Parameters.Add("@EN", SqlDbType.VarChar).Value = eventName;
                 cmd.Parameters.Add("@SD", SqlDbType.DateTime).Value = startDate;
                 cmd.Parameters.Add("@ED", SqlDbType.DateTime).Value = endDate;
-                cmd.Parameters.Add("@AT", SqlDbType.Bit).Value = isActive;
+                cmd.Parameters.Add("@AT", SqlDbType.SmallInt).Value = isActive;
                 cmd.Parameters.Add("@OB", SqlDbType.VarChar).Value = organizedBy;
                 if (!String.IsNullOrEmpty(parentID))
                 {

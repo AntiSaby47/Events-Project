@@ -9,14 +9,14 @@
         td { padding: 10px 30px 10px 30px; }
     </style>
 
-    <telerik:RadTabStrip ID="RadTabStrip1" runat="server" SelectedIndex="1" MultiPageID="RadMultiPage1">
+    <telerik:RadTabStrip ID="RadTabStrip1" runat="server" SelectedIndex="0" MultiPageID="RadMultiPage1">
         <Tabs>
-            <telerik:RadTab runat="server" Text="Initiate Event" Font-Bold="true"></telerik:RadTab>
-            <telerik:RadTab runat="server" Text="Check Event Invites" Font-Bold="true" Selected="True"></telerik:RadTab>
+            <telerik:RadTab runat="server" Text="Initiate Event" Font-Bold="true" Selected="True"></telerik:RadTab>
+            <telerik:RadTab runat="server" Text="Check Event Invites" Font-Bold="true"></telerik:RadTab>
         </Tabs>
     </telerik:RadTabStrip>
 
-    <telerik:RadMultiPage ID="RadMultiPage1" runat="server" SelectedIndex="1">
+    <telerik:RadMultiPage ID="RadMultiPage1" runat="server" SelectedIndex="0">
         <telerik:RadPageView ID="RadPageView1" runat="server">
                 <h3>Register Events - Division of Student Affairs</h3>
                 <table style="margin-top:30px;">
@@ -55,8 +55,6 @@
                            </telerik:GridBoundColumn>
                            <telerik:GridBoundColumn DataField="StartDate" DataType="System.DateTime" DataFormatString="{0:dd/MM/yyyy}" FilterControlAltText="Filter StartDate column" HeaderText="Start Date" SortExpression="StartDate" UniqueName="StartDate">
                            </telerik:GridBoundColumn>
-                           <telerik:GridCheckBoxColumn DataField="Active" DataType="System.Boolean" FilterControlAltText="Filter Active column" HeaderText="Active" SortExpression="Active" UniqueName="Active">
-                           </telerik:GridCheckBoxColumn>
                            <telerik:GridBoundColumn DataField="OrganisedBy" FilterControlAltText="Filter OrganisedBy column" HeaderText="OrganisedBy" SortExpression="Organised By" UniqueName="OrganisedBy">
                            </telerik:GridBoundColumn>
                            <telerik:GridBoundColumn DataField="id" Display="false" FilterControlAltText="Filter id column" HeaderText="Event id" SortExpression="id" UniqueName="id">
@@ -78,7 +76,7 @@
                        </Columns>
                    </MasterTableView>
                </telerik:RadGrid>
-               <asp:SqlDataSource ID="SERegReqDS" runat="server" ConnectionString="<%$ ConnectionStrings:NewUmsConnectionString %>" SelectCommand="SELECT EventName, StartDate, Active, OrganisedBy, id, ParentEventID FROM EventMaster WHERE parentEventID is not null AND StartDate>=GETDATE() AND EventStatus=0;"></asp:SqlDataSource>
+               <asp:SqlDataSource ID="SERegReqDS" runat="server" ConnectionString="<%$ ConnectionStrings:TestCS %>" SelectCommand="SELECT EventName, StartDate, Active, OrganisedBy, id, ParentEventID FROM EventMaster WHERE parentEventID IS NOT null AND Active = 0"></asp:SqlDataSource>
          </telerik:RadPageView>
     </telerik:RadMultiPage> 
 </asp:Content>
