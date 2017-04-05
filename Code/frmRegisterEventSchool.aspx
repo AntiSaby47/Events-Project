@@ -6,6 +6,28 @@
 <asp:Content ID="Content1" ContentPlaceHolderID="ContentPlaceHolder1" Runat="Server">
     <style>
         td { padding: 10px 30px 10px 30px; }
+        .modalBackground
+        {
+            position: absolute;
+            z-index: 100;
+            top: 0px;
+            left: 0px;
+            background-color: #000;
+            filter: alpha(opacity=60);
+            -moz-opacity: 0.6;
+            opacity: 0.6;
+        }
+        .modalPopup
+        {
+            background-color: #FFFFFF;
+            border-width: 3px;
+            border-style: solid;
+            border-color: black;
+            padding-top: 10px;
+            padding-left: 10px;
+            width: 300px;
+            height: 140px;
+        }
     </style>
     <telerik:RadTabStrip ID="RadTabStrip1" runat="server" SelectedIndex="0" MultiPageID="RadMultiPage1">
         <Tabs>
@@ -80,27 +102,56 @@
             </telerik:RadPageView>
         <telerik:RadPageView ID="RadPageView2" runat="server">
             <h3>Check Event Status</h3>
-            <telerik:RadGrid ID="RadGrid1" runat="server" CellSpacing="-1" DataSourceID="EventStatusDS" GridLines="Both" GroupPanelPosition="Top">
+            <telerik:RadGrid ID="resStatusRG" runat="server" CellSpacing="-1" DataSourceID="EventStatusDS" GridLines="Both" GroupPanelPosition="Top" OnItemCommand="resStatusRG_ItemCommand" OnItemDataBound="resStatusRG_ItemDataBound" ShowGroupPanel="True">
                 <GroupingSettings CollapseAllTooltip="Collapse all groups" />
+                <ClientSettings AllowDragToGroup="True">
+                </ClientSettings>
                 <MasterTableView AutoGenerateColumns="False" DataSourceID="EventStatusDS">
+                    
                     <Columns>
-                        <telerik:GridBoundColumn DataField="EventName" FilterControlAltText="Filter EventName column" HeaderText="EventName" SortExpression="EventName" UniqueName="EventName">
+                        <telerik:GridBoundColumn DataField="id" DataType="System.Int32" FilterControlAltText="Filter id column" HeaderText="Event ID" ReadOnly="True" SortExpression="id" UniqueName="id">
+                        </telerik:GridBoundColumn>
+                        <telerik:GridBoundColumn DataField="EventName" FilterControlAltText="Filter EventName column" HeaderText="Event Name" SortExpression="EventName" UniqueName="EventName">
                         </telerik:GridBoundColumn>
                         <telerik:GridBoundColumn DataField="StartDate" DataType="System.DateTime" FilterControlAltText="Filter StartDate column" HeaderText="StartDate" SortExpression="StartDate" UniqueName="StartDate">
                         </telerik:GridBoundColumn>
-                        <telerik:GridCheckBoxColumn DataField="Active" DataType="System.Boolean" FilterControlAltText="Filter Active column" HeaderText="Active" SortExpression="Active" UniqueName="Active">
-                        </telerik:GridCheckBoxColumn>
-                        <telerik:GridBoundColumn DataField="OrganizedBy" FilterControlAltText="Filter OrganizedBy column" HeaderText="OrganizedBy" SortExpression="OrganizedBy" UniqueName="OrganizedBy">
+                        <telerik:GridBoundColumn DataField="EventStatus" DataType="System.Int32" FilterControlAltText="Filter Active column" HeaderText="Event Status" SortExpression="EventStatus" UniqueName="EventStatus">
                         </telerik:GridBoundColumn>
-                        <telerik:GridBoundColumn DataField="id" DataType="System.Int32" FilterControlAltText="Filter id column" HeaderText="id" ReadOnly="True" SortExpression="id" UniqueName="id">
+                        <telerik:GridBoundColumn DataField="OrganizedBy" FilterControlAltText="Filter OrganizedBy column" HeaderText="Organized By" SortExpression="OrganizedBy" UniqueName="OrganizedBy">
                         </telerik:GridBoundColumn>
-                        <telerik:GridBoundColumn DataField="EventName1" FilterControlAltText="Filter EventName1 column" HeaderText="EventName1" SortExpression="EventName1" UniqueName="EventName1">
+                        <telerik:GridBoundColumn DataField="ParentEventName" FilterControlAltText="Filter ParentEventName column" HeaderText="Parent Event Name" SortExpression="ParentEventName" UniqueName="ParentEventName">
                         </telerik:GridBoundColumn>
+                        <telerik:GridTemplateColumn HeaderText="Upload Excel File" UniqueName="UploadExcelFile"> 
+                                <ItemTemplate>
+                                    <telerik:RadButton ID="resExcelBtn" runat="server" Text="Upload Excel File" CommandName="UploadExcel"/>
+                                </ItemTemplate>
+                        </telerik:GridTemplateColumn>
                     </Columns>
+                    <GroupByExpressions>
+                        <telerik:GridGroupByExpression>
+                            <SelectFields>
+                                <telerik:GridGroupByField FieldName="ParentEventName" />
+                            </SelectFields>
+                            <GroupByFields>
+                                <telerik:GridGroupByField FieldName="ParentEventName"/>
+                            </GroupByFields>
+                        </telerik:GridGroupByExpression>
+                    </GroupByExpressions>
                 </MasterTableView>
             </telerik:RadGrid>
-            <asp:SqlDataSource ID="EventStatusDS" runat="server" ConnectionString="<%$ ConnectionStrings:TestCS %>" SelectCommand="SELECT em1.EventName[EventName], em1.StartDate[StartDate], em1.Active[Active], em1.OrganisedBy[OrganizedBy], em1.id[id], em2.EventName FROM EventMaster em1 INNER JOIN dbo.EventMaster em2 ON em1.id = em2.id 
-WHERE em1.parentEventID IS NOT null AND em1.Active = 0 AND em1.id=em2.ParentEventID"></asp:SqlDataSource>
+            <asp:Panel ID="PopupPanel" runat="server" CssClass="modalPopup" style = "display:none">
+                <asp:FileUpload ID="resImageFU" runat="server" />
+                <br />
+                <telerik:RadButton ID="ButtonOk" runat="server" Text="OK" OnClick="ButtonOk_Click" />
+                <telerik:RadButton ID="ButtonCancel" runat="server" Text="Cancel" />
+            </asp:Panel>
+            <ajaxToolkit:ModalPopupExtender ID="resPopUp" runat="server"
+                Enabled="True" TargetControlID="tempButton" PopupControlID="PopupPanel" BackgroundCssClass="modalBackground"
+                CancelControlID="ButtonCancel">
+            </ajaxToolkit:ModalPopupExtender>
+
+            <telerik:RadButton ID="tempButton" runat="server" style="display:none"/>
+            <asp:SqlDataSource ID="EventStatusDS" runat="server" ConnectionString="<%$ ConnectionStrings:TestCS %>" SelectCommand="SELECT em1.EventName[EventName], em1.StartDate[StartDate], em1.EventStatus[EventStatus], em1.OrganisedBy[OrganizedBy], em1.id[id], em2.EventName[ParentEventName] FROM EventMaster em1 INNER JOIN dbo.EventMaster em2 ON em1.parentEventId = em2.id "></asp:SqlDataSource>
         </telerik:RadPageView>
      </telerik:RadMultiPage>
 </asp:Content>

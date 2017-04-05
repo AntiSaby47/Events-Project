@@ -46,19 +46,23 @@
          </telerik:RadPageView>
          <telerik:RadPageView ID="RadPageView2" runat="server">
                <h3>Invitation for Registeration</h3>
-               <telerik:RadGrid ID="redSERegRequestRG" runat="server" AllowFilteringByColumn="True" AllowPaging="True" AllowSorting="True" DataSourceID="SERegReqDS" GroupPanelPosition="Top" OnItemCommand="redSERegRequestRG_ItemCommand">
+               <telerik:RadGrid ID="redSERegRequestRG" runat="server" AllowFilteringByColumn="True" AllowPaging="True" AllowSorting="True" DataSourceID="SERegReqDS" GroupPanelPosition="Top" OnItemCommand="redSERegRequestRG_ItemCommand" OnItemDataBound="redSERegRequestRG_ItemDataBound">
                    <GroupingSettings CollapseAllTooltip="Collapse all groups" />
                    <MasterTableView AutoGenerateColumns="False" DataSourceID="SERegReqDS">
                        <Columns>
-
+                           <telerik:GridBoundColumn DataField="ParentEventName" FilterControlAltText="Filter ParentEventName column" HeaderText="Parent Event Name" SortExpression="ParentEventName" UniqueName="ParentEventName">
+                            </telerik:GridBoundColumn>
+                           <telerik:GridBoundColumn DataField="id" Display="false" FilterControlAltText="Filter id column" HeaderText="Event id" SortExpression="id" UniqueName="id">
+                           </telerik:GridBoundColumn>
                            <telerik:GridBoundColumn DataField="EventName" FilterControlAltText="Filter EventName column" HeaderText="Event Name" SortExpression="EventName" UniqueName="EventName">
                            </telerik:GridBoundColumn>
+                           <telerik:GridBoundColumn DataField="EventStatus" DataType="System.Int32" FilterControlAltText="Filter Active column" HeaderText="Event Status" SortExpression="EventStatus" UniqueName="EventStatus">
+                            </telerik:GridBoundColumn>
                            <telerik:GridBoundColumn DataField="StartDate" DataType="System.DateTime" DataFormatString="{0:dd/MM/yyyy}" FilterControlAltText="Filter StartDate column" HeaderText="Start Date" SortExpression="StartDate" UniqueName="StartDate">
                            </telerik:GridBoundColumn>
                            <telerik:GridBoundColumn DataField="OrganisedBy" FilterControlAltText="Filter OrganisedBy column" HeaderText="OrganisedBy" SortExpression="Organised By" UniqueName="OrganisedBy">
                            </telerik:GridBoundColumn>
-                           <telerik:GridBoundColumn DataField="id" Display="false" FilterControlAltText="Filter id column" HeaderText="Event id" SortExpression="id" UniqueName="id">
-                           </telerik:GridBoundColumn>
+                           
                            <telerik:GridBoundColumn DataField="ParentEventID" Display="false" FilterControlAltText="Filter ParentEventID column" HeaderText="ParentEvent ID" SortExpression="ParentEventID" UniqueName="ParentEventID">
                            </telerik:GridBoundColumn>
 
@@ -72,11 +76,25 @@
                                     <telerik:RadButton ID="redSEReqRejectBtn" runat="server" Text="Reject" CommandName="Reject" />
                                 </ItemTemplate> 
                             </telerik:GridTemplateColumn>
-
+                           <telerik:GridTemplateColumn HeaderText="View Excel File" UniqueName="ViewExcelFile"> 
+                                <ItemTemplate>
+                                    <telerik:RadButton ID="redExcelBtn" runat="server" Text="View Excel File" CommandName="ViewExcel"/>
+                                </ItemTemplate>
+                        </telerik:GridTemplateColumn>
                        </Columns>
+                       <GroupByExpressions>
+                        <telerik:GridGroupByExpression>
+                            <SelectFields>
+                                <telerik:GridGroupByField FieldName="ParentEventName" />
+                            </SelectFields>
+                            <GroupByFields>
+                                <telerik:GridGroupByField FieldName="ParentEventName"/>
+                            </GroupByFields>
+                        </telerik:GridGroupByExpression>
+                    </GroupByExpressions>
                    </MasterTableView>
                </telerik:RadGrid>
-               <asp:SqlDataSource ID="SERegReqDS" runat="server" ConnectionString="<%$ ConnectionStrings:TestCS %>" SelectCommand="SELECT EventName, StartDate, Active, OrganisedBy, id, ParentEventID FROM EventMaster WHERE parentEventID IS NOT null AND Active = 0"></asp:SqlDataSource>
+             <asp:SqlDataSource ID="SERegReqDS" runat="server" ConnectionString="<%$ ConnectionStrings:TestCS %>" SelectCommand="SELECT em1.EventName[EventName], em1.StartDate[StartDate], em1.EventStatus[EventStatus], em1.OrganisedBy[OrganizedBy], em1.id[id], em2.EventName[ParentEventName] FROM EventMaster em1 INNER JOIN dbo.EventMaster em2 ON em1.parentEventId = em2.id WHERE em1.parentEventID IS NOT null"></asp:SqlDataSource>
          </telerik:RadPageView>
     </telerik:RadMultiPage> 
 </asp:Content>
