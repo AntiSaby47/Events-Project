@@ -231,6 +231,35 @@ public partial class frmRegisterEventDSA : System.Web.UI.Page
                 showPopup("Something went wrong while fetching the file. Please try again [3].");
             }
         }
+
+        else if (e.CommandName == "ApproveExcel")
+        {
+            try
+            {
+                String ID;
+                GridDataItem item = e.Item as GridDataItem;
+                ID = item["id"].Text;
+                String query = "UPDATE EventMaster SET EventStatus = 4 WHERE id = @ID";
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                {
+                    SqlCommand command = new SqlCommand(query, connection);
+                    command.Parameters.Add("@ID", SqlDbType.Int).Value = ID;
+                    connection.Open();
+                    int rowsAffected = command.ExecuteNonQuery();
+                    if (rowsAffected <= 0)
+                        showPopup("Something went wrong while approving the file. Please try again later.");
+                    else
+                        Response.Redirect(Request.RawUrl);
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("Ex: " + ex.Message);
+                showPopup("Something went wrong while approving the file. Please try again later. [1]");
+                return;
+            }
+
+        }
     }
 
     protected void redSERegRequestRG_ItemDataBound(object sender, GridItemEventArgs e)
@@ -239,10 +268,19 @@ public partial class frmRegisterEventDSA : System.Web.UI.Page
         {
             GridDataItem item = e.Item as GridDataItem;
             int eventStatus = Int32.Parse(item["EventStatus"].Text);
+
+            if(eventStatus != 0)
+            {
+                RadButton approveBtn = item.FindControl("redSEReqAllowBtn") as RadButton;
+                RadButton rejectBtn = item.FindControl("redSEReqRejectBtn") as RadButton;
+                approveBtn.Visible = rejectBtn.Visible = false;
+            }
+
             if (eventStatus != 3)
             {
-                RadButton uploadBtn = item.FindControl("redExcelBtn") as RadButton;
-                uploadBtn.Visible = false;
+                RadButton viewBtn = item.FindControl("redExcelBtn") as RadButton;
+                RadButton approveExcelBtn = item.FindControl("redApproveExcelBtn") as RadButton;
+                viewBtn.Visible = approveExcelBtn.Visible = false;
             }
         }
     }

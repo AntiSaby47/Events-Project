@@ -62,10 +62,8 @@
                            </telerik:GridBoundColumn>
                            <telerik:GridBoundColumn DataField="OrganisedBy" FilterControlAltText="Filter OrganisedBy column" HeaderText="OrganisedBy" SortExpression="Organised By" UniqueName="OrganisedBy">
                            </telerik:GridBoundColumn>
-                           
                            <telerik:GridBoundColumn DataField="ParentEventID" Display="false" FilterControlAltText="Filter ParentEventID column" HeaderText="ParentEvent ID" SortExpression="ParentEventID" UniqueName="ParentEventID">
                            </telerik:GridBoundColumn>
-
                            <telerik:GridTemplateColumn HeaderText="Approve Registeration" UniqueName="ButtonColumn1"> 
                                 <ItemTemplate>
                                     <telerik:RadButton ID="redSEReqAllowBtn" runat="server" Text="Approve" CommandName="Approve"/>
@@ -80,7 +78,12 @@
                                 <ItemTemplate>
                                     <telerik:RadButton ID="redExcelBtn" runat="server" Text="View Excel File" CommandName="ViewExcel"/>
                                 </ItemTemplate>
-                        </telerik:GridTemplateColumn>
+                            </telerik:GridTemplateColumn>
+                           <telerik:GridTemplateColumn HeaderText="Approve Excel File" UniqueName="ApproveExcelFile"> 
+                                <ItemTemplate>
+                                    <telerik:RadButton ID="redApproveExcelBtn" runat="server" Text="Approve Excel File" CommandName="ApproveExcel"/>
+                                </ItemTemplate>
+                            </telerik:GridTemplateColumn>
                        </Columns>
                        <GroupByExpressions>
                         <telerik:GridGroupByExpression>
@@ -94,7 +97,7 @@
                     </GroupByExpressions>
                    </MasterTableView>
                </telerik:RadGrid>
-             <asp:SqlDataSource ID="SERegReqDS" runat="server" ConnectionString="<%$ ConnectionStrings:TestCS %>" SelectCommand="SELECT em1.EventName[EventName], em1.StartDate[StartDate], em1.EventStatus[EventStatus], em1.OrganisedBy[OrganizedBy], em1.id[id], em2.EventName[ParentEventName] FROM EventMaster em1 INNER JOIN dbo.EventMaster em2 ON em1.parentEventId = em2.id WHERE em1.parentEventID IS NOT null"></asp:SqlDataSource>
+             <asp:SqlDataSource ID="SERegReqDS" runat="server" ConnectionString="<%$ ConnectionStrings:TestCS %>" SelectCommand="SELECT em1.EventName[EventName], em1.StartDate[StartDate], em1.EventStatus[EventStatus], em1.OrganisedBy[OrganizedBy], em1.id[id], em2.EventName[ParentEventName] FROM EventMaster em1 INNER JOIN dbo.EventMaster em2 ON em1.parentEventId = em2.id WHERE em1.parentEventID IS NOT null AND EventStatus IN (0,2,3)"></asp:SqlDataSource>
          </telerik:RadPageView>
     </telerik:RadMultiPage> 
 </asp:Content>
