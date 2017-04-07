@@ -18,12 +18,19 @@ using System.IO;
 public partial class frmRegisterEventSchool : System.Web.UI.Page
 {
     private string connectionString = ConfigurationManager.ConnectionStrings["TestCS"].ConnectionString;
-    private static String parentID;
-    private static String mode; //Event or Sub Event. Choosen through Combo box
+    private static string parentID;
+    private static string mode; //Event or Sub Event. Choosen through Combo box
     private string folderOnFTPServer = "test";
     private static int id = -47;
-
-
+    private static int refreshMode = 0;
+    protected void Page_Load(object sender, EventArgs e)
+    {
+        if(refreshMode == 1)
+        {
+            showPopup("Event registered. Note down the Event name and start date. You\\'ll need it while uploading event data.");
+            refreshMode = 0;
+        }
+    }
 
     protected void resETypeCombo_SelectedIndexChanged(object sender, Telerik.Web.UI.RadComboBoxSelectedIndexChangedEventArgs e)
     {
@@ -60,9 +67,9 @@ public partial class frmRegisterEventSchool : System.Web.UI.Page
                     RadComboBoxItem itemData = new RadComboBoxItem();
                     itemData.Value = row["id"].ToString();
                     parentID = row["id"].ToString();
-                    String sqlFormattedstartDate = ((DateTime)row["StartDate"]).ToString("yyyy-MM-dd");
-                    String sqlFormattedEndDate = ((DateTime)row["EndDate"]).ToString("yyyy-MM-dd");
-                    String text = row["EventName"] + " :: " + sqlFormattedstartDate + " to " + sqlFormattedEndDate;
+                    string sqlFormattedstartDate = ((DateTime)row["StartDate"]).ToString("yyyy-MM-dd");
+                    string sqlFormattedEndDate = ((DateTime)row["EndDate"]).ToString("yyyy-MM-dd");
+                    string text = row["EventName"] + " :: " + sqlFormattedstartDate + " to " + sqlFormattedEndDate;
                     itemData.Text = text;
                     resENameCombo.Items.Add(itemData);
                 }
@@ -77,10 +84,11 @@ public partial class frmRegisterEventSchool : System.Web.UI.Page
 
     protected void resRegisterBtn_Click(object sender, EventArgs e)
     {
-        String eventName = null;
+        string eventName = null;
         DateTime startDate = new DateTime();
         DateTime endDate = new DateTime();
-        String organizedBy = null;
+        string organizedBy = null;
+        string certificateType = null;
 
         if (mode == "Event")
         {
@@ -99,9 +107,16 @@ public partial class frmRegisterEventSchool : System.Web.UI.Page
             catch (InvalidOperationException ex)
             {
                 showPopup("Select a valid date.");
+                return;
             }
             organizedBy = resEOrganizedBy.Text;
             parentID = null;
+            certificateType = resCertFormatsCB.SelectedValue;
+            if(certificateType == "None")
+            {
+                showPopup("Select a Certificate Format!");
+                return;
+            }
         }
         else if (mode == "Sub Event")
         {
@@ -112,9 +127,9 @@ public partial class frmRegisterEventSchool : System.Web.UI.Page
                 return;
             }
 
-            String data = null;
+            string data = null;
 
-            String St = resENameCombo.SelectedItem.Text;
+            string St = resENameCombo.SelectedItem.Text;
             //-----------Calculating start date--------------------
             int pFrom = St.IndexOf(" :: ") + " :: ".Length;
             int pTo = St.LastIndexOf(" to ");
@@ -142,9 +157,9 @@ public partial class frmRegisterEventSchool : System.Web.UI.Page
             showPopup("Event already registered");
             return;
         }
-        registerEvent(eventName, startDate, endDate, organizedBy, parentID);
+        registerEvent(eventName, startDate, endDate, organizedBy, parentID, certificateType);
     }
-    private int checkIfAlreadyRegistered(String eventName, DateTime startDate, DateTime endDate, string organizedBy)
+    private int checkIfAlreadyRegistered(string eventName, DateTime startDate, DateTime endDate, string organizedBy)
     {
         using (SqlConnection connection = new SqlConnection(connectionString))
         {
@@ -167,7 +182,7 @@ public partial class frmRegisterEventSchool : System.Web.UI.Page
         }
     }
 
-    private void registerEvent(String eventName, DateTime startDate, DateTime endDate, string organizedBy, String parentID)
+    private void registerEvent(string eventName, DateTime startDate, DateTime endDate, string organizedBy, string parentID, string certificateType)
     {
         int isActive;
 
@@ -180,20 +195,23 @@ public partial class frmRegisterEventSchool : System.Web.UI.Page
         using (SqlConnection connection = new SqlConnection(connectionString))
         {
             {
-                SqlCommand cmd = new SqlCommand("INSERT INTO EventMaster(EventName, StartDate, EndDate, EventStatus, OrganisedBy,ParentEventID) VALUES(@EN, @SD, @ED, @AT, @OB,@pID)", connection);
+                SqlCommand cmd = new SqlCommand("INSERT INTO EventMaster(EventName, StartDate, EndDate, EventStatus, OrganisedBy,ParentEventID, CertificateType) VALUES(@EN, @SD, @ED, @AT, @OB, @pID, @CT)", connection);
                 cmd.Parameters.Add("@EN", SqlDbType.VarChar).Value = eventName;
                 cmd.Parameters.Add("@SD", SqlDbType.DateTime).Value = startDate;
                 cmd.Parameters.Add("@ED", SqlDbType.DateTime).Value = endDate;
                 cmd.Parameters.Add("@AT", SqlDbType.SmallInt).Value = isActive;
                 cmd.Parameters.Add("@OB", SqlDbType.VarChar).Value = organizedBy;
-                if (!String.IsNullOrEmpty(parentID))
-                {
+                
+                if (!string.IsNullOrEmpty(parentID))
                     cmd.Parameters.AddWithValue("@pID", parentID);
-                }
                 else
-                {
                     cmd.Parameters.AddWithValue("@pID", DBNull.Value);
-                }
+
+                if (!string.IsNullOrEmpty(certificateType))
+                    cmd.Parameters.AddWithValue("@CT", certificateType);
+                else
+                    cmd.Parameters.AddWithValue("@CT", DBNull.Value);
+
                 connection.Open();
                 int rowsAffected = cmd.ExecuteNonQuery();
                 if (rowsAffected <= 0)
@@ -203,7 +221,8 @@ public partial class frmRegisterEventSchool : System.Web.UI.Page
 
                 else
                 {
-                    showPopup("Event registered. Note down the Event name and start date. You\\'ll need it while uploading event data.");
+                    refreshMode = 1; //Show Event Registered Popup
+                    Response.Redirect(Request.RawUrl);
                 }
                 cmd.Dispose();
             }
@@ -275,7 +294,7 @@ public partial class frmRegisterEventSchool : System.Web.UI.Page
             }
 
             Debug.WriteLine("ID: "+id);
-            String query = "UPDATE EventMaster SET " +
+            string query = "UPDATE EventMaster SET " +
                     "ExcelName = @ExcelName, " +
                     "EventStatus = 3 " +
                     "WHERE ID = @ID";
@@ -355,10 +374,25 @@ public partial class frmRegisterEventSchool : System.Web.UI.Page
         return false;
     }
 
-    private void showPopup(String text)
+    private void showPopup(string text)
     {
         Response.Write("<script>alert(' " + text + "');</script>");
     }
 
-    
+    protected void resDownloadFormatsBtn_Click(object sender, EventArgs e)
+    {
+        string fileName = "Events_Certificate_Formats.docx";
+        FtpService ftpClient = new FtpService();
+        FtpService.FtpCredentials credentials = FtpUserPassword.GetUMSFtpCredentials();
+        FtpWebResponse response = ftpClient.DowloadFile(folderOnFTPServer, fileName, FtpUserPassword.GetUMSFtpCredentials());
+
+        using (MemoryStream stream = new MemoryStream())
+        {
+            response.GetResponseStream().CopyTo(stream);
+            Response.AddHeader("content-disposition", "attachment;filename=" + fileName);
+            Response.Cache.SetCacheability(HttpCacheability.NoCache);
+            Response.BinaryWrite(stream.ToArray());
+            Response.End();
+        }
+    }
 }

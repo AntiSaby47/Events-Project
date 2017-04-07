@@ -5,7 +5,7 @@
 
 <asp:Content ID="Content1" ContentPlaceHolderID="ContentPlaceHolder1" Runat="Server">
     <style>
-        td { padding: 10px 30px 10px 30px; }
+        td { padding: 10px 30px 10px 10px;}
         .modalBackground
         {
             position: absolute;
@@ -71,6 +71,20 @@
                     <tr>
                         <td>Organized By</td>
                         <td><asp:TextBox ID="resEOrganizedBy" runat="server"></asp:TextBox></td>
+                    </tr>
+                    <tr>
+                        <td>Certificate Format</td>
+                        <td>
+                            <asp:DropDownList ID="resCertFormatsCB" runat="server">
+                                <asp:ListItem Value="None">Select Format</asp:ListItem>
+                                <asp:ListItem Value="P">Certificate of Participation</asp:ListItem>
+                                <asp:ListItem Value="M">Certificate of Merit</asp:ListItem>
+                                <asp:ListItem Value="E">Certificate of Excellence</asp:ListItem>
+                                <asp:ListItem Value="R">Certificate of Recognition</asp:ListItem>
+                                <asp:ListItem Value="T">Certificate of Training</asp:ListItem>
+                            </asp:DropDownList>
+                        </td>
+                        <td><telerik:RadButton id="resDownloadFormatsBtn" runat="server" Text="Download Formats" OnClick="resDownloadFormatsBtn_Click"></telerik:RadButton></td>
                     </tr>
                     <tr>
                         <td colspan="2"><telerik:RadButton runat="server" Text="Register" OnClick="resRegisterBtn_Click"></telerik:RadButton></td>

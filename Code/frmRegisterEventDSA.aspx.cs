@@ -16,15 +16,25 @@ using System.IO;
 
 public partial class frmRegisterEventDSA : System.Web.UI.Page
 {
-    String connectionString = ConfigurationManager.ConnectionStrings["TestCS"].ConnectionString;
+    private static int refreshMode = 0;
+    string connectionString = ConfigurationManager.ConnectionStrings["TestCS"].ConnectionString;
     private string folderOnFTPServer = "test";
+
+    protected void Page_Load(object sender, EventArgs e)
+    {
+        if (refreshMode == 1)
+        {
+            showPopup("Event updated!");
+            refreshMode = 0;
+        }
+    }
 
     protected void resERegisterBtn_Click(object sender, EventArgs e)
     {
-        String eventName = redENametxt.Text.Trim();
+        string eventName = redENametxt.Text.Trim();
         DateTime startDate = new DateTime();
         DateTime endDate = new DateTime();
-        String organizedBy = redEOrganizedBy.Text.Trim();
+        string organizedBy = redEOrganizedBy.Text.Trim();
         int allowSubEvents = 0;
         if (redAllowSubEventCB.Checked) allowSubEvents = 1; else allowSubEvents = 0;
 
@@ -65,7 +75,7 @@ public partial class frmRegisterEventDSA : System.Web.UI.Page
 
         registerEvent(eventName, startDate, endDate, organizedBy, allowSubEvents);
     }
-    private int checkIfAlreadyRegistered(String eventName, DateTime startDate, DateTime endDate, string organizedBy)
+    private int checkIfAlreadyRegistered(string eventName, DateTime startDate, DateTime endDate, string organizedBy)
     {
         try 
         {
@@ -87,7 +97,7 @@ public partial class frmRegisterEventDSA : System.Web.UI.Page
             return -1;
         }
     }
-    private void registerEvent(String eventName, DateTime startDate, DateTime endDate, string organizedBy, int allowSubEvents)
+    private void registerEvent(string eventName, DateTime startDate, DateTime endDate, string organizedBy, int allowSubEvents)
     {
         int isActive = 2;
         try 
@@ -123,7 +133,7 @@ public partial class frmRegisterEventDSA : System.Web.UI.Page
         }
     }
 
-    private void showPopup(String text)
+    private void showPopup(string text)
     {
         Response.Write("<script>alert(' " + text + "');</script>");
     }
@@ -134,23 +144,38 @@ public partial class frmRegisterEventDSA : System.Web.UI.Page
         {
             try
             {
-                String ID,pID;
+                int ID, pID;
+                string certType = null;
                 GridDataItem item = e.Item as GridDataItem;
-                ID = item["id"].Text;
-                pID = item["parentEventID"].Text;
-                String query = null;
+                ID = Int32.Parse(item["id"].Text);
+                pID = Int32.Parse(item["parentEventID"].Text);
+                GridDataItem row = redSERegRequestRG.MasterTableView.Items[item.ItemIndex];
+                DropDownList ddl = row.FindControl("redCertFormatsCB") as DropDownList;
+                certType = (string) ddl.SelectedValue;
+                if(certType == "None" && e.CommandName == "Approve")
+                {
+                    showPopup("Select a Certificate Format!");
+                    return;
+                }
+
+                string query = null;
                 int status = 0;
                 if (e.CommandName == "Approve")
                     status = 2;
                 if (e.CommandName == "Reject")
                     status = -1;
-                query = "UPDATE dbo.EventMaster SET EventStatus=@ST WHERE id=@ID AND ParentEventID=@PID";
+
+                query = "UPDATE dbo.EventMaster SET EventStatus=@ST, CertificateType=@CT WHERE id=@ID AND ParentEventID=@PID";
                 using (SqlConnection connection = new SqlConnection(connectionString))
                 {
                     SqlCommand command = new SqlCommand(query, connection);
                     command.Parameters.Add("@ST", SqlDbType.Int).Value = status;
                     command.Parameters.Add("@ID", SqlDbType.Int).Value = ID;
                     command.Parameters.Add("@PID", SqlDbType.Int).Value = pID;
+                    if(certType == "None")
+                        command.Parameters.Add("@CT", SqlDbType.VarChar).Value = DBNull.Value;
+                    else
+                        command.Parameters.Add("@CT", SqlDbType.VarChar).Value = certType;
                     connection.Open();
                     int rowsAffected = command.ExecuteNonQuery();
                     if (rowsAffected <= 0)
@@ -159,6 +184,7 @@ public partial class frmRegisterEventDSA : System.Web.UI.Page
                     }
                     else
                     {
+                        refreshMode = 1;
                         Response.Redirect(Request.RawUrl);
                     }
                 }
@@ -176,7 +202,7 @@ public partial class frmRegisterEventDSA : System.Web.UI.Page
         {
             try
             {
-                String ID, pID;
+                string ID, pID;
                 GridDataItem item = e.Item as GridDataItem;
                 ID = item["id"].Text;
 
@@ -236,10 +262,10 @@ public partial class frmRegisterEventDSA : System.Web.UI.Page
         {
             try
             {
-                String ID;
+                string ID;
                 GridDataItem item = e.Item as GridDataItem;
                 ID = item["id"].Text;
-                String query = "UPDATE EventMaster SET EventStatus = 4 WHERE id = @ID";
+                string query = "UPDATE EventMaster SET EventStatus = 4 WHERE id = @ID";
                 using (SqlConnection connection = new SqlConnection(connectionString))
                 {
                     SqlCommand command = new SqlCommand(query, connection);
@@ -273,7 +299,8 @@ public partial class frmRegisterEventDSA : System.Web.UI.Page
             {
                 RadButton approveBtn = item.FindControl("redSEReqAllowBtn") as RadButton;
                 RadButton rejectBtn = item.FindControl("redSEReqRejectBtn") as RadButton;
-                approveBtn.Visible = rejectBtn.Visible = false;
+                DropDownList certTypeDDL = item.FindControl("redCertFormatsCB") as DropDownList;
+                approveBtn.Visible = rejectBtn.Visible = certTypeDDL.Visible = false;
             }
 
             if (eventStatus != 3)

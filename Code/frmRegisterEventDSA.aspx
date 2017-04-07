@@ -50,7 +50,7 @@
                    <GroupingSettings CollapseAllTooltip="Collapse all groups" />
                    <MasterTableView AutoGenerateColumns="False" DataSourceID="SERegReqDS">
                        <Columns>
-                           <telerik:GridBoundColumn DataField="ParentEventName" FilterControlAltText="Filter ParentEventName column" HeaderText="Parent Event Name" SortExpression="ParentEventName" UniqueName="ParentEventName">
+                           <telerik:GridBoundColumn DataField="ParentEventName" display="false" FilterControlAltText="Filter ParentEventName column" HeaderText="Parent Event Name" SortExpression="ParentEventName" UniqueName="ParentEventName">
                             </telerik:GridBoundColumn>
                            <telerik:GridBoundColumn DataField="id" Display="false" FilterControlAltText="Filter id column" HeaderText="Event id" SortExpression="id" UniqueName="id">
                            </telerik:GridBoundColumn>
@@ -64,6 +64,18 @@
                            </telerik:GridBoundColumn>
                            <telerik:GridBoundColumn DataField="ParentEventID" Display="false" FilterControlAltText="Filter ParentEventID column" HeaderText="ParentEvent ID" SortExpression="ParentEventID" UniqueName="ParentEventID">
                            </telerik:GridBoundColumn>
+                           <telerik:GridTemplateColumn HeaderText="Set Certificate Format" UniqueName="CertFormatCol"> 
+                                <ItemTemplate>
+                                    <asp:DropDownList ID="redCertFormatsCB" runat="server">
+                                        <asp:ListItem Value="None">Select Format</asp:ListItem>
+                                        <asp:ListItem Value="P">Certificate of Participation</asp:ListItem>
+                                        <asp:ListItem Value="M">Certificate of Merit</asp:ListItem>
+                                        <asp:ListItem Value="E">Certificate of Excellence</asp:ListItem>
+                                        <asp:ListItem Value="R">Certificate of Recognition</asp:ListItem>
+                                        <asp:ListItem Value="T">Certificate of Training</asp:ListItem>
+                                    </asp:DropDownList>
+                                </ItemTemplate>
+                            </telerik:GridTemplateColumn>
                            <telerik:GridTemplateColumn HeaderText="Approve Registeration" UniqueName="ButtonColumn1"> 
                                 <ItemTemplate>
                                     <telerik:RadButton ID="redSEReqAllowBtn" runat="server" Text="Approve" CommandName="Approve"/>
@@ -97,7 +109,7 @@
                     </GroupByExpressions>
                    </MasterTableView>
                </telerik:RadGrid>
-             <asp:SqlDataSource ID="SERegReqDS" runat="server" ConnectionString="<%$ ConnectionStrings:TestCS %>" SelectCommand="SELECT em1.EventName[EventName], em1.StartDate[StartDate], em1.EventStatus[EventStatus], em1.OrganisedBy[OrganizedBy], em1.id[id], em2.EventName[ParentEventName] FROM EventMaster em1 INNER JOIN dbo.EventMaster em2 ON em1.parentEventId = em2.id WHERE em1.parentEventID IS NOT null AND EventStatus IN (0,2,3)"></asp:SqlDataSource>
+             <asp:SqlDataSource ID="SERegReqDS" runat="server" ConnectionString="<%$ ConnectionStrings:TestCS %>" SelectCommand="SELECT em1.EventName[EventName], em1.StartDate[StartDate], em1.EventStatus[EventStatus], em1.OrganisedBy[OrganisedBy], em1.id[id], em2.EventName[ParentEventName], em2.id[ParentEventID] FROM EventMaster em1 INNER JOIN dbo.EventMaster em2 ON em1.parentEventId = em2.id WHERE em1.parentEventID IS NOT null AND em1.EventStatus IN (0,2,3)"></asp:SqlDataSource>
          </telerik:RadPageView>
     </telerik:RadMultiPage> 
 </asp:Content>
