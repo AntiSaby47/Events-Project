@@ -13,86 +13,109 @@ using Telerik.Web.UI;
 using FtpClient;
 using System.Net;
 using System.IO;
+using Microsoft.Reporting.WebForms;
 
 public partial class frmEventsManage_PrintCerts : System.Web.UI.Page
 {
+    private static int refreshMode = 0;
     String connectionString = ConfigurationManager.ConnectionStrings["TestCS"].ConnectionString;
     private string folderOnFTPServer = "test";
 
     protected void Page_Load(object sender, EventArgs e)
     {
-
+        if (refreshMode == 1)
+        {
+            showPopup("Data updated!");
+            refreshMode = 0;
+        }
     }
-
 
     protected void repPrintCertsRG_ItemCommand(object sender, Telerik.Web.UI.GridCommandEventArgs e)
     {
-        if (e.CommandName == "DownloadExcel")
+        if (e.CommandName == "DownloadPDF")
         {
-            try
+            CreatePDF("report");
+        }
+
+        else if (e.CommandName == "MarkPrinted")
+        {
+            int ID, pID;
+            GridDataItem item = e.Item as GridDataItem;
+            ID = Int32.Parse(item["id"].Text);
+            string query = "UPDATE EventMaster SET EventStatus = 4 WHERE id=@ID";
+            using (SqlConnection connection = new SqlConnection(connectionString))
             {
-                String ID;
-                GridDataItem item = e.Item as GridDataItem;
-                ID = item["id"].Text;
-
-                string query = "SELECT ExcelName FROM EventMaster " +
-                "WHERE ID = @ID";
-
-                DataTable data = new DataTable();
-                using (SqlConnection connection = new SqlConnection(connectionString))
+                SqlCommand command = new SqlCommand(query, connection);
+                command.Parameters.Add("@ID", SqlDbType.Int).Value = ID;
+                connection.Open();
+                int rowsAffected = command.ExecuteNonQuery();
+                if (rowsAffected <= 0)
                 {
-                    SqlCommand selectCommand = new SqlCommand(query, connection);
-                    selectCommand.Parameters.AddWithValue("@ID", ID);
-                    SqlDataAdapter adapter = new SqlDataAdapter(selectCommand);
-                    connection.Open();
-                    adapter.Fill(data);
-                    selectCommand.Dispose();
+                    Response.Write("<script>alert('Something went wrong while updating data!');</script>");
                 }
-
-                string fileName = "";
-                if (data.Rows.Count == 1)
-                {
-                    if (data.Rows[0]["ExcelName"] != System.DBNull.Value)
-                        fileName = (string)data.Rows[0]["ExcelName"];
-                    else
-                    {
-                        showPopup("Something went wrong while fetching the file. Please try again.[1]");
-                        return;
-                    }
-                }
-
                 else
                 {
-                    showPopup("Something went wrong while fetching the file. Please try again.[2]");
-                    return;
+                    refreshMode = 1;
+                    Response.Redirect(Request.RawUrl);
                 }
-
-                FtpService ftpClient = new FtpService();
-                FtpService.FtpCredentials credentials = FtpUserPassword.GetUMSFtpCredentials();
-                FtpWebResponse response = ftpClient.DowloadFile(folderOnFTPServer, fileName, FtpUserPassword.GetUMSFtpCredentials());
-
-                using (MemoryStream stream = new MemoryStream())
-                {
-                    response.GetResponseStream().CopyTo(stream);
-                    Response.AddHeader("content-disposition", "attachment;filename=" + fileName);
-                    Response.Cache.SetCacheability(HttpCacheability.NoCache);
-                    Response.BinaryWrite(stream.ToArray());
-                    Response.End();
-                }
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine("Exception: " + ex.Message);
-                showPopup("Something went wrong while fetching the file. Please try again [3].");
             }
         }
     }
 
-    protected void repPrintCertsRG_ItemDataBound(object sender, Telerik.Web.UI.GridItemEventArgs e)
+    private void CreatePDF(string fileName)
     {
+        try
+        {
+            // Variables
+            Warning[] warnings;
+            string[] streamIds;
+            string mimeType = string.Empty;
+            string encoding = string.Empty;
+            string extension = string.Empty;
 
 
+            // Setup the report viewer object and get the array of bytes
+            ReportViewer viewer = new ReportViewer();
+            viewer.ProcessingMode = ProcessingMode.Local;
+            viewer.LocalReport.ReportPath = Server.MapPath("~/Reports/Certificate.rdl");
+
+            string conString = ConfigurationManager.ConnectionStrings["TestCS"].ConnectionString;
+
+            SqlCommand cmd = new SqlCommand("SELECT * from EventCertificates");
+            DataTable table = new DataTable();
+            using (SqlConnection con = new SqlConnection(conString))
+            {
+                using (SqlDataAdapter sda = new SqlDataAdapter())
+                {
+                    cmd.Connection = con;
+                    sda.SelectCommand = cmd;
+                    sda.Fill(table);
+                }
+            }
+
+            System.Diagnostics.Debug.WriteLine("Size: " + table.Rows.Count);
+            ReportDataSource datasource = new ReportDataSource("NewEventsDataSet", table);
+            viewer.LocalReport.DataSources.Clear();
+            viewer.LocalReport.DataSources.Add(datasource);
+
+            byte[] bytes = viewer.LocalReport.Render("PDF", null, out mimeType, out encoding, out extension, out streamIds, out warnings);
+
+            // Now that you have all the bytes representing the PDF report, buffer it and send it to the client.
+            Response.Buffer = true;
+            Response.Clear();
+            Response.ContentType = mimeType;
+            Response.AddHeader("content-disposition", "attachment; filename=" + fileName + "." + extension);
+            Response.BinaryWrite(bytes); // create the file
+            Response.Flush(); // send it to the client to download
+        }
+        catch(Exception ex)
+        {
+            Debug.WriteLine(ex.Message);
+            showPopup("Something went wrong while generating the PDF!");
+        }
     }
+
+
 
     private void showPopup(String text)
     {

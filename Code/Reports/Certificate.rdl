@@ -108,7 +108,7 @@
                                 </Paragraph>
                               </Paragraphs>
                               <rd:DefaultName>name</rd:DefaultName>
-                              <Top>2.19837in</Top>
+                              <Top>2.32337in</Top>
                               <Left>2.16179in</Left>
                               <Height>0.25in</Height>
                               <Width>3.43525in</Width>
@@ -1100,7 +1100,6 @@
                             </Border>
                           </Style>
                         </Rectangle>
-                        <rd:Selected>true</rd:Selected>
                       </CellContents>
                     </TablixCell>
                   </TablixCells>

@@ -19,7 +19,7 @@ public partial class frmRegisterEventSchool : System.Web.UI.Page
 {
     private string connectionString = ConfigurationManager.ConnectionStrings["TestCS"].ConnectionString;
     private static string parentID;
-    private static string mode; //Event or Sub Event. Choosen through Combo box
+    private static string mode, uploadDataMode; //Event or Sub Event. Choosen through Combo box
     private string folderOnFTPServer = "test";
     private static int id = -47;
     private static int refreshMode = 0;
@@ -30,17 +30,30 @@ public partial class frmRegisterEventSchool : System.Web.UI.Page
             showPopup("Event registered. Note down the Event name and start date. You\\'ll need it while uploading event data.");
             refreshMode = 0;
         }
+
+        else if (refreshMode == 2)
+        {
+            showPopup("Could not find events/sub-events!");
+            refreshMode = 0;
+        }
+
+        else if (refreshMode == 3)
+        {
+            showPopup("File Uploaded Successfully!");
+            refreshMode = 0;
+        }
     }
 
     protected void resETypeCombo_SelectedIndexChanged(object sender, Telerik.Web.UI.RadComboBoxSelectedIndexChangedEventArgs e)
     {
-        mode = resETypeCombo.SelectedItem.Text;
-        if ( resETypeCombo.SelectedItem.Text == "Event" )
+        int index = resETypeCombo.SelectedIndex;
+        mode = index == 0 ? "Event" : "Sub Event";
+        if (mode == "Event")
         {
             resSEventPanel.Visible = false;
             resEventPanel.Visible = true;
         }
-        else if ( resETypeCombo.SelectedItem.Text == "Sub Event" )
+        else if (mode == "Sub Event")
         {
             resEventPanel.Visible = false;
             resSEventPanel.Visible = true;
@@ -88,7 +101,6 @@ public partial class frmRegisterEventSchool : System.Web.UI.Page
         DateTime startDate = new DateTime();
         DateTime endDate = new DateTime();
         string organizedBy = null;
-        string certificateType = null;
 
         if (mode == "Event")
         {
@@ -111,15 +123,15 @@ public partial class frmRegisterEventSchool : System.Web.UI.Page
             }
             organizedBy = resEOrganizedBy.Text;
             parentID = null;
-            certificateType = resCertFormatsCB.SelectedValue;
-            if(certificateType == "None")
-            {
-                showPopup("Select a Certificate Format!");
-                return;
-            }
         }
         else if (mode == "Sub Event")
         {
+            if (resENameCombo.SelectedIndex < 0)
+            {
+                showPopup("Select an Event!");
+                return;
+            }
+
             eventName = resSENameTxt.Text.Trim();
             if (eventName.Length < 3)
             {
@@ -157,7 +169,7 @@ public partial class frmRegisterEventSchool : System.Web.UI.Page
             showPopup("Event already registered");
             return;
         }
-        registerEvent(eventName, startDate, endDate, organizedBy, parentID, certificateType);
+        registerEvent(eventName, startDate, endDate, organizedBy, parentID);
     }
     private int checkIfAlreadyRegistered(string eventName, DateTime startDate, DateTime endDate, string organizedBy)
     {
@@ -182,7 +194,7 @@ public partial class frmRegisterEventSchool : System.Web.UI.Page
         }
     }
 
-    private void registerEvent(string eventName, DateTime startDate, DateTime endDate, string organizedBy, string parentID, string certificateType)
+    private void registerEvent(string eventName, DateTime startDate, DateTime endDate, string organizedBy, string parentID)
     {
         int isActive;
 
@@ -195,7 +207,7 @@ public partial class frmRegisterEventSchool : System.Web.UI.Page
         using (SqlConnection connection = new SqlConnection(connectionString))
         {
             {
-                SqlCommand cmd = new SqlCommand("INSERT INTO EventMaster(EventName, StartDate, EndDate, EventStatus, OrganisedBy,ParentEventID, CertificateType) VALUES(@EN, @SD, @ED, @AT, @OB, @pID, @CT)", connection);
+                SqlCommand cmd = new SqlCommand("INSERT INTO EventMaster(EventName, StartDate, EndDate, EventStatus, OrganisedBy,ParentEventID) VALUES(@EN, @SD, @ED, @AT, @OB, @pID)", connection);
                 cmd.Parameters.Add("@EN", SqlDbType.VarChar).Value = eventName;
                 cmd.Parameters.Add("@SD", SqlDbType.DateTime).Value = startDate;
                 cmd.Parameters.Add("@ED", SqlDbType.DateTime).Value = endDate;
@@ -206,12 +218,6 @@ public partial class frmRegisterEventSchool : System.Web.UI.Page
                     cmd.Parameters.AddWithValue("@pID", parentID);
                 else
                     cmd.Parameters.AddWithValue("@pID", DBNull.Value);
-
-                if (!string.IsNullOrEmpty(certificateType))
-                    cmd.Parameters.AddWithValue("@CT", certificateType);
-                else
-                    cmd.Parameters.AddWithValue("@CT", DBNull.Value);
-
                 connection.Open();
                 int rowsAffected = cmd.ExecuteNonQuery();
                 if (rowsAffected <= 0)
@@ -233,103 +239,7 @@ public partial class frmRegisterEventSchool : System.Web.UI.Page
 
     protected void resStatusRG_ItemCommand(object sender, Telerik.Web.UI.GridCommandEventArgs e)
     {
-        if (e.CommandName == "UploadExcel")
-        {
-            GridDataItem item = e.Item as GridDataItem;
-            try
-            {
-                id = Int32.Parse(item["id"].Text);
-                Debug.WriteLine("ID;"  + id);
-            }
-            catch (System.FormatException ex)
-            {
-                showPopup("Something went wrong while parsing Event ID. Please try again.");
-            }
-            
-            if (checkIfExcelUploaded(id))
-                showPopup("Excel already uploaded!");
-            else
-                resPopUp.Show();
-        }
-    }
-
-    protected void ButtonOk_Click(object sender, EventArgs e)
-    {
-        //after certificate is uploaded and 'Ok' is clicked in pop up.
-        try
-        {
-            string fileName = resImageFU.FileName;
-            FtpService ftpClient = new FtpService();
-            FtpService.FtpCredentials credentials = FtpUserPassword.GetUMSFtpCredentials();
-
-            byte[] fileData = null;
-            if (!string.IsNullOrEmpty(fileName))
-            {
-                using (BinaryReader binaryReader = new BinaryReader(resImageFU.PostedFile.InputStream))
-                {
-                    fileData = binaryReader.ReadBytes(resImageFU.PostedFile.ContentLength);
-                }
-            }
-
-            fileName = System.Text.RegularExpressions.Regex.Replace(fileName, "[^a-zA-Z0-9.]", "_"); //special characters in filename replaced with '_'
-            fileName = fileName.Replace(' ', '_'); // White spaces in filename replaced with '_'.
-            string fullPath = credentials.Url + folderOnFTPServer + "/" + fileName;
-
-            string result = ftpClient.UploadFile(folderOnFTPServer, fileName, fileData, credentials);
-
-            if (result.Trim().StartsWith("226 Successfully transferred"))
-            {
-                Debug.WriteLine("Uploaded");
-            }
-            else if (result.Trim() == "File Already Exists")
-            {
-                showPopup("An Excel file already exists with the same name. Please rename the file and try again.");
-                return;
-            }
-            else
-            {
-                Debug.WriteLine(result);
-                showPopup("Something went wrong while uploading the file. Please try again.");
-                return;
-            }
-
-            Debug.WriteLine("ID: "+id);
-            string query = "UPDATE EventMaster SET " +
-                    "ExcelName = @ExcelName, " +
-                    "EventStatus = 3 " +
-                    "WHERE ID = @ID";
-
-            int rowsAffected = 0;
-
-            using (SqlConnection connection = new SqlConnection(connectionString))
-            {
-                SqlCommand command = new SqlCommand(query, connection);
-                command.Parameters.Add("@ExcelName", SqlDbType.VarChar).Value = fileName;
-                command.Parameters.Add("@ID", SqlDbType.Int).Value = id;
-                Debug.WriteLine(command.CommandText);
-                connection.Open();
-                rowsAffected = command.ExecuteNonQuery();
-                command.Dispose();
-            }
-
-            if (rowsAffected <= 0)
-            {
-                showPopup("Something went wrong while uploading the file. Please try again. [2]");
-                return;
-            }
-            else
-            {
-                showPopup("File Uploaded!");
-                Response.Redirect(Request.RawUrl);
-            }
-        }
-
-        catch (Exception ex)
-        {
-            Debug.WriteLine("Exception: " + ex.Message);
-            showPopup("Something went wrong. Please try again.");
-            return;
-        }
+        
     }
 
     protected void resStatusRG_ItemDataBound(object sender, GridItemEventArgs e)
@@ -338,11 +248,6 @@ public partial class frmRegisterEventSchool : System.Web.UI.Page
         {
             GridDataItem item = e.Item as GridDataItem;
             int eventStatus = Int32.Parse(item["EventStatus"].Text);
-            if (eventStatus != 2)
-            {
-                RadButton uploadBtn = item.FindControl("resExcelBtn") as RadButton;
-                uploadBtn.Visible = false;
-            }
         }
     }
 
@@ -395,4 +300,177 @@ public partial class frmRegisterEventSchool : System.Web.UI.Page
             Response.End();
         }
     }
+    protected void resUDEventTypeCB_SelectedIndexChanged(object sender, RadComboBoxSelectedIndexChangedEventArgs e)
+    {
+        udrowEvent.Visible = udrowDDL.Visible = udrowFU.Visible = udrowBtn.Visible = udrowSubEvent.Visible = false;
+
+        int index = resUDEventTypeCB.SelectedIndex;
+        uploadDataMode = index == 0 ? "Event" : "Sub Event";
+        if (uploadDataMode == "Event")
+            udrowEvent.Visible = udrowDDL.Visible = udrowFU.Visible = udrowBtn.Visible = true;
+        else if (uploadDataMode == "Sub Event")
+            udrowEvent.Visible = udrowDDL.Visible = udrowFU.Visible = udrowBtn.Visible = udrowSubEvent.Visible = true;
+
+        resUDEventCB.ClearSelection();
+        resUDEventCB.Items.Clear();
+        resUDSubEventCB.ClearSelection();
+        resUDSubEventCB.Items.Clear();
+        try
+        {
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+                SqlCommand selectCommand = new SqlCommand("SELECT id, EventName FROM EventMaster WHERE ParentEventID IS NULL AND EventStatus = 2", connection);
+                SqlDataAdapter adapter = new SqlDataAdapter(selectCommand);
+                DataTable types = new DataTable();
+                adapter.Fill(types);
+                if (types.Rows.Count <= 0)
+                {
+                    refreshMode = 2;
+                    Response.Redirect(Request.RawUrl);
+                    return;
+                }
+                List<RadComboBoxItemData> result = new List<RadComboBoxItemData>(types.Rows.Count);
+                foreach (DataRow row in types.Rows)
+                {
+                    RadComboBoxItem itemData = new RadComboBoxItem();
+                    itemData.Value = row["id"].ToString();
+                    itemData.Text = row["EventName"].ToString();
+                    resUDEventCB.Items.Add(itemData);
+                }
+            }
+        }
+
+        catch (Exception ex)
+        {
+            udrowEvent.Visible = udrowDDL.Visible = udrowFU.Visible = udrowBtn.Visible = udrowSubEvent.Visible = false;
+            Debug.WriteLine(ex.Message);
+            showPopup("Something went wrong while loading events for uploading file!");
+        }
+    }
+
+
+    protected void resUDEventCB_SelectedIndexChanged(object sender, RadComboBoxSelectedIndexChangedEventArgs e)
+    {
+        resUDSubEventCB.ClearSelection();
+        resUDSubEventCB.Items.Clear();
+
+        if (uploadDataMode == "Event")
+            return;
+        try
+        {
+            int eventID = Int32.Parse(resUDEventCB.SelectedValue);
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+                SqlCommand selectCommand = new SqlCommand("SELECT id, EventName FROM EventMaster WHERE ParentEventID = @PID AND EventStatus = 2", connection);
+                selectCommand.Parameters.Add("@PID", SqlDbType.Int).Value = eventID;
+                SqlDataAdapter adapter = new SqlDataAdapter(selectCommand);
+                DataTable types = new DataTable();
+                adapter.Fill(types);
+                if(types.Rows.Count <= 0)
+                {
+                    refreshMode = 2;
+                    Response.Redirect(Request.RawUrl);
+                    return;
+                }
+                List<RadComboBoxItemData> result = new List<RadComboBoxItemData>(types.Rows.Count);
+                foreach (DataRow row in types.Rows)
+                {
+                    RadComboBoxItem itemData = new RadComboBoxItem();
+                    itemData.Value = row["id"].ToString();
+                    itemData.Text = row["EventName"].ToString();
+                    resUDSubEventCB.Items.Add(itemData);
+                }
+            }
+        }
+
+        catch(FormatException ex)
+        {
+            Debug.WriteLine(ex.Message);
+            showPopup("Something went wrong while loading sub-events for uploading file!");
+        }
+        
+    }
+    protected void resUDUploadBtn_Click(object sender, EventArgs e)
+    {
+        try
+        {
+            string eventID = resUDEventCB.SelectedValue;
+            string subEventID = resUDSubEventCB.SelectedValue;
+            string certificateType = null;
+            int id = Int32.Parse(uploadDataMode == "Event" ? eventID : subEventID);
+            certificateType = resUDCertFormatsDDL.SelectedValue;
+            if (certificateType == "None")
+            {
+                showPopup("Select a Certificate Format!");
+                return;
+            }
+
+            string fileName = resUDDataFileFU.FileName;
+            if (String.IsNullOrEmpty(fileName))
+            {
+                showPopup("Select a file to upload!");
+                return;
+            }
+            String ext = System.IO.Path.GetExtension(fileName);
+            if (ext.ToLower() != ".xls" && ext.ToLower() != ".xlsx")
+            {
+                showPopup("Select a valid excel file to upload!");
+                return;
+            }
+
+            fileName = System.Text.RegularExpressions.Regex.Replace(fileName, "[^a-zA-Z0-9.]", "_");
+            fileName = fileName.Replace(' ', '_');
+            fileName = id + "_" + certificateType + "_" + fileName;
+            FtpService ftpClient = new FtpService();
+            FtpService.FtpCredentials credentials = FtpUserPassword.GetUMSFtpCredentials();
+            byte[] fileData = null;
+            using (BinaryReader binaryReader = new BinaryReader(resUDDataFileFU.PostedFile.InputStream))
+            {
+                fileData = binaryReader.ReadBytes(resUDDataFileFU.PostedFile.ContentLength);
+            }
+
+            string result = ftpClient.UploadFile(folderOnFTPServer, fileName, fileData, credentials);
+            if (result.Trim().StartsWith("226 Successfully transferred"))
+            {
+                Debug.WriteLine("Uploaded");
+            }
+            else if (result.Trim() == "File Already Exists")
+            {
+                showPopup("An Excel file already exists with the same name. Please rename the file and try again.");
+                return;
+            }
+            else
+            {
+                Debug.WriteLine(result);
+                showPopup("Something went wrong while uploading the file. Please try again.");
+                return;
+            }
+
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                SqlCommand cmd = new SqlCommand("UPDATE EventMaster SET ExcelName = @EN WHERE ID = @ID AND EventStatus = 2", connection);
+                cmd.Parameters.Add("@EN", SqlDbType.VarChar).Value = fileName;
+                cmd.Parameters.Add("@ID", SqlDbType.Int).Value = id;
+                connection.Open();
+                int rowsAffected = cmd.ExecuteNonQuery();
+                if (rowsAffected <= 0)
+                    showPopup("Couldn\\'t upload file. Please reopen the page and try again.");
+                else
+                {
+                    refreshMode = 3; //Show File Uploaded Popup
+                    Response.Redirect(Request.RawUrl);
+                }
+                cmd.Dispose();
+            }
+        }
+        catch(Exception ex)
+        {
+            Debug.WriteLine(ex.Message);
+            showPopup("Something went wrong while uploading the file.");
+        }
+
+    }
+
 }

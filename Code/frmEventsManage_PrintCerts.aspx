@@ -16,7 +16,7 @@
     </telerik:RadTabStrip>
     <telerik:RadMultiPage ID="RadMultiPage1" runat="server" SelectedIndex="0">
         <telerik:RadPageView ID="RadPageView1" runat="server">
-            <telerik:RadGrid ID="repPrintCertsRG" runat="server" AllowFilteringByColumn="True" AllowPaging="True" AllowSorting="True" DataSourceID="repDS" GroupPanelPosition="Top" OnItemCommand="repPrintCertsRG_ItemCommand" OnItemDataBound="repPrintCertsRG_ItemDataBound">
+            <telerik:RadGrid ID="repPrintCertsRG" runat="server" AllowFilteringByColumn="True" AllowPaging="True" AllowSorting="True" DataSourceID="repDS" GroupPanelPosition="Top" OnItemCommand="repPrintCertsRG_ItemCommand">
                 <GroupingSettings CollapseAllTooltip="Collapse all groups" />
                 <MasterTableView AutoGenerateColumns="False" DataSourceID="repDS">
                     <Columns>
@@ -26,17 +26,23 @@
                         </telerik:GridBoundColumn>
                         <telerik:GridBoundColumn DataField="EventName" FilterControlAltText="Filter EventName column" HeaderText="Event Name" SortExpression="EventName" UniqueName="EventName">
                         </telerik:GridBoundColumn>
-                        <telerik:GridBoundColumn DataField="EventStatus" DataType="System.Int32" FilterControlAltText="Filter Active column" HeaderText="Event Status" SortExpression="EventStatus" UniqueName="EventStatus">
+                        <telerik:GridBoundColumn DataField="EventStatus" Display="false" DataType="System.Int32" FilterControlAltText="Filter Active column" HeaderText="Event Status" SortExpression="EventStatus" UniqueName="EventStatus">
                         </telerik:GridBoundColumn>
                         <telerik:GridBoundColumn DataField="StartDate" DataType="System.DateTime" DataFormatString="{0:dd/MM/yyyy}" FilterControlAltText="Filter StartDate column" HeaderText="Start Date" SortExpression="StartDate" UniqueName="StartDate">
                         </telerik:GridBoundColumn>
                         <telerik:GridBoundColumn DataField="OrganisedBy" FilterControlAltText="Filter OrganisedBy column" HeaderText="OrganisedBy" SortExpression="Organised By" UniqueName="OrganisedBy">
                         </telerik:GridBoundColumn>
-                        <telerik:GridTemplateColumn HeaderText="Download Excel File" UniqueName="DownloadExcelFile"> 
+                        <telerik:GridTemplateColumn HeaderText="Download PDF" UniqueName="DownloadPDF"> 
                             <ItemTemplate>
-                                <telerik:RadButton ID="repDownloadBtn" runat="server" Text="Download Excel File" CommandName="DownloadExcel"/>
+                                <telerik:RadButton ID="repDownloadBtn" runat="server" Text="Download PDF" CommandName="DownloadPDF"/>
                             </ItemTemplate>
                         </telerik:GridTemplateColumn>
+                        <telerik:GridTemplateColumn HeaderText="Mark Printed" UniqueName="MarkPrinted"> 
+                            <ItemTemplate>
+                                <telerik:RadButton ID="repMarkPrintedBtn" runat="server" Text="Mark Printed" CommandName="MarkPrinted"/>
+                            </ItemTemplate>
+                        </telerik:GridTemplateColumn>
+
                     </Columns>
                     <GroupByExpressions>
                     <telerik:GridGroupByExpression>
@@ -50,7 +56,7 @@
                 </GroupByExpressions>
                 </MasterTableView>
             </telerik:RadGrid>
-            <asp:SqlDataSource ID="repDS" runat="server" ConnectionString="<%$ ConnectionStrings:TestCS %>" SelectCommand="SELECT em1.EventName[EventName], em1.StartDate[StartDate], em1.EventStatus[EventStatus], em1.OrganisedBy[OrganisedBy], em1.id[id], em2.EventName[ParentEventName] FROM EventMaster em1 INNER JOIN dbo.EventMaster em2 ON em1.parentEventId = em2.id WHERE em1.parentEventID IS NOT null AND em1.EventStatus = 4"></asp:SqlDataSource>
+            <asp:SqlDataSource ID="repDS" runat="server" ConnectionString="<%$ ConnectionStrings:TestCS %>" SelectCommand="SELECT em1.EventName[EventName], em1.StartDate[StartDate], em1.EventStatus[EventStatus], em1.OrganisedBy[OrganisedBy], em1.id[id], em2.EventName[ParentEventName] FROM EventMaster em1 INNER JOIN dbo.EventMaster em2 ON em1.parentEventId = em2.id WHERE em1.parentEventID IS NOT null AND em1.EventStatus = 3 AND em1.ExcelName IS NOT NULL"></asp:SqlDataSource>
         </telerik:RadPageView>
         <telerik:RadPageView ID="RadPageView2" runat="server">
 

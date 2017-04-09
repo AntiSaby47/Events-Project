@@ -13,12 +13,15 @@ using Telerik.Web.UI;
 using FtpClient;
 using System.Net;
 using System.IO;
+using System.Data.OleDb;
+using System.Data.Common;
 
 public partial class frmRegisterEventDSA : System.Web.UI.Page
 {
     private static int refreshMode = 0;
     string connectionString = ConfigurationManager.ConnectionStrings["TestCS"].ConnectionString;
     private string folderOnFTPServer = "test";
+    private string TEMP_FOLDER_PATH = "~/Temp/";
 
     protected void Page_Load(object sender, EventArgs e)
     {
@@ -145,18 +148,9 @@ public partial class frmRegisterEventDSA : System.Web.UI.Page
             try
             {
                 int ID, pID;
-                string certType = null;
                 GridDataItem item = e.Item as GridDataItem;
                 ID = Int32.Parse(item["id"].Text);
                 pID = Int32.Parse(item["parentEventID"].Text);
-                GridDataItem row = redSERegRequestRG.MasterTableView.Items[item.ItemIndex];
-                DropDownList ddl = row.FindControl("redCertFormatsCB") as DropDownList;
-                certType = (string) ddl.SelectedValue;
-                if(certType == "None" && e.CommandName == "Approve")
-                {
-                    showPopup("Select a Certificate Format!");
-                    return;
-                }
 
                 string query = null;
                 int status = 0;
@@ -165,17 +159,13 @@ public partial class frmRegisterEventDSA : System.Web.UI.Page
                 if (e.CommandName == "Reject")
                     status = -1;
 
-                query = "UPDATE dbo.EventMaster SET EventStatus=@ST, CertificateType=@CT WHERE id=@ID AND ParentEventID=@PID";
+                query = "UPDATE dbo.EventMaster SET EventStatus=@ST WHERE id=@ID AND ParentEventID=@PID";
                 using (SqlConnection connection = new SqlConnection(connectionString))
                 {
                     SqlCommand command = new SqlCommand(query, connection);
                     command.Parameters.Add("@ST", SqlDbType.Int).Value = status;
                     command.Parameters.Add("@ID", SqlDbType.Int).Value = ID;
                     command.Parameters.Add("@PID", SqlDbType.Int).Value = pID;
-                    if(certType == "None")
-                        command.Parameters.Add("@CT", SqlDbType.VarChar).Value = DBNull.Value;
-                    else
-                        command.Parameters.Add("@CT", SqlDbType.VarChar).Value = certType;
                     connection.Open();
                     int rowsAffected = command.ExecuteNonQuery();
                     if (rowsAffected <= 0)
@@ -262,22 +252,96 @@ public partial class frmRegisterEventDSA : System.Web.UI.Page
         {
             try
             {
-                string ID;
+                string ID, excelName;
                 GridDataItem item = e.Item as GridDataItem;
                 ID = item["id"].Text;
-                string query = "UPDATE EventMaster SET EventStatus = 4 WHERE id = @ID";
+                excelName = item["ExcelName"].Text;
+                string fileExtension = Path.GetExtension(excelName);
+                FtpService ftpClient = new FtpService();
+                FtpService.FtpCredentials credentials = FtpUserPassword.GetUMSFtpCredentials();
+                FtpWebResponse response = ftpClient.DowloadFile(folderOnFTPServer, excelName, FtpUserPassword.GetUMSFtpCredentials());
+
+                string tempFilePath = TEMP_FOLDER_PATH + "/" + "TMP_" + excelName;
+                tempFilePath = Server.MapPath(tempFilePath);
+                using (FileStream fileStream = File.Create(tempFilePath))
+                {
+                    response.GetResponseStream().CopyTo(fileStream);
+                }
+
+                string excelConnString = null;
+                if (fileExtension == ".xls")
+                    excelConnString = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source={0};Extended Properties=\"Excel 8.0;HDR=Yes;IMEX=2\"";
+                else if (fileExtension == ".xlsx")
+                    excelConnString = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source={0};Extended Properties=\"Excel 12.0;HDR=Yes;IMEX=2\"";
+
+                excelConnString = String.Format(excelConnString, tempFilePath);
+                Debug.WriteLine("ExcelString: " + excelConnString);
+
+                using (OleDbConnection excelConnection = new OleDbConnection(excelConnString))
+                {
+                    Debug.WriteLine("CP1");
+                    excelConnection.Open();
+                    //-------------------This block of code checks if the excel file has 1 sheet with name "Sheet1" or not-------------
+                    Debug.WriteLine("CP2");
+                    DataTable dt = new DataTable();
+                    dt = excelConnection.GetOleDbSchemaTable(OleDbSchemaGuid.Tables, null);
+                    if (dt == null)
+                    {
+                        showPopup("No data found in excel sheet!");
+                        return;
+                    }
+
+                    String[] excelSheets = new String[dt.Rows.Count];
+                    for (int i = 0; i < dt.Rows.Count; i++)
+                        excelSheets[i] = dt.Rows[i]["TABLE_NAME"].ToString();
+
+                    if (excelSheets.Length > 1 || excelSheets[0] != "Sheet1$")
+                    {
+                        showPopup("Excel file must only have 1 sheet with the name of `Sheet1`");
+                        return;
+                    }
+                    //-----------------------------------------------------------------------------------------------------------------
+                    //---------------------------------Main processing-----------------------------------------------------------------
+                    string query = "SELECT *, " + ID + " as [EventID], 0 as EventCategoryID from [Sheet1$]";
+                    OleDbCommand command = new OleDbCommand(query, excelConnection);
+                    DbDataReader dr = command.ExecuteReader();
+
+                    using (SqlConnection connection = new SqlConnection(connectionString))
+                    {
+                        connection.Open();
+                        SqlBulkCopy bulkInsert = new SqlBulkCopy(connection);
+                        bulkInsert.DestinationTableName = "EventCertificates";
+                        bulkInsert.ColumnMappings.Add("Reg No", "RegisterationNumber"); // Source(Excel column), Destination(Database Table Column)
+                        bulkInsert.ColumnMappings.Add("Student Name", "StudentName");
+                        bulkInsert.ColumnMappings.Add("Father Name", "FatherName");
+                        bulkInsert.ColumnMappings.Add("Husband Name", "HusbandName");
+                        bulkInsert.ColumnMappings.Add("Program Name", "ProgramName");
+                        bulkInsert.ColumnMappings.Add("College/School", "CollegeOrSchool");
+                        bulkInsert.ColumnMappings.Add("Position", "Position");
+                        bulkInsert.ColumnMappings.Add("Is LPU Student", "IsLPUStudent");
+                        bulkInsert.ColumnMappings.Add("EventID", "EventID");
+                        bulkInsert.WriteToServer(dr);
+                    }
+
+                    dr.Dispose();
+                    command.Dispose();
+                    dt.Dispose();
+                }
+
+                string query2 = "UPDATE EventMaster SET EventStatus = 3 WHERE id = @ID AND EventStatus = 2";
                 using (SqlConnection connection = new SqlConnection(connectionString))
                 {
-                    SqlCommand command = new SqlCommand(query, connection);
-                    command.Parameters.Add("@ID", SqlDbType.Int).Value = ID;
+                    SqlCommand sqlCommand = new SqlCommand(query2, connection);
+                    sqlCommand.Parameters.Add("@ID", SqlDbType.Int).Value = ID;
                     connection.Open();
-                    int rowsAffected = command.ExecuteNonQuery();
+                    int rowsAffected = sqlCommand.ExecuteNonQuery();
                     if (rowsAffected <= 0)
                         showPopup("Something went wrong while approving the file. Please try again later.");
                     else
                         Response.Redirect(Request.RawUrl);
                 }
             }
+
             catch (Exception ex)
             {
                 Debug.WriteLine("Ex: " + ex.Message);
@@ -294,16 +358,16 @@ public partial class frmRegisterEventDSA : System.Web.UI.Page
         {
             GridDataItem item = e.Item as GridDataItem;
             int eventStatus = Int32.Parse(item["EventStatus"].Text);
-
+            string excelName = item["ExcelName"].Text;
+            Debug.WriteLine("Name: " + excelName);
             if(eventStatus != 0)
             {
                 RadButton approveBtn = item.FindControl("redSEReqAllowBtn") as RadButton;
                 RadButton rejectBtn = item.FindControl("redSEReqRejectBtn") as RadButton;
-                DropDownList certTypeDDL = item.FindControl("redCertFormatsCB") as DropDownList;
-                approveBtn.Visible = rejectBtn.Visible = certTypeDDL.Visible = false;
+                approveBtn.Visible = rejectBtn.Visible = false;
             }
 
-            if (eventStatus != 3)
+            if (eventStatus != 2 || excelName == "&nbsp;")
             {
                 RadButton viewBtn = item.FindControl("redExcelBtn") as RadButton;
                 RadButton approveExcelBtn = item.FindControl("redApproveExcelBtn") as RadButton;

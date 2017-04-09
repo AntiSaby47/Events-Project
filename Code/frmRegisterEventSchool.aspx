@@ -33,6 +33,7 @@
         <Tabs>
             <telerik:RadTab runat="server" Text="Initiate Event" Font-Bold="true" Selected="True"></telerik:RadTab>
             <telerik:RadTab runat="server" Text="Check Event Status" Font-Bold="true"></telerik:RadTab>
+            <telerik:RadTab runat="server" Text="Upload Certificate Data" Font-Bold="true"></telerik:RadTab>
         </Tabs>
     </telerik:RadTabStrip>
 
@@ -72,23 +73,7 @@
                         <td>Organized By</td>
                         <td><asp:TextBox ID="resEOrganizedBy" runat="server"></asp:TextBox></td>
                     </tr>
-                    <tr>
-                        <td>Certificate Format</td>
-                        <td>
-                            <asp:DropDownList ID="resCertFormatsCB" runat="server">
-                                <asp:ListItem Value="None">Select Format</asp:ListItem>
-                                <asp:ListItem Value="P">Certificate of Participation</asp:ListItem>
-                                <asp:ListItem Value="M">Certificate of Merit</asp:ListItem>
-                                <asp:ListItem Value="E">Certificate of Excellence</asp:ListItem>
-                                <asp:ListItem Value="R">Certificate of Recognition</asp:ListItem>
-                                <asp:ListItem Value="T">Certificate of Training</asp:ListItem>
-                            </asp:DropDownList>
-                        </td>
-                        <td><telerik:RadButton id="resDownloadFormatsBtn" runat="server" Text="Download Formats" OnClick="resDownloadFormatsBtn_Click"></telerik:RadButton></td>
-                    </tr>
-                    <tr>
-                        <td colspan="2"><telerik:RadButton runat="server" Text="Register" OnClick="resRegisterBtn_Click"></telerik:RadButton></td>
-                    </tr>
+                    <tr><td colspan="2"><telerik:RadButton runat="server" Text="Register" OnClick="resRegisterBtn_Click"></telerik:RadButton></td></tr>
                 </table>
             </asp:Panel>
             </div>
@@ -135,11 +120,6 @@
                         </telerik:GridBoundColumn>
                         <telerik:GridBoundColumn DataField="ParentEventName" FilterControlAltText="Filter ParentEventName column" HeaderText="Parent Event Name" SortExpression="ParentEventName" UniqueName="ParentEventName">
                         </telerik:GridBoundColumn>
-                        <telerik:GridTemplateColumn HeaderText="Upload Excel File" UniqueName="UploadExcelFile"> 
-                                <ItemTemplate>
-                                    <telerik:RadButton ID="resExcelBtn" runat="server" Text="Upload Excel File" CommandName="UploadExcel"/>
-                                </ItemTemplate>
-                        </telerik:GridTemplateColumn>
                     </Columns>
                     <GroupByExpressions>
                         <telerik:GridGroupByExpression>
@@ -153,19 +133,51 @@
                     </GroupByExpressions>
                 </MasterTableView>
             </telerik:RadGrid>
-            <asp:Panel ID="PopupPanel" runat="server" CssClass="modalPopup" style = "display:none">
-                <asp:FileUpload ID="resImageFU" runat="server" />
-                <br />
-                <telerik:RadButton ID="ButtonOk" runat="server" Text="OK" OnClick="ButtonOk_Click" />
-                <telerik:RadButton ID="ButtonCancel" runat="server" Text="Cancel" />
-            </asp:Panel>
-            <ajaxToolkit:ModalPopupExtender ID="resPopUp" runat="server"
-                Enabled="True" TargetControlID="tempButton" PopupControlID="PopupPanel" BackgroundCssClass="modalBackground"
-                CancelControlID="ButtonCancel">
-            </ajaxToolkit:ModalPopupExtender>
-
-            <telerik:RadButton ID="tempButton" runat="server" style="display:none"/>
             <asp:SqlDataSource ID="EventStatusDS" runat="server" ConnectionString="<%$ ConnectionStrings:TestCS %>" SelectCommand="SELECT em1.EventName[EventName], em1.StartDate[StartDate], em1.EventStatus[EventStatus], em1.OrganisedBy[OrganizedBy], em1.id[id], em2.EventName[ParentEventName] FROM EventMaster em1 INNER JOIN dbo.EventMaster em2 ON em1.parentEventId = em2.id "></asp:SqlDataSource>
+        </telerik:RadPageView>
+
+
+        <telerik:RadPageView ID="RadPageView3" runat="server">
+            <table>
+                <tr>
+                    <td>Select Event Type</td>
+                    <td>
+                        <telerik:RadComboBox ID="resUDEventTypeCB" runat="server" AutoPostBack="true" Width="300" EmptyMessage="Choose Event Category" OnSelectedIndexChanged="resUDEventTypeCB_SelectedIndexChanged">
+                            <Items>
+                                <telerik:RadComboBoxItem runat="server" Text="Event"/>
+                                <telerik:RadComboBoxItem runat="server" Text="Sub Event"/>
+                            </Items>
+                        </telerik:RadComboBox>
+                    </td>
+                </tr>
+                <tr runat="server" id="udrowEvent" visible="false">
+                    <td>Event</td>
+                    <td><telerik:RadComboBox ID="resUDEventCB" runat="server" AutoPostBack="true" Width="300" EmptyMessage="Choose Event" OnSelectedIndexChanged="resUDEventCB_SelectedIndexChanged"></telerik:RadComboBox></td>
+                </tr>
+                <tr runat="server" id="udrowSubEvent" visible="false">
+                    <td>Sub-Event</td>
+                    <td><telerik:RadComboBox ID="resUDSubEventCB" runat="server" AutoPostBack="true" Width="300" EmptyMessage="Choose Sub-Event"></telerik:RadComboBox></td>
+                </tr>
+                <tr runat="server" id="udrowDDL" visible="false">
+                    <td>Certificate Format</td>
+                    <td>
+                        <asp:DropDownList ID="resUDCertFormatsDDL" runat="server">
+                            <asp:ListItem Value="None">Select Format</asp:ListItem>
+                            <asp:ListItem Value="P">Certificate of Participation</asp:ListItem>
+                            <asp:ListItem Value="M">Certificate of Merit</asp:ListItem>
+                            <asp:ListItem Value="E">Certificate of Excellence</asp:ListItem>
+                            <asp:ListItem Value="R">Certificate of Recognition</asp:ListItem>
+                            <asp:ListItem Value="T">Certificate of Training</asp:ListItem>
+                        </asp:DropDownList>
+                    </td>
+                    <td><telerik:RadButton id="resDownloadFormatsBtn" runat="server" Text="Download Formats" OnClick="resDownloadFormatsBtn_Click"></telerik:RadButton></td>
+                </tr>
+                <tr runat="server" id="udrowFU" visible="false">
+                    <td>Select Data File</td>
+                    <td><asp:FileUpload runat="server" id="resUDDataFileFU" /></td>
+                </tr>
+                <tr  runat="server" id="udrowBtn" visible="false"><td></td><td><telerik:RadButton id="resUDUploadBtn" runat="server" Text="Upload" OnClick="resUDUploadBtn_Click"></telerik:RadButton></td></tr>
+            </table>
         </telerik:RadPageView>
      </telerik:RadMultiPage>
 </asp:Content>
