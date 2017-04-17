@@ -349,18 +349,26 @@ public partial class frmRegisterEventSchool : System.Web.UI.Page
 
     protected void resDownloadFormatsBtn_Click(object sender, EventArgs e)
     {
-        string fileName = "Events_Certificate_Formats.doc";
-        FtpService ftpClient = new FtpService();
-        FtpService.FtpCredentials credentials = FtpUserPassword.GetUMSFtpCredentials();
-        FtpWebResponse response = ftpClient.DowloadFile(folderOnFTPServer, fileName, FtpUserPassword.GetUMSFtpCredentials());
-
-        using (MemoryStream stream = new MemoryStream())
+        try
         {
-            response.GetResponseStream().CopyTo(stream);
-            Response.AddHeader("content-disposition", "attachment;filename=" + fileName);
-            Response.Cache.SetCacheability(HttpCacheability.NoCache);
-            Response.BinaryWrite(stream.ToArray());
-            Response.End();
+            string fileName = "Events_Certificate_Formats.doc";
+            FtpService ftpClient = new FtpService();
+            FtpService.FtpCredentials credentials = FtpUserPassword.GetUMSFtpCredentials();
+            FtpWebResponse response = ftpClient.DowloadFile(folderOnFTPServer, fileName, FtpUserPassword.GetUMSFtpCredentials());
+
+            using (MemoryStream stream = new MemoryStream())
+            {
+                response.GetResponseStream().CopyTo(stream);
+                Response.AddHeader("content-disposition", "attachment;filename=" + fileName);
+                Response.Cache.SetCacheability(HttpCacheability.NoCache);
+                Response.BinaryWrite(stream.ToArray());
+                Response.End();
+            }
+        }
+        catch(Exception ex)
+        {
+            Debug.WriteLine(ex.Message);
+            showPopup("Something went wrong while downloading certificate formats!");
         }
     }
     protected void resUDEventTypeCB_SelectedIndexChanged(object sender, RadComboBoxSelectedIndexChangedEventArgs e)
@@ -505,7 +513,7 @@ public partial class frmRegisterEventSchool : System.Web.UI.Page
             }
 
             string result = ftpClient.UploadFile(folderOnFTPServer, fileName, fileData, credentials);
-            if (result.Trim().StartsWith("226 Successfully transferred"))
+            if (result.Trim().StartsWith("226") || result.Trim().Contains("Success") || result.Trim().Contains("complete"))
             {
                 Debug.WriteLine("Uploaded");
             }

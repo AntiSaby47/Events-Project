@@ -20,6 +20,7 @@ public partial class frmEventsManage_PrintCerts : System.Web.UI.Page
     private static int refreshMode = 0;
     String connectionString = ConfigurationManager.ConnectionStrings["NewUmsConnectionString"].ConnectionString;
     private string folderOnFTPServer = "test";
+    private static string mode = null;
 
     protected void Page_Load(object sender, EventArgs e)
     {
@@ -77,7 +78,7 @@ public partial class frmEventsManage_PrintCerts : System.Web.UI.Page
             // Setup the report viewer object and get the array of bytes
             ReportViewer viewer = new ReportViewer();
             viewer.ProcessingMode = ProcessingMode.Local;
-            viewer.LocalReport.ReportPath = Server.MapPath("~/Reports/Exellence.rdl");
+            viewer.LocalReport.ReportPath = Server.MapPath("~/Reports/Cert.rdl");
 
             string conString = ConfigurationManager.ConnectionStrings["NewUmsConnectionString"].ConnectionString;
 
@@ -114,10 +115,95 @@ public partial class frmEventsManage_PrintCerts : System.Web.UI.Page
         }
     }
 
-
-
     private void showPopup(String text)
     {
         Response.Write("<script>alert(' " + text + "');</script>");
+    }
+    protected void StudentType_CheckedChanged(object sender, EventArgs e)
+    {
+        if (repLPUStudentRB.Checked)
+        {
+            rowRegNo.Visible = true;
+            rowCertNo.Visible = false;
+            rowButton.Visible = true;
+            mode = "LPUStudent";
+        }
+        else
+        {
+            rowCertNo.Visible = true;
+            rowRegNo.Visible = false;
+            rowButton.Visible = true;
+            mode = "Outsider";
+        }
+    }
+    protected void repFindCertBtn_Click(object sender, EventArgs e)
+    {
+        try
+        {
+            string regNo = repRegNoTB.Text.Trim();
+            string certNo = repCertNoTB.Text.Trim();
+            string query = "";
+            if (mode == "LPUStudent")
+            {
+                query = "SELECT ec.StudentName[StudentName], em2.EventName[ParentEventName], em1.EventName[EventName], Position[Position], CAST(em1.StartDate AS DATE)[StartDate], CAST(em1.EndDate AS DATE)[EndDate], em1.OrganisedBy[OrganisedBy], ec.CertificateType[CertificateType] FROM EventMaster em1 INNER JOIN EventMaster em2 ON em1.ParentEventID = em2.id INNER JOIN EventCertificates ec ON ec.EventID = em1.id WHERE em1.ParentEventID IS NOT NULL AND ec.RegisterationNumber = @RegNo" +
+                        " UNION " +
+                        "SELECT ec.StudentName[StudentName], 'N.A.'[ParentEventName], em1.EventName[EventName], Position[Position], CAST(em1.StartDate AS DATE)[StartDate], CAST(em1.EndDate AS DATE)[EndDate], em1.OrganisedBy[OrganisedBy], ec.CertificateType[CertificateType] FROM EventMaster em1 INNER JOIN EventCertificates ec ON ec.EventID = em1.id WHERE ec.RegisterationNumber = @RegNo AND em1.ParentEventID IS NULL";
+            }
+            else
+            {
+                query = "SELECT ec.StudentName[StudentName], em2.EventName[ParentEventName], em1.EventName[EventName], Position[Position], CAST(em1.StartDate AS DATE)[StartDate], CAST(em1.EndDate AS DATE)[EndDate], em1.OrganisedBy[OrganisedBy], ec.CertificateType[CertificateType] FROM EventMaster em1 INNER JOIN EventMaster em2 ON em1.ParentEventID = em2.id INNER JOIN EventCertificates ec ON ec.EventID = em1.id WHERE em1.ParentEventID IS NOT NULL AND ec.CertificateNumber = @CertNo" +
+                        " UNION " +
+                        "SELECT ec.StudentName[StudentName], 'N.A.'[ParentEventName], em1.EventName[EventName], Position[Position], CAST(em1.StartDate AS DATE)[StartDate], CAST(em1.EndDate AS DATE)[EndDate], em1.OrganisedBy[OrganisedBy], ec.CertificateType[CertificateType] FROM EventMaster em1 INNER JOIN EventCertificates ec ON ec.EventID = em1.id WHERE ec.CertificateNumber = @CertNo AND em1.ParentEventID IS NULL";
+            }
+            DataTable table = new DataTable();
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+                SqlCommand selectCommand = new SqlCommand(query, connection);
+                if (mode == "LPUStudent")
+                    selectCommand.Parameters.Add("@Regno", SqlDbType.VarChar).Value = regNo;
+                else
+                    selectCommand.Parameters.Add("@CertNo", SqlDbType.VarChar).Value = certNo;
+                SqlDataAdapter adapter = new SqlDataAdapter(selectCommand);
+                adapter.Fill(table);
+                repCertInfoRG.DataSource = table;
+                repCertInfoRG.DataBind();
+                repCertInfoRG.Visible = true;
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine(ex.Message);
+            showPopup("Something went wrong while loading data!");
+        }
+    }
+    protected void repCertInfoRG_ItemCommand(object sender, GridCommandEventArgs e)
+    {
+        if(e.CommandName == "DownloadSample")
+        {
+            try
+            {
+                GridDataItem item = e.Item as GridDataItem;
+                string certType = item["CertificateType"].Text;
+                string fileName = "Events_Certificate_Format_" + certType + ".docx";
+                FtpService ftpClient = new FtpService();
+                FtpService.FtpCredentials credentials = FtpUserPassword.GetUMSFtpCredentials();
+                FtpWebResponse response = ftpClient.DowloadFile(folderOnFTPServer, fileName, FtpUserPassword.GetUMSFtpCredentials());
+
+                using (MemoryStream stream = new MemoryStream())
+                {
+                    response.GetResponseStream().CopyTo(stream);
+                    Response.AddHeader("content-disposition", "attachment;filename=" + fileName);
+                    Response.Cache.SetCacheability(HttpCacheability.NoCache);
+                    Response.BinaryWrite(stream.ToArray());
+                    Response.End();
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+                showPopup("Something went wrong while downloading certificate formats!");
+            }
+        }
     }
 }

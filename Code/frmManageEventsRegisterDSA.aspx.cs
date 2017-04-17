@@ -319,7 +319,7 @@ public partial class frmRegisterEventDSA : System.Web.UI.Page
                     //-----------------------------------------------------------------------------------------------------------------
                     //---------------------------------Main processing-----------------------------------------------------------------
                     //string query = "SELECT *, " + ID + " as [EventID]," + certificateType + "[CertificateType], 0 as EventCategoryID from [Sheet1$]";
-                    string query = "SELECT *, @ID[EventID], @CT[CertificateType], 0[EventCategoryID] from [Sheet1$]";
+                    string query = "SELECT *, @ID as [EventID], @CT as [CertificateType], 0 as [EventCategoryID] from [Sheet1$]";
                     OleDbCommand command = new OleDbCommand(query, excelConnection);
                     command.Parameters.Add("@ID", OleDbType.Integer).Value = ID;
                     command.Parameters.Add("@CT", OleDbType.VarChar).Value = certificateType;

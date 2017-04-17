@@ -16,14 +16,18 @@
     <DataSet Name="EventsDataSet">
       <Query>
         <DataSourceName>DataSource1</DataSourceName>
-        <CommandText>SELECT em1.EventName, CAST(em1.StartDate AS DATE)[StartDate],CAST(em1.EndDate AS DATE)[EndDate], em1.OrganisedBy, ec.ID, StudentName, FatherName, HusbandName, CollegeOrSchool, RegisterationNumber, ProgramName, EventCategoryID, Position, IsLPUStudent, ec.CertificateType, em1.ParentEventID, em2.EventName[ParentEventName] FROM EventMaster em1 INNER JOIN EventCertificates ec ON em1.id = ec.EventID INNER JOIN EventMaster em2 ON em1.ParentEventID=em2.id
+        <CommandText>SELECT ec.CertificateNumber[CertificateNumber], em1.EventName, CAST(em1.StartDate AS DATE)[StartDate],CAST(em1.EndDate AS DATE)[EndDate], em1.OrganisedBy, ec.ID, StudentName, FatherName, HusbandName, CollegeOrSchool, RegisterationNumber, ProgramName, EventCategoryID, Position, IsLPUStudent, ec.CertificateType, em1.ParentEventID, em2.EventName[ParentEventName] FROM EventMaster em1 INNER JOIN EventCertificates ec ON em1.id = ec.EventID INNER JOIN EventMaster em2 ON em1.ParentEventID=em2.id
 UNION
-SELECT em1.EventName, CAST(em1.StartDate AS DATE)[StartDate],CAST(em1.EndDate AS DATE)[EndDate], em1.OrganisedBy, ec.ID, StudentName, FatherName, HusbandName, CollegeOrSchool, RegisterationNumber, ProgramName, EventCategoryID, Position, IsLPUStudent, ec.CertificateType, em1.ParentEventID, NULL as [ParentEventName] FROM EventMaster em1 INNER JOIN EventCertificates ec ON em1.id = ec.EventID WHERE ParentEventID IS NULL</CommandText>
+SELECT ec.CertificateNumber[CertificateNumber], em1.EventName, CAST(em1.StartDate AS DATE)[StartDate],CAST(em1.EndDate AS DATE)[EndDate], em1.OrganisedBy, ec.ID, StudentName, FatherName, HusbandName, CollegeOrSchool, RegisterationNumber, ProgramName, EventCategoryID, Position, IsLPUStudent, ec.CertificateType, em1.ParentEventID, NULL as [ParentEventName] FROM EventMaster em1 INNER JOIN EventCertificates ec ON em1.id = ec.EventID WHERE ParentEventID IS NULL</CommandText>
         <rd:UseGenericDesigner>true</rd:UseGenericDesigner>
       </Query>
       <Fields>
         <Field Name="ID">
           <DataField>ID</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
+        <Field Name="CertificateNumber">
+          <DataField>CertificateNumber</DataField>
           <rd:TypeName>System.Int32</rd:TypeName>
         </Field>
         <Field Name="EventName">
@@ -101,7 +105,7 @@ SELECT em1.EventName, CAST(em1.StartDate AS DATE)[StartDate],CAST(em1.EndDate AS
             <TablixBody>
               <TablixColumns>
                 <TablixColumn>
-                  <Width>10.88052in</Width>
+                  <Width>10.93086in</Width>
                 </TablixColumn>
               </TablixColumns>
               <TablixRows>
@@ -119,7 +123,7 @@ SELECT em1.EventName, CAST(em1.StartDate AS DATE)[StartDate],CAST(em1.EndDate AS
                                 <Paragraph>
                                   <TextRuns>
                                     <TextRun>
-                                      <Value>Certificate No. </Value>
+                                      <Value EvaluationMode="Constant">Certificate No.</Value>
                                       <Style>
                                         <FontStyle>Italic</FontStyle>
                                         <FontFamily>Swis721 BT</FontFamily>
@@ -131,9 +135,9 @@ SELECT em1.EventName, CAST(em1.StartDate AS DATE)[StartDate],CAST(em1.EndDate AS
                               </Paragraphs>
                               <rd:DefaultName>Textbox6</rd:DefaultName>
                               <Top>0.125in</Top>
-                              <Left>8.71822in</Left>
+                              <Left>8.75771in</Left>
                               <Height>0.23681in</Height>
-                              <Width>1.9989in</Width>
+                              <Width>0.94682in</Width>
                               <Style>
                                 <Border>
                                   <Style>None</Style>
@@ -151,7 +155,7 @@ SELECT em1.EventName, CAST(em1.StartDate AS DATE)[StartDate],CAST(em1.EndDate AS
                                 <Paragraph>
                                   <TextRuns>
                                     <TextRun>
-                                      <Value>=IIF(Fields!CertificateType.Value="E", "Certificate of Exellence","Certificate of Merit")</Value>
+                                      <Value>Certificate of  Exellence</Value>
                                       <Style>
                                         <FontStyle>Italic</FontStyle>
                                         <FontFamily>Swis721 BT</FontFamily>
@@ -166,7 +170,7 @@ SELECT em1.EventName, CAST(em1.StartDate AS DATE)[StartDate],CAST(em1.EndDate AS
                                 </Paragraph>
                               </Paragraphs>
                               <rd:DefaultName>Textbox1</rd:DefaultName>
-                              <Top>0.75526in</Top>
+                              <Top>0.84276in</Top>
                               <Left>3.58435in</Left>
                               <Height>0.47703in</Height>
                               <Width>4.61939in</Width>
@@ -200,8 +204,8 @@ SELECT em1.EventName, CAST(em1.StartDate AS DATE)[StartDate],CAST(em1.EndDate AS
                                 </Paragraph>
                               </Paragraphs>
                               <rd:DefaultName>Textbox2</rd:DefaultName>
-                              <Top>1.47337in</Top>
-                              <Left>0.9038in</Left>
+                              <Top>1.54629in</Top>
+                              <Left>0.89153in</Left>
                               <Height>0.28472in</Height>
                               <Width>1.61432in</Width>
                               <ZIndex>2</ZIndex>
@@ -216,8 +220,8 @@ SELECT em1.EventName, CAST(em1.StartDate AS DATE)[StartDate],CAST(em1.EndDate AS
                               </Style>
                             </Textbox>
                             <Line Name="Line1">
-                              <Top>1.68971in</Top>
-                              <Left>2.48234in</Left>
+                              <Top>1.76263in</Top>
+                              <Left>2.45109in</Left>
                               <Height>0in</Height>
                               <Width>3.66667in</Width>
                               <ZIndex>3</ZIndex>
@@ -258,8 +262,8 @@ SELECT em1.EventName, CAST(em1.StartDate AS DATE)[StartDate],CAST(em1.EndDate AS
                                 </Paragraph>
                               </Paragraphs>
                               <rd:DefaultName>Textbox2</rd:DefaultName>
-                              <Top>1.48192in</Top>
-                              <Left>6.15037in</Left>
+                              <Top>1.55484in</Top>
+                              <Left>6.1381in</Left>
                               <Height>0.26042in</Height>
                               <Width>1.12474in</Width>
                               <ZIndex>4</ZIndex>
@@ -274,8 +278,8 @@ SELECT em1.EventName, CAST(em1.StartDate AS DATE)[StartDate],CAST(em1.EndDate AS
                               </Style>
                             </Textbox>
                             <Line Name="Line2">
-                              <Top>1.68971in</Top>
-                              <Left>7.2594in</Left>
+                              <Top>1.76263in</Top>
+                              <Left>7.22815in</Left>
                               <Height>0in</Height>
                               <Width>3.58299in</Width>
                               <ZIndex>5</ZIndex>
@@ -304,7 +308,7 @@ SELECT em1.EventName, CAST(em1.StartDate AS DATE)[StartDate],CAST(em1.EndDate AS
                                 </Paragraph>
                               </Paragraphs>
                               <rd:DefaultName>Textbox2</rd:DefaultName>
-                              <Top>1.83608in</Top>
+                              <Top>1.87775in</Top>
                               <Left>0.9038in</Left>
                               <Height>0.25in</Height>
                               <Width>0.93094in</Width>
@@ -320,7 +324,7 @@ SELECT em1.EventName, CAST(em1.StartDate AS DATE)[StartDate],CAST(em1.EndDate AS
                               </Style>
                             </Textbox>
                             <Line Name="Line3">
-                              <Top>2.04387in</Top>
+                              <Top>2.08554in</Top>
                               <Left>1.74461in</Left>
                               <Height>0in</Height>
                               <Width>9.06736in</Width>
@@ -332,6 +336,7 @@ SELECT em1.EventName, CAST(em1.StartDate AS DATE)[StartDate],CAST(em1.EndDate AS
                               </Style>
                             </Line>
                             <Textbox Name="Textbox5">
+                              <CanGrow>true</CanGrow>
                               <KeepTogether>true</KeepTogether>
                               <Paragraphs>
                                 <Paragraph>
@@ -349,9 +354,9 @@ SELECT em1.EventName, CAST(em1.StartDate AS DATE)[StartDate],CAST(em1.EndDate AS
                                 </Paragraph>
                               </Paragraphs>
                               <rd:DefaultName>Textbox2</rd:DefaultName>
-                              <Top>2.1736in</Top>
+                              <Top>2.16942in</Top>
                               <Left>0.9038in</Left>
-                              <Height>0.24653in</Height>
+                              <Height>0.27778in</Height>
                               <Width>1.30182in</Width>
                               <ZIndex>8</ZIndex>
                               <Style>
@@ -365,6 +370,7 @@ SELECT em1.EventName, CAST(em1.StartDate AS DATE)[StartDate],CAST(em1.EndDate AS
                               </Style>
                             </Textbox>
                             <Textbox Name="Textbox7">
+                              <CanGrow>true</CanGrow>
                               <KeepTogether>true</KeepTogether>
                               <Paragraphs>
                                 <Paragraph>
@@ -382,7 +388,7 @@ SELECT em1.EventName, CAST(em1.StartDate AS DATE)[StartDate],CAST(em1.EndDate AS
                                 </Paragraph>
                               </Paragraphs>
                               <rd:DefaultName>Textbox2</rd:DefaultName>
-                              <Top>2.15394in</Top>
+                              <Top>2.17476in</Top>
                               <Left>4.15852in</Left>
                               <Height>0.29167in</Height>
                               <Width>0.78099in</Width>
@@ -431,7 +437,7 @@ SELECT em1.EventName, CAST(em1.StartDate AS DATE)[StartDate],CAST(em1.EndDate AS
                                 </Paragraph>
                               </Paragraphs>
                               <rd:DefaultName>Textbox2</rd:DefaultName>
-                              <Top>2.5347in</Top>
+                              <Top>2.5097in</Top>
                               <Left>0.9038in</Left>
                               <Height>0.25in</Height>
                               <Width>0.54969in</Width>
@@ -440,7 +446,6 @@ SELECT em1.EventName, CAST(em1.StartDate AS DATE)[StartDate],CAST(em1.EndDate AS
                                 <Border>
                                   <Style>None</Style>
                                 </Border>
-                                <BackgroundColor>White</BackgroundColor>
                                 <PaddingLeft>2pt</PaddingLeft>
                                 <PaddingRight>2pt</PaddingRight>
                                 <PaddingTop>2pt</PaddingTop>
@@ -448,7 +453,7 @@ SELECT em1.EventName, CAST(em1.StartDate AS DATE)[StartDate],CAST(em1.EndDate AS
                               </Style>
                             </Textbox>
                             <Line Name="Line7">
-                              <Top>2.7418in</Top>
+                              <Top>2.73138in</Top>
                               <Left>2.51974in</Left>
                               <Height>0in</Height>
                               <Width>3.98789in</Width>
@@ -481,7 +486,7 @@ SELECT em1.EventName, CAST(em1.StartDate AS DATE)[StartDate],CAST(em1.EndDate AS
                                 </Paragraph>
                               </Paragraphs>
                               <rd:DefaultName>Textbox2</rd:DefaultName>
-                              <Top>2.94212in</Top>
+                              <Top>2.8067in</Top>
                               <Left>0.9038in</Left>
                               <Height>0.25in</Height>
                               <Width>0.83128in</Width>
@@ -497,7 +502,7 @@ SELECT em1.EventName, CAST(em1.StartDate AS DATE)[StartDate],CAST(em1.EndDate AS
                               </Style>
                             </Textbox>
                             <Line Name="Line8">
-                              <Top>3.15846in</Top>
+                              <Top>3.02304in</Top>
                               <Left>1.69847in</Left>
                               <Height>0in</Height>
                               <Width>1.38721in</Width>
@@ -530,7 +535,7 @@ SELECT em1.EventName, CAST(em1.StartDate AS DATE)[StartDate],CAST(em1.EndDate AS
                                 </Paragraph>
                               </Paragraphs>
                               <rd:DefaultName>Textbox2</rd:DefaultName>
-                              <Top>2.95067in</Top>
+                              <Top>2.81525in</Top>
                               <Left>3.12537in</Left>
                               <Height>0.25in</Height>
                               <Width>0.24974in</Width>
@@ -546,7 +551,7 @@ SELECT em1.EventName, CAST(em1.StartDate AS DATE)[StartDate],CAST(em1.EndDate AS
                               </Style>
                             </Textbox>
                             <Line Name="Line9">
-                              <Top>3.15846in</Top>
+                              <Top>3.02304in</Top>
                               <Left>3.32106in</Left>
                               <Height>0in</Height>
                               <Width>1.53916in</Width>
@@ -579,7 +584,7 @@ SELECT em1.EventName, CAST(em1.StartDate AS DATE)[StartDate],CAST(em1.EndDate AS
                                 </Paragraph>
                               </Paragraphs>
                               <rd:DefaultName>Textbox2</rd:DefaultName>
-                              <Top>2.95067in</Top>
+                              <Top>2.81525in</Top>
                               <Left>4.87916in</Left>
                               <Height>0.28125in</Height>
                               <Width>1.11432in</Width>
@@ -595,7 +600,7 @@ SELECT em1.EventName, CAST(em1.StartDate AS DATE)[StartDate],CAST(em1.EndDate AS
                               </Style>
                             </Textbox>
                             <Line Name="Line10">
-                              <Top>2.7418in</Top>
+                              <Top>2.73138in</Top>
                               <Left>6.44205in</Left>
                               <Height>0in</Height>
                               <Width>4.38137in</Width>
@@ -627,7 +632,7 @@ SELECT em1.EventName, CAST(em1.StartDate AS DATE)[StartDate],CAST(em1.EndDate AS
                                 </Paragraph>
                               </Paragraphs>
                               <rd:DefaultName>Textbox23</rd:DefaultName>
-                              <Top>3.24234in</Top>
+                              <Top>3.10692in</Top>
                               <Left>0.9038in</Left>
                               <Height>0.26042in</Height>
                               <Width>2.94792in</Width>
@@ -676,7 +681,7 @@ SELECT em1.EventName, CAST(em1.StartDate AS DATE)[StartDate],CAST(em1.EndDate AS
                                 </Paragraph>
                               </Paragraphs>
                               <rd:DefaultName>Textbox30</rd:DefaultName>
-                              <Top>4.17549in</Top>
+                              <Top>4.21716in</Top>
                               <Left>0.97964in</Left>
                               <Height>0.37366in</Height>
                               <Width>2.39361in</Width>
@@ -711,7 +716,7 @@ SELECT em1.EventName, CAST(em1.StartDate AS DATE)[StartDate],CAST(em1.EndDate AS
                                 </Paragraph>
                               </Paragraphs>
                               <rd:DefaultName>Textbox30</rd:DefaultName>
-                              <Top>4.27966in</Top>
+                              <Top>4.32133in</Top>
                               <Left>5.15352in</Left>
                               <Height>0.23592in</Height>
                               <Width>1.54902in</Width>
@@ -760,7 +765,7 @@ SELECT em1.EventName, CAST(em1.StartDate AS DATE)[StartDate],CAST(em1.EndDate AS
                                 </Paragraph>
                               </Paragraphs>
                               <rd:DefaultName>Textbox1</rd:DefaultName>
-                              <Top>4.18591in</Top>
+                              <Top>4.22758in</Top>
                               <Left>8.96822in</Left>
                               <Height>0.36458in</Height>
                               <Width>1.84375in</Width>
@@ -822,7 +827,7 @@ SELECT em1.EventName, CAST(em1.StartDate AS DATE)[StartDate],CAST(em1.EndDate AS
                                 <PaddingBottom>2pt</PaddingBottom>
                               </Style>
                             </Textbox>
-                            <Textbox Name="emInTheEventMiddle">
+                            <Textbox Name="InTheEventTB">
                               <CanGrow>true</CanGrow>
                               <KeepTogether>true</KeepTogether>
                               <Paragraphs>
@@ -849,7 +854,7 @@ SELECT em1.EventName, CAST(em1.StartDate AS DATE)[StartDate],CAST(em1.EndDate AS
                               <Width>0.97756in</Width>
                               <ZIndex>24</ZIndex>
                               <Visibility>
-                                <Hidden>=IIf(Fields!ParentEventID.Value=Nothing, True,False)</Hidden>
+                                <Hidden>=IIf((Fields!ParentEventID.Value=Nothing), True,False)</Hidden>
                               </Visibility>
                               <Style>
                                 <Border>
@@ -863,7 +868,7 @@ SELECT em1.EventName, CAST(em1.StartDate AS DATE)[StartDate],CAST(em1.EndDate AS
                               </Style>
                             </Textbox>
                             <Line Name="Line11">
-                              <Top>3.15846in</Top>
+                              <Top>3.02304in</Top>
                               <Left>5.94704in</Left>
                               <Height>0in</Height>
                               <Width>4.86493in</Width>
@@ -886,7 +891,7 @@ SELECT em1.EventName, CAST(em1.StartDate AS DATE)[StartDate],CAST(em1.EndDate AS
                                 </Border>
                               </Style>
                             </Line>
-                            <Textbox Name="emInLeft">
+                            <Textbox Name="inTB">
                               <CanGrow>true</CanGrow>
                               <KeepTogether>true</KeepTogether>
                               <Paragraphs>
@@ -913,7 +918,7 @@ SELECT em1.EventName, CAST(em1.StartDate AS DATE)[StartDate],CAST(em1.EndDate AS
                               <Width>0.26599in</Width>
                               <ZIndex>27</ZIndex>
                               <Visibility>
-                                <Hidden>=IIf(Fields!ParentEventID.Value=Nothing, True,False)</Hidden>
+                                <Hidden>=IIf((Fields!ParentEventID.Value=Nothing), True,False)</Hidden>
                               </Visibility>
                               <Style>
                                 <Border>
@@ -927,7 +932,7 @@ SELECT em1.EventName, CAST(em1.StartDate AS DATE)[StartDate],CAST(em1.EndDate AS
                               </Style>
                             </Textbox>
                             <Line Name="Line12">
-                              <Top>2.7418in</Top>
+                              <Top>2.73138in</Top>
                               <Left>1.43536in</Left>
                               <Height>0in</Height>
                               <Width>1.14598in</Width>
@@ -960,8 +965,8 @@ SELECT em1.EventName, CAST(em1.StartDate AS DATE)[StartDate],CAST(em1.EndDate AS
                                 </Paragraph>
                               </Paragraphs>
                               <rd:DefaultName>StudentName</rd:DefaultName>
-                              <Top>1.45915in</Top>
-                              <Left>2.53201in</Left>
+                              <Top>1.53207in</Top>
+                              <Left>2.51974in</Left>
                               <Height>0.25in</Height>
                               <Width>3.54892in</Width>
                               <ZIndex>29</ZIndex>
@@ -997,8 +1002,8 @@ SELECT em1.EventName, CAST(em1.StartDate AS DATE)[StartDate],CAST(em1.EndDate AS
                                 </Paragraph>
                               </Paragraphs>
                               <rd:DefaultName>StudentName</rd:DefaultName>
-                              <Top>1.45061in</Top>
-                              <Left>7.2397in</Left>
+                              <Top>1.52353in</Top>
+                              <Left>7.22743in</Left>
                               <Height>0.25in</Height>
                               <Width>3.54892in</Width>
                               <ZIndex>30</ZIndex>
@@ -1034,10 +1039,10 @@ SELECT em1.EventName, CAST(em1.StartDate AS DATE)[StartDate],CAST(em1.EndDate AS
                                 </Paragraph>
                               </Paragraphs>
                               <rd:DefaultName>StudentName</rd:DefaultName>
-                              <Top>1.80137in</Top>
+                              <Top>1.84304in</Top>
                               <Left>1.74461in</Left>
                               <Height>0.25in</Height>
-                              <Width>9.03714in</Width>
+                              <Width>9.07881in</Width>
                               <ZIndex>31</ZIndex>
                               <Style>
                                 <Border>
@@ -1050,6 +1055,7 @@ SELECT em1.EventName, CAST(em1.StartDate AS DATE)[StartDate],CAST(em1.EndDate AS
                               </Style>
                             </Textbox>
                             <Textbox Name="StudentName4">
+                              <CanGrow>true</CanGrow>
                               <KeepTogether>true</KeepTogether>
                               <Paragraphs>
                                 <Paragraph>
@@ -1070,10 +1076,10 @@ SELECT em1.EventName, CAST(em1.StartDate AS DATE)[StartDate],CAST(em1.EndDate AS
                                 </Paragraph>
                               </Paragraphs>
                               <rd:DefaultName>StudentName</rd:DefaultName>
-                              <Top>2.14021in</Top>
-                              <Left>2.26812in</Left>
+                              <Top>2.16103in</Top>
+                              <Left>2.24729in</Left>
                               <Height>0.25in</Height>
-                              <Width>1.82633in</Width>
+                              <Width>1.90966in</Width>
                               <ZIndex>32</ZIndex>
                               <Style>
                                 <Border>
@@ -1086,6 +1092,7 @@ SELECT em1.EventName, CAST(em1.StartDate AS DATE)[StartDate],CAST(em1.EndDate AS
                               </Style>
                             </Textbox>
                             <Textbox Name="StudentName5">
+                              <CanGrow>true</CanGrow>
                               <KeepTogether>true</KeepTogether>
                               <Paragraphs>
                                 <Paragraph>
@@ -1106,10 +1113,10 @@ SELECT em1.EventName, CAST(em1.StartDate AS DATE)[StartDate],CAST(em1.EndDate AS
                                 </Paragraph>
                               </Paragraphs>
                               <rd:DefaultName>StudentName</rd:DefaultName>
-                              <Top>2.12222in</Top>
-                              <Left>4.98118in</Left>
+                              <Top>2.14304in</Top>
+                              <Left>4.93951in</Left>
                               <Height>0.25in</Height>
-                              <Width>5.79517in</Width>
+                              <Width>5.83684in</Width>
                               <ZIndex>33</ZIndex>
                               <Style>
                                 <Border>
@@ -1143,7 +1150,7 @@ SELECT em1.EventName, CAST(em1.StartDate AS DATE)[StartDate],CAST(em1.EndDate AS
                                 </Paragraph>
                               </Paragraphs>
                               <rd:DefaultName>StudentName</rd:DefaultName>
-                              <Top>2.52776in</Top>
+                              <Top>2.50276in</Top>
                               <Left>1.49516in</Left>
                               <Height>0.25in</Height>
                               <Width>1.05841in</Width>
@@ -1158,7 +1165,7 @@ SELECT em1.EventName, CAST(em1.StartDate AS DATE)[StartDate],CAST(em1.EndDate AS
                                 <PaddingBottom>2pt</PaddingBottom>
                               </Style>
                             </Textbox>
-                            <Textbox Name="emEventNameRight">
+                            <Textbox Name="StudentName7">
                               <CanGrow>true</CanGrow>
                               <KeepTogether>true</KeepTogether>
                               <Paragraphs>
@@ -1179,13 +1186,14 @@ SELECT em1.EventName, CAST(em1.StartDate AS DATE)[StartDate],CAST(em1.EndDate AS
                                   </Style>
                                 </Paragraph>
                               </Paragraphs>
-                              <Top>2.54249in</Top>
-                              <Left>2.94455in</Left>
+                              <rd:DefaultName>StudentName</rd:DefaultName>
+                              <Top>2.49719in</Top>
+                              <Left>2.98969in</Left>
                               <Height>0.25in</Height>
-                              <Width>2.47352in</Width>
+                              <Width>2.45615in</Width>
                               <ZIndex>35</ZIndex>
                               <Visibility>
-                                <Hidden>=IIf(Fields!ParentEventID.Value=Nothing, True,False)</Hidden>
+                                <Hidden>=IIf((Fields!ParentEventID.Value=Nothing), True,False)</Hidden>
                               </Visibility>
                               <Style>
                                 <Border>
@@ -1218,10 +1226,10 @@ SELECT em1.EventName, CAST(em1.StartDate AS DATE)[StartDate],CAST(em1.EndDate AS
                                 </Paragraph>
                               </Paragraphs>
                               <rd:DefaultName>StudentName</rd:DefaultName>
-                              <Top>2.92984in</Top>
-                              <Left>1.79758in</Left>
+                              <Top>2.79442in</Top>
+                              <Left>1.96425in</Left>
                               <Height>0.25in</Height>
-                              <Width>1.29307in</Width>
+                              <Width>0.97015in</Width>
                               <ZIndex>36</ZIndex>
                               <Style>
                                 <Border>
@@ -1254,10 +1262,10 @@ SELECT em1.EventName, CAST(em1.StartDate AS DATE)[StartDate],CAST(em1.EndDate AS
                                 </Paragraph>
                               </Paragraphs>
                               <rd:DefaultName>StudentName</rd:DefaultName>
-                              <Top>2.92567in</Top>
-                              <Left>3.44803in</Left>
+                              <Top>2.79025in</Top>
+                              <Left>3.68761in</Left>
                               <Height>0.25in</Height>
-                              <Width>1.32696in</Width>
+                              <Width>0.94155in</Width>
                               <ZIndex>37</ZIndex>
                               <Style>
                                 <Border>
@@ -1291,7 +1299,7 @@ SELECT em1.EventName, CAST(em1.StartDate AS DATE)[StartDate],CAST(em1.EndDate AS
                                 </Paragraph>
                               </Paragraphs>
                               <rd:DefaultName>StudentName</rd:DefaultName>
-                              <Top>2.91958in</Top>
+                              <Top>2.78416in</Top>
                               <Left>6.00737in</Left>
                               <Height>0.25in</Height>
                               <Width>4.80377in</Width>
@@ -1306,7 +1314,7 @@ SELECT em1.EventName, CAST(em1.StartDate AS DATE)[StartDate],CAST(em1.EndDate AS
                                 <PaddingBottom>2pt</PaddingBottom>
                               </Style>
                             </Textbox>
-                            <Textbox Name="emInTheEventLeft">
+                            <Textbox Name="inTB2">
                               <CanGrow>true</CanGrow>
                               <KeepTogether>true</KeepTogether>
                               <Paragraphs>
@@ -1333,7 +1341,7 @@ SELECT em1.EventName, CAST(em1.StartDate AS DATE)[StartDate],CAST(em1.EndDate AS
                               <Width>0.95777in</Width>
                               <ZIndex>39</ZIndex>
                               <Visibility>
-                                <Hidden>=IIf(Fields!ParentEventID.Value = Nothing, False, True)</Hidden>
+                                <Hidden>=IIf((Fields!ParentEventID.Value = Nothing), False, True)</Hidden>
                               </Visibility>
                               <Style>
                                 <Border>
@@ -1346,7 +1354,7 @@ SELECT em1.EventName, CAST(em1.StartDate AS DATE)[StartDate],CAST(em1.EndDate AS
                                 <PaddingBottom>2pt</PaddingBottom>
                               </Style>
                             </Textbox>
-                            <Textbox Name="emEventNameBig">
+                            <Textbox Name="StudentName11">
                               <CanGrow>true</CanGrow>
                               <KeepTogether>true</KeepTogether>
                               <Paragraphs>
@@ -1367,13 +1375,14 @@ SELECT em1.EventName, CAST(em1.StartDate AS DATE)[StartDate],CAST(em1.EndDate AS
                                   </Style>
                                 </Paragraph>
                               </Paragraphs>
-                              <Top>2.53332in</Top>
-                              <Left>3.65578in</Left>
+                              <rd:DefaultName>StudentName</rd:DefaultName>
+                              <Top>2.49858in</Top>
+                              <Left>3.58078in</Left>
                               <Height>0.25in</Height>
-                              <Width>7.12057in</Width>
+                              <Width>7.19557in</Width>
                               <ZIndex>40</ZIndex>
                               <Visibility>
-                                <Hidden>=IIf(Fields!ParentEventID.Value=Nothing, False,True)</Hidden>
+                                <Hidden>=IIf((Fields!ParentEventID.Value=Nothing), False,True)</Hidden>
                               </Visibility>
                               <Style>
                                 <Border>
@@ -1385,7 +1394,7 @@ SELECT em1.EventName, CAST(em1.StartDate AS DATE)[StartDate],CAST(em1.EndDate AS
                                 <PaddingBottom>2pt</PaddingBottom>
                               </Style>
                             </Textbox>
-                            <Textbox Name="emParentEventName">
+                            <Textbox Name="StudentName12">
                               <CanGrow>true</CanGrow>
                               <KeepTogether>true</KeepTogether>
                               <Paragraphs>
@@ -1406,14 +1415,50 @@ SELECT em1.EventName, CAST(em1.StartDate AS DATE)[StartDate],CAST(em1.EndDate AS
                                   </Style>
                                 </Paragraph>
                               </Paragraphs>
-                              <Top>2.52776in</Top>
-                              <Left>6.5241in</Left>
+                              <rd:DefaultName>StudentName</rd:DefaultName>
+                              <Top>2.50478in</Top>
+                              <Left>6.47896in</Left>
                               <Height>0.25in</Height>
-                              <Width>4.25225in</Width>
+                              <Width>4.17239in</Width>
                               <ZIndex>41</ZIndex>
                               <Visibility>
-                                <Hidden>=IIf(Fields!ParentEventID.Value = Nothing, True, False)</Hidden>
+                                <Hidden>=Microsoft.VisualBasic.Interaction.IIf((Fields!ParentEventID.Value = Nothing), True, False)</Hidden>
                               </Visibility>
+                              <Style>
+                                <Border>
+                                  <Style>None</Style>
+                                </Border>
+                                <PaddingLeft>2pt</PaddingLeft>
+                                <PaddingRight>2pt</PaddingRight>
+                                <PaddingTop>2pt</PaddingTop>
+                                <PaddingBottom>2pt</PaddingBottom>
+                              </Style>
+                            </Textbox>
+                            <Textbox Name="Textbox8">
+                              <CanGrow>true</CanGrow>
+                              <KeepTogether>true</KeepTogether>
+                              <Paragraphs>
+                                <Paragraph>
+                                  <TextRuns>
+                                    <TextRun>
+                                      <Value>=Fields!CertificateNumber.Value</Value>
+                                      <Style>
+                                        <FontStyle>Italic</FontStyle>
+                                        <FontFamily>Swis721 BT</FontFamily>
+                                      </Style>
+                                    </TextRun>
+                                  </TextRuns>
+                                  <Style>
+                                    <TextAlign>Left</TextAlign>
+                                  </Style>
+                                </Paragraph>
+                              </Paragraphs>
+                              <rd:DefaultName>Textbox6</rd:DefaultName>
+                              <Top>0.125in</Top>
+                              <Left>9.70453in</Left>
+                              <Height>0.23681in</Height>
+                              <Width>0.94682in</Width>
+                              <ZIndex>42</ZIndex>
                               <Style>
                                 <Border>
                                   <Style>None</Style>
@@ -1454,7 +1499,7 @@ SELECT em1.EventName, CAST(em1.StartDate AS DATE)[StartDate],CAST(em1.EndDate AS
             </TablixRowHierarchy>
             <DataSetName>EventsDataSet</DataSetName>
             <Height>4.60956in</Height>
-            <Width>10.88052in</Width>
+            <Width>10.93086in</Width>
             <Style>
               <Border>
                 <Style>None</Style>
@@ -1469,7 +1514,7 @@ SELECT em1.EventName, CAST(em1.StartDate AS DATE)[StartDate],CAST(em1.EndDate AS
           </Border>
         </Style>
       </Body>
-      <Width>10.90135in</Width>
+      <Width>10.9517in</Width>
       <Page>
         <PageHeight>6.9in</PageHeight>
         <PageWidth>11in</PageWidth>

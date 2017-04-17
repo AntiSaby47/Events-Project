@@ -101,7 +101,7 @@ SELECT em1.EventName, CAST(em1.StartDate AS DATE)[StartDate],CAST(em1.EndDate AS
             <TablixBody>
               <TablixColumns>
                 <TablixColumn>
-                  <Width>10.88052in</Width>
+                  <Width>10.93086in</Width>
                 </TablixColumn>
               </TablixColumns>
               <TablixRows>
@@ -130,8 +130,7 @@ SELECT em1.EventName, CAST(em1.StartDate AS DATE)[StartDate],CAST(em1.EndDate AS
                                 </Paragraph>
                               </Paragraphs>
                               <rd:DefaultName>Textbox6</rd:DefaultName>
-                              <Top>0.125in</Top>
-                              <Left>8.71822in</Left>
+                              <Left>8.84322in</Left>
                               <Height>0.23681in</Height>
                               <Width>1.9989in</Width>
                               <Style>
@@ -431,11 +430,14 @@ SELECT em1.EventName, CAST(em1.StartDate AS DATE)[StartDate],CAST(em1.EndDate AS
                                 </Paragraph>
                               </Paragraphs>
                               <rd:DefaultName>Textbox2</rd:DefaultName>
-                              <Top>2.5347in</Top>
+                              <Top>0.9097in</Top>
                               <Left>0.9038in</Left>
                               <Height>0.25in</Height>
                               <Width>0.54969in</Width>
                               <ZIndex>11</ZIndex>
+                              <Visibility>
+                                <Hidden>=IIF( Fields!CertificateType.Value = "E" or Fields!CertificateType.Value = "M" ,False, True)</Hidden>
+                              </Visibility>
                               <Style>
                                 <Border>
                                   <Style>None</Style>
@@ -676,7 +678,7 @@ SELECT em1.EventName, CAST(em1.StartDate AS DATE)[StartDate],CAST(em1.EndDate AS
                                 </Paragraph>
                               </Paragraphs>
                               <rd:DefaultName>Textbox30</rd:DefaultName>
-                              <Top>4.17549in</Top>
+                              <Top>4.21716in</Top>
                               <Left>0.97964in</Left>
                               <Height>0.37366in</Height>
                               <Width>2.39361in</Width>
@@ -711,7 +713,7 @@ SELECT em1.EventName, CAST(em1.StartDate AS DATE)[StartDate],CAST(em1.EndDate AS
                                 </Paragraph>
                               </Paragraphs>
                               <rd:DefaultName>Textbox30</rd:DefaultName>
-                              <Top>4.27966in</Top>
+                              <Top>4.32133in</Top>
                               <Left>5.15352in</Left>
                               <Height>0.23592in</Height>
                               <Width>1.54902in</Width>
@@ -760,7 +762,7 @@ SELECT em1.EventName, CAST(em1.StartDate AS DATE)[StartDate],CAST(em1.EndDate AS
                                 </Paragraph>
                               </Paragraphs>
                               <rd:DefaultName>Textbox1</rd:DefaultName>
-                              <Top>4.18591in</Top>
+                              <Top>4.22758in</Top>
                               <Left>8.96822in</Left>
                               <Height>0.36458in</Height>
                               <Width>1.84375in</Width>
@@ -843,13 +845,13 @@ SELECT em1.EventName, CAST(em1.StartDate AS DATE)[StartDate],CAST(em1.EndDate AS
                                   <Style />
                                 </Paragraph>
                               </Paragraphs>
-                              <Top>2.54249in</Top>
+                              <Top>0.41749in</Top>
                               <Left>5.48751in</Left>
                               <Height>0.25in</Height>
                               <Width>0.97756in</Width>
                               <ZIndex>24</ZIndex>
                               <Visibility>
-                                <Hidden>=IIf(Fields!ParentEventID.Value=Nothing, True,False)</Hidden>
+                                <Hidden>=IIf(Fields!ParentEventID.Value=Nothing or Fields!CertificateType.Value = "P", True,False)</Hidden>
                               </Visibility>
                               <Style>
                                 <Border>
@@ -907,13 +909,13 @@ SELECT em1.EventName, CAST(em1.StartDate AS DATE)[StartDate],CAST(em1.EndDate AS
                                   <Style />
                                 </Paragraph>
                               </Paragraphs>
-                              <Top>2.54228in</Top>
+                              <Top>0.41728in</Top>
                               <Left>2.60912in</Left>
                               <Height>0.25in</Height>
                               <Width>0.26599in</Width>
                               <ZIndex>27</ZIndex>
                               <Visibility>
-                                <Hidden>=IIf(Fields!ParentEventID.Value=Nothing, True,False)</Hidden>
+                                <Hidden>=IIf(Fields!ParentEventID.Value=Nothing or Fields!CertificateType.Value = "P", True,False)</Hidden>
                               </Visibility>
                               <Style>
                                 <Border>
@@ -1143,11 +1145,14 @@ SELECT em1.EventName, CAST(em1.StartDate AS DATE)[StartDate],CAST(em1.EndDate AS
                                 </Paragraph>
                               </Paragraphs>
                               <rd:DefaultName>StudentName</rd:DefaultName>
-                              <Top>2.52776in</Top>
+                              <Top>1.00276in</Top>
                               <Left>1.49516in</Left>
                               <Height>0.25in</Height>
                               <Width>1.05841in</Width>
                               <ZIndex>34</ZIndex>
+                              <Visibility>
+                                <Hidden>=IIF( Fields!CertificateType.Value = "E" or Fields!CertificateType.Value = "M" ,False, True)</Hidden>
+                              </Visibility>
                               <Style>
                                 <Border>
                                   <Style>None</Style>
@@ -1179,13 +1184,13 @@ SELECT em1.EventName, CAST(em1.StartDate AS DATE)[StartDate],CAST(em1.EndDate AS
                                   </Style>
                                 </Paragraph>
                               </Paragraphs>
-                              <Top>2.54249in</Top>
-                              <Left>2.94455in</Left>
+                              <Top>0.36888in</Top>
+                              <Left>6.5241in</Left>
                               <Height>0.25in</Height>
-                              <Width>2.47352in</Width>
+                              <Width>4.25225in</Width>
                               <ZIndex>35</ZIndex>
                               <Visibility>
-                                <Hidden>=IIf(Fields!ParentEventID.Value=Nothing, True,False)</Hidden>
+                                <Hidden>=IIf(Fields!ParentEventID.Value=Nothing or Fields!CertificateType.Value = "P", True,False)</Hidden>
                               </Visibility>
                               <Style>
                                 <Border>
@@ -1327,13 +1332,13 @@ SELECT em1.EventName, CAST(em1.StartDate AS DATE)[StartDate],CAST(em1.EndDate AS
                                   <Style />
                                 </Paragraph>
                               </Paragraphs>
-                              <Top>2.54249in</Top>
+                              <Top>0.91749in</Top>
                               <Left>2.62301in</Left>
                               <Height>0.25in</Height>
                               <Width>0.95777in</Width>
                               <ZIndex>39</ZIndex>
                               <Visibility>
-                                <Hidden>=IIf(Fields!ParentEventID.Value = Nothing, False, True)</Hidden>
+                                <Hidden>=IIf(Fields!ParentEventID.Value = Nothing and Fields!CertificateType.Value &lt;&gt; "P", False, True)</Hidden>
                               </Visibility>
                               <Style>
                                 <Border>
@@ -1367,13 +1372,13 @@ SELECT em1.EventName, CAST(em1.StartDate AS DATE)[StartDate],CAST(em1.EndDate AS
                                   </Style>
                                 </Paragraph>
                               </Paragraphs>
-                              <Top>2.53332in</Top>
-                              <Left>3.65578in</Left>
+                              <Top>0.62358in</Top>
+                              <Left>3.58078in</Left>
                               <Height>0.25in</Height>
-                              <Width>7.12057in</Width>
+                              <Width>7.19557in</Width>
                               <ZIndex>40</ZIndex>
                               <Visibility>
-                                <Hidden>=IIf(Fields!ParentEventID.Value=Nothing, False,True)</Hidden>
+                                <Hidden>=IIf(Fields!ParentEventID.Value=Nothing and Fields!CertificateType.Value &lt;&gt; "P", False,True)</Hidden>
                               </Visibility>
                               <Style>
                                 <Border>
@@ -1406,13 +1411,310 @@ SELECT em1.EventName, CAST(em1.StartDate AS DATE)[StartDate],CAST(em1.EndDate AS
                                   </Style>
                                 </Paragraph>
                               </Paragraphs>
-                              <Top>2.52776in</Top>
-                              <Left>6.5241in</Left>
+                              <Top>0.1206in</Top>
+                              <Left>2.94455in</Left>
                               <Height>0.25in</Height>
-                              <Width>4.25225in</Width>
+                              <Width>2.54296in</Width>
                               <ZIndex>41</ZIndex>
                               <Visibility>
-                                <Hidden>=IIf(Fields!ParentEventID.Value = Nothing, True, False)</Hidden>
+                                <Hidden>=IIf(Fields!ParentEventID.Value = Nothing or Fields!CertificateType.Value = "P", True, False)</Hidden>
+                              </Visibility>
+                              <Style>
+                                <Border>
+                                  <Style>None</Style>
+                                </Border>
+                                <PaddingLeft>2pt</PaddingLeft>
+                                <PaddingRight>2pt</PaddingRight>
+                                <PaddingTop>2pt</PaddingTop>
+                                <PaddingBottom>2pt</PaddingBottom>
+                              </Style>
+                            </Textbox>
+                            <Textbox Name="pParticipated">
+                              <KeepTogether>true</KeepTogether>
+                              <Paragraphs>
+                                <Paragraph>
+                                  <TextRuns>
+                                    <TextRun>
+                                      <Value>participated</Value>
+                                      <Style>
+                                        <FontStyle>Italic</FontStyle>
+                                        <FontFamily>Swis721 BT</FontFamily>
+                                        <FontSize>12pt</FontSize>
+                                        <FontWeight>Normal</FontWeight>
+                                        <TextDecoration>None</TextDecoration>
+                                        <Color>#000000</Color>
+                                      </Style>
+                                    </TextRun>
+                                  </TextRuns>
+                                  <Style />
+                                </Paragraph>
+                              </Paragraphs>
+                              <Top>2.51936in</Top>
+                              <Left>0.9038in</Left>
+                              <Height>0.25in</Height>
+                              <Width>1.01872in</Width>
+                              <ZIndex>42</ZIndex>
+                              <Style>
+                                <Border>
+                                  <Style>None</Style>
+                                </Border>
+                                <BackgroundColor>White</BackgroundColor>
+                                <PaddingLeft>2pt</PaddingLeft>
+                                <PaddingRight>2pt</PaddingRight>
+                                <PaddingTop>2pt</PaddingTop>
+                                <PaddingBottom>2pt</PaddingBottom>
+                              </Style>
+                            </Textbox>
+                            <Textbox Name="pInLeft">
+                              <KeepTogether>true</KeepTogether>
+                              <Paragraphs>
+                                <Paragraph>
+                                  <TextRuns>
+                                    <TextRun>
+                                      <Value EvaluationMode="Constant">in</Value>
+                                      <Style>
+                                        <FontStyle>Italic</FontStyle>
+                                        <FontFamily>Swis721 BT</FontFamily>
+                                        <FontSize>12pt</FontSize>
+                                        <FontWeight>Normal</FontWeight>
+                                        <TextDecoration>None</TextDecoration>
+                                        <Color>#000000</Color>
+                                      </Style>
+                                    </TextRun>
+                                  </TextRuns>
+                                  <Style />
+                                </Paragraph>
+                              </Paragraphs>
+                              <Top>2.51936in</Top>
+                              <Left>1.85213in</Left>
+                              <Height>0.25in</Height>
+                              <Width>0.26599in</Width>
+                              <ZIndex>43</ZIndex>
+                              <Visibility>
+                                <Hidden>=IIf(Fields!ParentEventID.Value = Nothing or Fields!CertificateType.Value &lt;&gt; "P", True, False)</Hidden>
+                              </Visibility>
+                              <Style>
+                                <Border>
+                                  <Style>None</Style>
+                                </Border>
+                                <BackgroundColor>White</BackgroundColor>
+                                <PaddingLeft>2pt</PaddingLeft>
+                                <PaddingRight>2pt</PaddingRight>
+                                <PaddingTop>2pt</PaddingTop>
+                                <PaddingBottom>2pt</PaddingBottom>
+                              </Style>
+                            </Textbox>
+                            <Textbox Name="emInTheEventMiddle2">
+                              <KeepTogether>true</KeepTogether>
+                              <Paragraphs>
+                                <Paragraph>
+                                  <TextRuns>
+                                    <TextRun>
+                                      <Value>in the event</Value>
+                                      <Style>
+                                        <FontStyle>Italic</FontStyle>
+                                        <FontFamily>Swis721 BT</FontFamily>
+                                        <FontSize>12pt</FontSize>
+                                        <FontWeight>Normal</FontWeight>
+                                        <TextDecoration>None</TextDecoration>
+                                        <Color>#000000</Color>
+                                      </Style>
+                                    </TextRun>
+                                  </TextRuns>
+                                  <Style />
+                                </Paragraph>
+                              </Paragraphs>
+                              <Top>2.52241in</Top>
+                              <Left>5.26592in</Left>
+                              <Height>0.25in</Height>
+                              <Width>0.97756in</Width>
+                              <ZIndex>44</ZIndex>
+                              <Visibility>
+                                <Hidden>=IIf(Fields!ParentEventID.Value = Nothing or Fields!CertificateType.Value &lt;&gt; "P", True, False)</Hidden>
+                              </Visibility>
+                              <Style>
+                                <Border>
+                                  <Style>None</Style>
+                                </Border>
+                                <BackgroundColor>White</BackgroundColor>
+                                <PaddingLeft>2pt</PaddingLeft>
+                                <PaddingRight>2pt</PaddingRight>
+                                <PaddingTop>2pt</PaddingTop>
+                                <PaddingBottom>2pt</PaddingBottom>
+                              </Style>
+                            </Textbox>
+                            <Textbox Name="pInTheEventLeft">
+                              <KeepTogether>true</KeepTogether>
+                              <Paragraphs>
+                                <Paragraph>
+                                  <TextRuns>
+                                    <TextRun>
+                                      <Value>in the event</Value>
+                                      <Style>
+                                        <FontStyle>Italic</FontStyle>
+                                        <FontFamily>Swis721 BT</FontFamily>
+                                        <FontSize>12pt</FontSize>
+                                        <FontWeight>Normal</FontWeight>
+                                        <TextDecoration>None</TextDecoration>
+                                        <Color>#000000</Color>
+                                      </Style>
+                                    </TextRun>
+                                  </TextRuns>
+                                  <Style />
+                                </Paragraph>
+                              </Paragraphs>
+                              <Top>2.51685in</Top>
+                              <Left>1.84451in</Left>
+                              <Height>0.25in</Height>
+                              <Width>0.95777in</Width>
+                              <ZIndex>45</ZIndex>
+                              <Visibility>
+                                <Hidden>=IIf((Fields!ParentEventID.Value = Nothing and Fields!CertificateType.Value = "P"), False, True)</Hidden>
+                              </Visibility>
+                              <Style>
+                                <Border>
+                                  <Style>None</Style>
+                                </Border>
+                                <BackgroundColor>White</BackgroundColor>
+                                <PaddingLeft>2pt</PaddingLeft>
+                                <PaddingRight>2pt</PaddingRight>
+                                <PaddingTop>2pt</PaddingTop>
+                                <PaddingBottom>2pt</PaddingBottom>
+                              </Style>
+                            </Textbox>
+                            <Textbox Name="CertificateType">
+                              <CanGrow>true</CanGrow>
+                              <KeepTogether>true</KeepTogether>
+                              <Paragraphs>
+                                <Paragraph>
+                                  <TextRuns>
+                                    <TextRun>
+                                      <Value>=Fields!CertificateType.Value</Value>
+                                      <Style />
+                                    </TextRun>
+                                  </TextRuns>
+                                  <Style />
+                                </Paragraph>
+                              </Paragraphs>
+                              <rd:DefaultName>CertificateType</rd:DefaultName>
+                              <Top>0.54249in</Top>
+                              <Left>1.29042in</Left>
+                              <Height>0.25in</Height>
+                              <Width>1in</Width>
+                              <ZIndex>46</ZIndex>
+                              <Style>
+                                <Border>
+                                  <Style>None</Style>
+                                </Border>
+                                <PaddingLeft>2pt</PaddingLeft>
+                                <PaddingRight>2pt</PaddingRight>
+                                <PaddingTop>2pt</PaddingTop>
+                                <PaddingBottom>2pt</PaddingBottom>
+                              </Style>
+                            </Textbox>
+                            <Textbox Name="pEventNameRight">
+                              <KeepTogether>true</KeepTogether>
+                              <Paragraphs>
+                                <Paragraph>
+                                  <TextRuns>
+                                    <TextRun>
+                                      <Value>=Fields!EventName.Value</Value>
+                                      <Style>
+                                        <FontStyle>Italic</FontStyle>
+                                        <FontFamily>Swis721 BT</FontFamily>
+                                        <FontSize>12pt</FontSize>
+                                        <FontWeight>Bold</FontWeight>
+                                      </Style>
+                                    </TextRun>
+                                  </TextRuns>
+                                  <Style>
+                                    <TextAlign>Center</TextAlign>
+                                  </Style>
+                                </Paragraph>
+                              </Paragraphs>
+                              <Top>2.50937in</Top>
+                              <Left>2.16673in</Left>
+                              <Height>0.25in</Height>
+                              <Width>3.07141in</Width>
+                              <ZIndex>47</ZIndex>
+                              <Visibility>
+                                <Hidden>=IIf(Fields!ParentEventID.Value = Nothing Or Fields!CertificateType.Value &lt;&gt; "P", True, False)</Hidden>
+                              </Visibility>
+                              <Style>
+                                <Border>
+                                  <Style>None</Style>
+                                </Border>
+                                <PaddingLeft>2pt</PaddingLeft>
+                                <PaddingRight>2pt</PaddingRight>
+                                <PaddingTop>2pt</PaddingTop>
+                                <PaddingBottom>2pt</PaddingBottom>
+                              </Style>
+                            </Textbox>
+                            <Textbox Name="pParentEventName">
+                              <KeepTogether>true</KeepTogether>
+                              <Paragraphs>
+                                <Paragraph>
+                                  <TextRuns>
+                                    <TextRun>
+                                      <Value>=Fields!ParentEventName.Value</Value>
+                                      <Style>
+                                        <FontStyle>Italic</FontStyle>
+                                        <FontFamily>Swis721 BT</FontFamily>
+                                        <FontSize>12pt</FontSize>
+                                        <FontWeight>Bold</FontWeight>
+                                      </Style>
+                                    </TextRun>
+                                  </TextRuns>
+                                  <Style>
+                                    <TextAlign>Center</TextAlign>
+                                  </Style>
+                                </Paragraph>
+                              </Paragraphs>
+                              <Top>2.51936in</Top>
+                              <Left>6.25645in</Left>
+                              <Height>0.25in</Height>
+                              <Width>4.52213in</Width>
+                              <ZIndex>48</ZIndex>
+                              <Visibility>
+                                <Hidden>=IIf(Fields!ParentEventID.Value = Nothing or Fields!CertificateType.Value &lt;&gt; "P", True, False)</Hidden>
+                              </Visibility>
+                              <Style>
+                                <Border>
+                                  <Style>None</Style>
+                                </Border>
+                                <PaddingLeft>2pt</PaddingLeft>
+                                <PaddingRight>2pt</PaddingRight>
+                                <PaddingTop>2pt</PaddingTop>
+                                <PaddingBottom>2pt</PaddingBottom>
+                              </Style>
+                            </Textbox>
+                            <Textbox Name="pEventNameBig">
+                              <KeepTogether>true</KeepTogether>
+                              <Paragraphs>
+                                <Paragraph>
+                                  <TextRuns>
+                                    <TextRun>
+                                      <Value>=Fields!EventName.Value</Value>
+                                      <Style>
+                                        <FontStyle>Italic</FontStyle>
+                                        <FontFamily>Swis721 BT</FontFamily>
+                                        <FontSize>12pt</FontSize>
+                                        <FontWeight>Bold</FontWeight>
+                                      </Style>
+                                    </TextRun>
+                                  </TextRuns>
+                                  <Style>
+                                    <TextAlign>Center</TextAlign>
+                                  </Style>
+                                </Paragraph>
+                              </Paragraphs>
+                              <Top>3.37978in</Top>
+                              <Left>2.72596in</Left>
+                              <Height>0.25in</Height>
+                              <Width>7.96018in</Width>
+                              <ZIndex>49</ZIndex>
+                              <Visibility>
+                                <Hidden>=IIf(Fields!ParentEventID.Value = Nothing And Fields!CertificateType.Value = "P", False, True)</Hidden>
                               </Visibility>
                               <Style>
                                 <Border>
@@ -1434,6 +1736,7 @@ SELECT em1.EventName, CAST(em1.StartDate AS DATE)[StartDate],CAST(em1.EndDate AS
                             </Border>
                           </Style>
                         </Rectangle>
+                        <rd:Selected>true</rd:Selected>
                       </CellContents>
                     </TablixCell>
                   </TablixCells>
@@ -1454,7 +1757,7 @@ SELECT em1.EventName, CAST(em1.StartDate AS DATE)[StartDate],CAST(em1.EndDate AS
             </TablixRowHierarchy>
             <DataSetName>EventsDataSet</DataSetName>
             <Height>4.60956in</Height>
-            <Width>10.88052in</Width>
+            <Width>10.93086in</Width>
             <Style>
               <Border>
                 <Style>None</Style>
@@ -1469,7 +1772,7 @@ SELECT em1.EventName, CAST(em1.StartDate AS DATE)[StartDate],CAST(em1.EndDate AS
           </Border>
         </Style>
       </Body>
-      <Width>10.90135in</Width>
+      <Width>10.9517in</Width>
       <Page>
         <PageHeight>6.9in</PageHeight>
         <PageWidth>11in</PageWidth>
