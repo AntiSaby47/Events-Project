@@ -19,15 +19,21 @@ using System.Data.Common;
 public partial class frmRegisterEventDSA : System.Web.UI.Page
 {
     private static int refreshMode = 0;
-    string connectionString = ConfigurationManager.ConnectionStrings["TestCS"].ConnectionString;
+    string connectionString = ConfigurationManager.ConnectionStrings["NewUmsConnectionString"].ConnectionString;
     private string folderOnFTPServer = "test";
     private string TEMP_FOLDER_PATH = "~/Temp/";
+    private static readonly string[] certificateTypes = {"E","M","P","R","T"};
 
     protected void Page_Load(object sender, EventArgs e)
     {
         if (refreshMode == 1)
         {
             showPopup("Event updated!");
+            refreshMode = 0;
+        }
+        else if (refreshMode == 2)
+        {
+            showPopup("Data updated!");
             refreshMode = 0;
         }
     }
@@ -41,7 +47,7 @@ public partial class frmRegisterEventDSA : System.Web.UI.Page
         int allowSubEvents = 0;
         if (redAllowSubEventCB.Checked) allowSubEvents = 1; else allowSubEvents = 0;
 
-        if(eventName.Length < 4)
+        if (eventName.Length < 4)
         {
             showPopup("Invalid Event Name!");
             return;
@@ -80,7 +86,7 @@ public partial class frmRegisterEventDSA : System.Web.UI.Page
     }
     private int checkIfAlreadyRegistered(string eventName, DateTime startDate, DateTime endDate, string organizedBy)
     {
-        try 
+        try
         {
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
@@ -103,37 +109,41 @@ public partial class frmRegisterEventDSA : System.Web.UI.Page
     private void registerEvent(string eventName, DateTime startDate, DateTime endDate, string organizedBy, int allowSubEvents)
     {
         int isActive = 2;
-        try 
+        if (startDate < endDate)
         {
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            try
             {
-                SqlCommand cmd = new SqlCommand("INSERT INTO EventMaster(EventName, StartDate, EndDate, EventStatus, OrganisedBy, HasCategories) VALUES(@EN, @SD, @ED, @AT, @OB, @aSE)", connection);
-                cmd.Parameters.Add("@EN", SqlDbType.VarChar).Value = eventName;
-                cmd.Parameters.Add("@SD", SqlDbType.DateTime).Value = startDate;
-                cmd.Parameters.Add("@ED", SqlDbType.DateTime).Value = endDate;
-                cmd.Parameters.Add("@AT", SqlDbType.SmallInt).Value = isActive;
-                cmd.Parameters.Add("@OB", SqlDbType.VarChar).Value = organizedBy;
-                cmd.Parameters.Add("@aSE", allowSubEvents);
-                connection.Open();
-                int rowsAffected = cmd.ExecuteNonQuery();
-                if (rowsAffected <= 0)
+                using (SqlConnection connection = new SqlConnection(connectionString))
                 {
-                    showPopup("Couldn\\'t register event. Please reopen the page and try again.");
-                }
+                    SqlCommand cmd = new SqlCommand("INSERT INTO EventMaster(EventName, StartDate, EndDate, EventStatus, OrganisedBy, HasCategories) VALUES(@EN, @SD, @ED, @AT, @OB, @aSE)", connection);
+                    cmd.Parameters.Add("@EN", SqlDbType.VarChar).Value = eventName;
+                    cmd.Parameters.Add("@SD", SqlDbType.DateTime).Value = startDate;
+                    cmd.Parameters.Add("@ED", SqlDbType.DateTime).Value = endDate;
+                    cmd.Parameters.Add("@AT", SqlDbType.SmallInt).Value = isActive;
+                    cmd.Parameters.Add("@OB", SqlDbType.VarChar).Value = organizedBy;
+                    cmd.Parameters.Add("@aSE", allowSubEvents);
+                    connection.Open();
+                    int rowsAffected = cmd.ExecuteNonQuery();
+                    if (rowsAffected <= 0)
+                    {
+                        showPopup("Couldn\\'t register event. Please reopen the page and try again.");
+                    }
 
-                else
-                {
-                    showPopup("Event registered. Note down the Event name and start date. You\\'ll need it while uploading event data.");
+                    else
+                    {
+                        showPopup("Event registered. Note down the Event name and start date. You\\'ll need it while uploading event data.");
+                    }
+                    cmd.Dispose();
                 }
-                cmd.Dispose();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("Ex: " + ex.Message);
+                showPopup("Something went wrong while registering the event!");
+                return;
             }
         }
-        catch(Exception ex)
-        {
-            Debug.WriteLine("Ex: " + ex.Message);
-            showPopup("Something went wrong while registering the event!");
-            return;
-        }
+        else { showPopup("Start Date Should be less than End Date."); }
     }
 
     private void showPopup(string text)
@@ -188,7 +198,7 @@ public partial class frmRegisterEventDSA : System.Web.UI.Page
 
         }
 
-        else if(e.CommandName == "ViewExcel")
+        else if (e.CommandName == "ViewExcel")
         {
             try
             {
@@ -252,10 +262,19 @@ public partial class frmRegisterEventDSA : System.Web.UI.Page
         {
             try
             {
-                string ID, excelName;
+                string ID, excelName, certificateType;
                 GridDataItem item = e.Item as GridDataItem;
                 ID = item["id"].Text;
                 excelName = item["ExcelName"].Text;
+                certificateType = excelName[excelName.IndexOf("_") + 1].ToString();
+                Debug.WriteLine("Certificate Type: " + certificateType);
+
+                if(!certificateTypes.Contains(certificateType))
+                {
+                    showPopup("Something went wrong while verifying certificate type. Please check the excel data sheet.");
+                    return;
+                }
+
                 string fileExtension = Path.GetExtension(excelName);
                 FtpService ftpClient = new FtpService();
                 FtpService.FtpCredentials credentials = FtpUserPassword.GetUMSFtpCredentials();
@@ -275,14 +294,11 @@ public partial class frmRegisterEventDSA : System.Web.UI.Page
                     excelConnString = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source={0};Extended Properties=\"Excel 12.0;HDR=Yes;IMEX=2\"";
 
                 excelConnString = String.Format(excelConnString, tempFilePath);
-                Debug.WriteLine("ExcelString: " + excelConnString);
 
                 using (OleDbConnection excelConnection = new OleDbConnection(excelConnString))
                 {
-                    Debug.WriteLine("CP1");
                     excelConnection.Open();
                     //-------------------This block of code checks if the excel file has 1 sheet with name "Sheet1" or not-------------
-                    Debug.WriteLine("CP2");
                     DataTable dt = new DataTable();
                     dt = excelConnection.GetOleDbSchemaTable(OleDbSchemaGuid.Tables, null);
                     if (dt == null)
@@ -302,8 +318,12 @@ public partial class frmRegisterEventDSA : System.Web.UI.Page
                     }
                     //-----------------------------------------------------------------------------------------------------------------
                     //---------------------------------Main processing-----------------------------------------------------------------
-                    string query = "SELECT *, " + ID + " as [EventID], 0 as EventCategoryID from [Sheet1$]";
+                    //string query = "SELECT *, " + ID + " as [EventID]," + certificateType + "[CertificateType], 0 as EventCategoryID from [Sheet1$]";
+                    string query = "SELECT *, @ID[EventID], @CT[CertificateType], 0[EventCategoryID] from [Sheet1$]";
                     OleDbCommand command = new OleDbCommand(query, excelConnection);
+                    command.Parameters.Add("@ID", OleDbType.Integer).Value = ID;
+                    command.Parameters.Add("@CT", OleDbType.VarChar).Value = certificateType;
+
                     DbDataReader dr = command.ExecuteReader();
 
                     using (SqlConnection connection = new SqlConnection(connectionString))
@@ -328,7 +348,7 @@ public partial class frmRegisterEventDSA : System.Web.UI.Page
                     dt.Dispose();
                 }
 
-                string query2 = "UPDATE EventMaster SET EventStatus = 3 WHERE id = @ID AND EventStatus = 2";
+                string query2 = "UPDATE EventMaster SET EventStatus = 4 WHERE id = @ID AND EventStatus = 3";
                 using (SqlConnection connection = new SqlConnection(connectionString))
                 {
                     SqlCommand sqlCommand = new SqlCommand(query2, connection);
@@ -338,7 +358,10 @@ public partial class frmRegisterEventDSA : System.Web.UI.Page
                     if (rowsAffected <= 0)
                         showPopup("Something went wrong while approving the file. Please try again later.");
                     else
+                    {
+                        refreshMode = 2;
                         Response.Redirect(Request.RawUrl);
+                    }
                 }
             }
 
@@ -350,6 +373,27 @@ public partial class frmRegisterEventDSA : System.Web.UI.Page
             }
 
         }
+
+        else if (e.CommandName == "RejectExcel")
+        {
+            GridDataItem item = e.Item as GridDataItem;
+            string ID = item["id"].Text;
+            string query2 = "UPDATE EventMaster SET ExcelName = 'REJECTED', EventStatus = 2 WHERE id = @ID";
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                SqlCommand sqlCommand = new SqlCommand(query2, connection);
+                sqlCommand.Parameters.Add("@ID", SqlDbType.Int).Value = ID;
+                connection.Open();
+                int rowsAffected = sqlCommand.ExecuteNonQuery();
+                if (rowsAffected <= 0)
+                    showPopup("Something went wrong while approving the file. Please try again later.");
+                else
+                {
+                    refreshMode = 2;
+                    Response.Redirect(Request.RawUrl);
+                }
+            }
+        }
     }
 
     protected void redSERegRequestRG_ItemDataBound(object sender, GridItemEventArgs e)
@@ -359,19 +403,19 @@ public partial class frmRegisterEventDSA : System.Web.UI.Page
             GridDataItem item = e.Item as GridDataItem;
             int eventStatus = Int32.Parse(item["EventStatus"].Text);
             string excelName = item["ExcelName"].Text;
-            Debug.WriteLine("Name: " + excelName);
-            if(eventStatus != 0)
+            if (eventStatus != 1)
             {
                 RadButton approveBtn = item.FindControl("redSEReqAllowBtn") as RadButton;
                 RadButton rejectBtn = item.FindControl("redSEReqRejectBtn") as RadButton;
                 approveBtn.Visible = rejectBtn.Visible = false;
             }
 
-            if (eventStatus != 2 || excelName == "&nbsp;")
+            if (eventStatus != 3)
             {
                 RadButton viewBtn = item.FindControl("redExcelBtn") as RadButton;
                 RadButton approveExcelBtn = item.FindControl("redApproveExcelBtn") as RadButton;
-                viewBtn.Visible = approveExcelBtn.Visible = false;
+                RadButton rejectExcelBtn = item.FindControl("redRejectExcelBtn") as RadButton;
+                viewBtn.Visible = approveExcelBtn.Visible = rejectExcelBtn.Visible = false;
             }
         }
     }

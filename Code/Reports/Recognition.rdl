@@ -16,40 +16,24 @@
     <DataSet Name="EventsDataSet">
       <Query>
         <DataSourceName>DataSource1</DataSourceName>
-        <CommandText>SELECT EventName, CAST(StartDate AS DATE)[StartDate],CAST(EndDate AS DATE)[EndDate], OrganisedBy, ec.ID, StudentName, FatherName, HusbandName, CollegeOrSchool, RegisterationNumber, ProgramName, EventCategoryID, Position, IsLPUStudent FROM EventMaster em INNER JOIN EventCertificates ec ON em.id = ec.EventID</CommandText>
+        <CommandText>SELECT * from EventCertificates</CommandText>
         <rd:UseGenericDesigner>true</rd:UseGenericDesigner>
       </Query>
       <Fields>
         <Field Name="ID">
-          <DataField>ID</DataField>
+          <DataField>id</DataField>
           <rd:TypeName>System.Int32</rd:TypeName>
-        </Field>
-        <Field Name="EventName">
-          <DataField>EventName</DataField>
-          <rd:TypeName>System.String</rd:TypeName>
         </Field>
         <Field Name="StudentName">
           <DataField>StudentName</DataField>
           <rd:TypeName>System.String</rd:TypeName>
         </Field>
-        <Field Name="StartDate">
-          <DataField>StartDate</DataField>
-          <rd:TypeName>System.DateTime</rd:TypeName>
-        </Field>
         <Field Name="FatherName">
           <DataField>FatherName</DataField>
           <rd:TypeName>System.String</rd:TypeName>
         </Field>
-        <Field Name="EndDate">
-          <DataField>EndDate</DataField>
-          <rd:TypeName>System.DateTime</rd:TypeName>
-        </Field>
         <Field Name="HusbandName">
           <DataField>HusbandName</DataField>
-          <rd:TypeName>System.String</rd:TypeName>
-        </Field>
-        <Field Name="OrganisedBy">
-          <DataField>OrganisedBy</DataField>
           <rd:TypeName>System.String</rd:TypeName>
         </Field>
         <Field Name="CollegeOrSchool">
@@ -63,6 +47,10 @@
         <Field Name="ProgramName">
           <DataField>ProgramName</DataField>
           <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="EventID">
+          <DataField>EventID</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
         </Field>
         <Field Name="EventCategoryID">
           <DataField>EventCategoryID</DataField>
@@ -87,12 +75,12 @@
             <TablixBody>
               <TablixColumns>
                 <TablixColumn>
-                  <Width>10.86836in</Width>
+                  <Width>11.00378in</Width>
                 </TablixColumn>
               </TablixColumns>
               <TablixRows>
                 <TablixRow>
-                  <Height>4.79841in</Height>
+                  <Height>4.92206in</Height>
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
@@ -116,8 +104,8 @@
                                 </Paragraph>
                               </Paragraphs>
                               <rd:DefaultName>Textbox6</rd:DefaultName>
-                              <Top>0.125in</Top>
-                              <Left>8.84322in</Left>
+                              <Top>0in</Top>
+                              <Left>8.96822in</Left>
                               <Height>0.23681in</Height>
                               <Width>1.9989in</Width>
                               <Style>
@@ -137,7 +125,7 @@
                                 <Paragraph>
                                   <TextRuns>
                                     <TextRun>
-                                      <Value>Certificate of  Exellence</Value>
+                                      <Value>Certificate of  Recognition</Value>
                                       <Style>
                                         <FontStyle>Italic</FontStyle>
                                         <FontFamily>Swis721 BT</FontFamily>
@@ -153,9 +141,9 @@
                               </Paragraphs>
                               <rd:DefaultName>Textbox1</rd:DefaultName>
                               <Top>0.84276in</Top>
-                              <Left>3.58435in</Left>
+                              <Left>3.50101in</Left>
                               <Height>0.47703in</Height>
-                              <Width>4.61939in</Width>
+                              <Width>4.70272in</Width>
                               <ZIndex>1</ZIndex>
                               <Style>
                                 <Border>
@@ -174,7 +162,7 @@
                                 <Paragraph>
                                   <TextRuns>
                                     <TextRun>
-                                      <Value>This is to certify that</Value>
+                                      <Value>Presented to Mr. /Ms.</Value>
                                       <Style>
                                         <FontStyle>Italic</FontStyle>
                                         <FontFamily>Swis721 BT</FontFamily>
@@ -188,8 +176,8 @@
                               <rd:DefaultName>Textbox2</rd:DefaultName>
                               <Top>1.54629in</Top>
                               <Left>0.89153in</Left>
-                              <Height>0.28472in</Height>
-                              <Width>1.61432in</Width>
+                              <Height>0.25in</Height>
+                              <Width>1.67753in</Width>
                               <ZIndex>2</ZIndex>
                               <Style>
                                 <Border>
@@ -203,9 +191,9 @@
                             </Textbox>
                             <Line Name="Line1">
                               <Top>1.76263in</Top>
-                              <Left>2.45109in</Left>
+                              <Left>2.52401in</Left>
                               <Height>0in</Height>
-                              <Width>3.66667in</Width>
+                              <Width>3.59375in</Width>
                               <ZIndex>3</ZIndex>
                               <Style>
                                 <Border>
@@ -246,7 +234,7 @@
                               <rd:DefaultName>Textbox2</rd:DefaultName>
                               <Top>1.55484in</Top>
                               <Left>6.1381in</Left>
-                              <Height>0.26042in</Height>
+                              <Height>0.25in</Height>
                               <Width>1.12474in</Width>
                               <ZIndex>4</ZIndex>
                               <Style>
@@ -290,8 +278,8 @@
                                 </Paragraph>
                               </Paragraphs>
                               <rd:DefaultName>Textbox2</rd:DefaultName>
-                              <Top>1.87775in</Top>
-                              <Left>0.9038in</Left>
+                              <Top>1.83795in</Top>
+                              <Left>0.89152in</Left>
                               <Height>0.25in</Height>
                               <Width>0.93094in</Width>
                               <ZIndex>6</ZIndex>
@@ -306,8 +294,8 @@
                               </Style>
                             </Textbox>
                             <Line Name="Line3">
-                              <Top>2.08554in</Top>
-                              <Left>1.74461in</Left>
+                              <Top>2.05429in</Top>
+                              <Left>1.73233in</Left>
                               <Height>0in</Height>
                               <Width>9.06736in</Width>
                               <ZIndex>7</ZIndex>
@@ -336,9 +324,9 @@
                                 </Paragraph>
                               </Paragraphs>
                               <rd:DefaultName>Textbox2</rd:DefaultName>
-                              <Top>2.16942in</Top>
-                              <Left>0.9038in</Left>
-                              <Height>0.27778in</Height>
+                              <Top>2.13817in</Top>
+                              <Left>0.89152in</Left>
+                              <Height>0.26661in</Height>
                               <Width>1.30182in</Width>
                               <ZIndex>8</ZIndex>
                               <Style>
@@ -370,9 +358,9 @@
                                 </Paragraph>
                               </Paragraphs>
                               <rd:DefaultName>Textbox2</rd:DefaultName>
-                              <Top>2.17476in</Top>
-                              <Left>4.15852in</Left>
-                              <Height>0.29167in</Height>
+                              <Top>2.14351in</Top>
+                              <Left>4.14624in</Left>
+                              <Height>0.27083in</Height>
                               <Width>0.78099in</Width>
                               <ZIndex>9</ZIndex>
                               <Style>
@@ -386,60 +374,11 @@
                               </Style>
                             </Textbox>
                             <Line Name="Line5">
-                              <Top>2.37721in</Top>
-                              <Left>4.87832in</Left>
+                              <Top>2.34596in</Top>
+                              <Left>4.86604in</Left>
                               <Height>0in</Height>
                               <Width>5.93365in</Width>
                               <ZIndex>10</ZIndex>
-                              <Style>
-                                <Border>
-                                  <Style>Solid</Style>
-                                </Border>
-                              </Style>
-                            </Line>
-                            <Textbox Name="Textbox9">
-                              <CanGrow>true</CanGrow>
-                              <KeepTogether>true</KeepTogether>
-                              <Paragraphs>
-                                <Paragraph>
-                                  <TextRuns>
-                                    <TextRun>
-                                      <Value>stood </Value>
-                                      <Style>
-                                        <FontStyle>Italic</FontStyle>
-                                        <FontFamily>Swis721 BT</FontFamily>
-                                        <FontSize>12pt</FontSize>
-                                        <FontWeight>Normal</FontWeight>
-                                        <TextDecoration>None</TextDecoration>
-                                        <Color>#000000</Color>
-                                      </Style>
-                                    </TextRun>
-                                  </TextRuns>
-                                  <Style />
-                                </Paragraph>
-                              </Paragraphs>
-                              <rd:DefaultName>Textbox2</rd:DefaultName>
-                              <Top>2.5097in</Top>
-                              <Left>0.9038in</Left>
-                              <Height>0.25in</Height>
-                              <Width>0.54969in</Width>
-                              <ZIndex>11</ZIndex>
-                              <Style>
-                                <Border>
-                                  <Style>None</Style>
-                                </Border>
-                                <PaddingLeft>2pt</PaddingLeft>
-                                <PaddingRight>2pt</PaddingRight>
-                                <PaddingTop>2pt</PaddingTop>
-                                <PaddingBottom>2pt</PaddingBottom>
-                              </Style>
-                            </Textbox>
-                            <Line Name="Line7">
-                              <Top>2.73138in</Top>
-                              <Left>2.90094in</Left>
-                              <Height>0in</Height>
-                              <Width>2.54419in</Width>
-                              <ZIndex>12</ZIndex>
                               <Style>
                                 <Border>
                                   <Style>Solid</Style>
@@ -468,11 +407,11 @@
                                 </Paragraph>
                               </Paragraphs>
                               <rd:DefaultName>Textbox2</rd:DefaultName>
-                              <Top>2.8067in</Top>
-                              <Left>0.9038in</Left>
+                              <Top>2.75115in</Top>
+                              <Left>0.89153in</Left>
                               <Height>0.25in</Height>
                               <Width>0.83128in</Width>
-                              <ZIndex>13</ZIndex>
+                              <ZIndex>11</ZIndex>
                               <Style>
                                 <Border>
                                   <Style>None</Style>
@@ -484,11 +423,11 @@
                               </Style>
                             </Textbox>
                             <Line Name="Line8">
-                              <Top>3.02304in</Top>
-                              <Left>1.69847in</Left>
+                              <Top>2.93971in</Top>
+                              <Left>1.68619in</Left>
                               <Height>0in</Height>
                               <Width>1.38721in</Width>
-                              <ZIndex>14</ZIndex>
+                              <ZIndex>12</ZIndex>
                               <Style>
                                 <Border>
                                   <Style>Solid</Style>
@@ -517,11 +456,11 @@
                                 </Paragraph>
                               </Paragraphs>
                               <rd:DefaultName>Textbox2</rd:DefaultName>
-                              <Top>2.81525in</Top>
-                              <Left>3.12537in</Left>
+                              <Top>2.74768in</Top>
+                              <Left>3.07768in</Left>
                               <Height>0.25in</Height>
                               <Width>0.24974in</Width>
-                              <ZIndex>15</ZIndex>
+                              <ZIndex>13</ZIndex>
                               <Style>
                                 <Border>
                                   <Style>None</Style>
@@ -533,11 +472,11 @@
                               </Style>
                             </Textbox>
                             <Line Name="Line9">
-                              <Top>3.02304in</Top>
-                              <Left>3.32106in</Left>
+                              <Top>2.93971in</Top>
+                              <Left>3.30878in</Left>
                               <Height>0in</Height>
                               <Width>1.53916in</Width>
-                              <ZIndex>16</ZIndex>
+                              <ZIndex>14</ZIndex>
                               <Style>
                                 <Border>
                                   <Style>Solid</Style>
@@ -566,11 +505,11 @@
                                 </Paragraph>
                               </Paragraphs>
                               <rd:DefaultName>Textbox2</rd:DefaultName>
-                              <Top>2.81525in</Top>
-                              <Left>4.87916in</Left>
-                              <Height>0.28125in</Height>
+                              <Top>2.73192in</Top>
+                              <Left>4.86688in</Left>
+                              <Height>0.26923in</Height>
                               <Width>1.11432in</Width>
-                              <ZIndex>17</ZIndex>
+                              <ZIndex>15</ZIndex>
                               <Style>
                                 <Border>
                                   <Style>None</Style>
@@ -582,11 +521,11 @@
                               </Style>
                             </Textbox>
                             <Line Name="Line10">
-                              <Top>2.73138in</Top>
-                              <Left>6.44205in</Left>
+                              <Top>2.64805in</Top>
+                              <Left>7.87988in</Left>
                               <Height>0in</Height>
-                              <Width>4.38137in</Width>
-                              <ZIndex>18</ZIndex>
+                              <Width>2.90001in</Width>
+                              <ZIndex>16</ZIndex>
                               <Style>
                                 <Border>
                                   <Style>Solid</Style>
@@ -614,11 +553,11 @@
                                 </Paragraph>
                               </Paragraphs>
                               <rd:DefaultName>Textbox23</rd:DefaultName>
-                              <Top>3.10692in</Top>
-                              <Left>0.9038in</Left>
-                              <Height>0.26042in</Height>
+                              <Top>3.05323in</Top>
+                              <Left>0.89152in</Left>
+                              <Height>0.30208in</Height>
                               <Width>2.94792in</Width>
-                              <ZIndex>19</ZIndex>
+                              <ZIndex>17</ZIndex>
                               <Style>
                                 <Border>
                                   <Style>None</Style>
@@ -663,11 +602,11 @@
                                 </Paragraph>
                               </Paragraphs>
                               <rd:DefaultName>Textbox30</rd:DefaultName>
-                              <Top>4.41299in</Top>
-                              <Left>0.9038in</Left>
+                              <Top>4.51716in</Top>
+                              <Left>0.97964in</Left>
                               <Height>0.37366in</Height>
                               <Width>2.39361in</Width>
-                              <ZIndex>20</ZIndex>
+                              <ZIndex>18</ZIndex>
                               <Style>
                                 <Border>
                                   <Style>None</Style>
@@ -698,11 +637,11 @@
                                 </Paragraph>
                               </Paragraphs>
                               <rd:DefaultName>Textbox30</rd:DefaultName>
-                              <Top>4.51716in</Top>
-                              <Left>5.07768in</Left>
+                              <Top>4.62133in</Top>
+                              <Left>5.15352in</Left>
                               <Height>0.23592in</Height>
                               <Width>1.54902in</Width>
-                              <ZIndex>21</ZIndex>
+                              <ZIndex>19</ZIndex>
                               <Style>
                                 <Border>
                                   <Style>None</Style>
@@ -747,11 +686,11 @@
                                 </Paragraph>
                               </Paragraphs>
                               <rd:DefaultName>Textbox1</rd:DefaultName>
-                              <Top>4.42341in</Top>
-                              <Left>8.89238in</Left>
+                              <Top>4.52758in</Top>
+                              <Left>8.96822in</Left>
                               <Height>0.36458in</Height>
                               <Width>1.84375in</Width>
-                              <ZIndex>22</ZIndex>
+                              <ZIndex>20</ZIndex>
                               <Style>
                                 <Border>
                                   <Style>None</Style>
@@ -794,11 +733,11 @@
                                 </Paragraph>
                               </Paragraphs>
                               <rd:DefaultName>Textbox27</rd:DefaultName>
-                              <Top>3.59197in</Top>
-                              <Left>0.95588in</Left>
+                              <Top>3.50864in</Top>
+                              <Left>0.9436in</Left>
                               <Height>0.35302in</Height>
                               <Width>1.7465in</Width>
-                              <ZIndex>23</ZIndex>
+                              <ZIndex>21</ZIndex>
                               <Style>
                                 <Border>
                                   <Style>None</Style>
@@ -816,7 +755,7 @@
                                 <Paragraph>
                                   <TextRuns>
                                     <TextRun>
-                                      <Value>in the event</Value>
+                                      <Value>in organizing the event</Value>
                                       <Style>
                                         <FontStyle>Italic</FontStyle>
                                         <FontFamily>Swis721 BT</FontFamily>
@@ -831,11 +770,11 @@
                                 </Paragraph>
                               </Paragraphs>
                               <rd:DefaultName>Textbox2</rd:DefaultName>
-                              <Top>2.52359in</Top>
-                              <Left>5.43454in</Left>
-                              <Height>0.25in</Height>
-                              <Width>1.02012in</Width>
-                              <ZIndex>24</ZIndex>
+                              <Top>2.44026in</Top>
+                              <Left>6.17226in</Left>
+                              <Height>0.26922in</Height>
+                              <Width>1.78054in</Width>
+                              <ZIndex>22</ZIndex>
                               <Style>
                                 <Border>
                                   <Style>None</Style>
@@ -847,11 +786,11 @@
                               </Style>
                             </Textbox>
                             <Line Name="Line11">
-                              <Top>3.02304in</Top>
-                              <Left>5.94704in</Left>
+                              <Top>2.93971in</Top>
+                              <Left>5.93476in</Left>
                               <Height>0in</Height>
                               <Width>4.86493in</Width>
-                              <ZIndex>25</ZIndex>
+                              <ZIndex>23</ZIndex>
                               <Style>
                                 <Border>
                                   <Style>Solid</Style>
@@ -859,11 +798,11 @@
                               </Style>
                             </Line>
                             <Line Name="Line4">
-                              <Top>2.3911in</Top>
-                              <Left>2.18812in</Left>
+                              <Top>2.35985in</Top>
+                              <Left>2.17584in</Left>
                               <Height>0in</Height>
                               <Width>1.96883in</Width>
-                              <ZIndex>26</ZIndex>
+                              <ZIndex>24</ZIndex>
                               <Style>
                                 <Border>
                                   <Style>Solid</Style>
@@ -877,7 +816,7 @@
                                 <Paragraph>
                                   <TextRuns>
                                     <TextRun>
-                                      <Value> in </Value>
+                                      <Value>in  recognition of his/her contribution as</Value>
                                       <Style>
                                         <FontStyle>Italic</FontStyle>
                                         <FontFamily>Swis721 BT</FontFamily>
@@ -892,11 +831,11 @@
                                 </Paragraph>
                               </Paragraphs>
                               <rd:DefaultName>Textbox2</rd:DefaultName>
-                              <Top>2.54228in</Top>
-                              <Left>2.60912in</Left>
-                              <Height>0.25in</Height>
-                              <Width>0.33094in</Width>
-                              <ZIndex>27</ZIndex>
+                              <Top>2.44645in</Top>
+                              <Left>0.89153in</Left>
+                              <Height>0.26303in</Height>
+                              <Width>3.07052in</Width>
+                              <ZIndex>25</ZIndex>
                               <Style>
                                 <Border>
                                   <Style>None</Style>
@@ -908,387 +847,17 @@
                               </Style>
                             </Textbox>
                             <Line Name="Line12">
-                              <Top>2.73138in</Top>
-                              <Left>1.43536in</Left>
+                              <Top>2.64853in</Top>
+                              <Left>3.89662in</Left>
                               <Height>0in</Height>
-                              <Width>1.14598in</Width>
-                              <ZIndex>28</ZIndex>
+                              <Width>2.23364in</Width>
+                              <ZIndex>26</ZIndex>
                               <Style>
                                 <Border>
                                   <Style>Solid</Style>
                                 </Border>
                               </Style>
                             </Line>
-                            <Textbox Name="StudentName">
-                              <CanGrow>true</CanGrow>
-                              <KeepTogether>true</KeepTogether>
-                              <Paragraphs>
-                                <Paragraph>
-                                  <TextRuns>
-                                    <TextRun>
-                                      <Value>=Fields!StudentName.Value</Value>
-                                      <Style>
-                                        <FontStyle>Italic</FontStyle>
-                                        <FontFamily>Swis721 BT</FontFamily>
-                                        <FontSize>12pt</FontSize>
-                                        <FontWeight>Bold</FontWeight>
-                                      </Style>
-                                    </TextRun>
-                                  </TextRuns>
-                                  <Style>
-                                    <TextAlign>Center</TextAlign>
-                                  </Style>
-                                </Paragraph>
-                              </Paragraphs>
-                              <rd:DefaultName>StudentName</rd:DefaultName>
-                              <Top>1.53207in</Top>
-                              <Left>2.51974in</Left>
-                              <Height>0.25in</Height>
-                              <Width>3.54892in</Width>
-                              <ZIndex>29</ZIndex>
-                              <Style>
-                                <Border>
-                                  <Style>None</Style>
-                                </Border>
-                                <PaddingLeft>2pt</PaddingLeft>
-                                <PaddingRight>2pt</PaddingRight>
-                                <PaddingTop>2pt</PaddingTop>
-                                <PaddingBottom>2pt</PaddingBottom>
-                              </Style>
-                            </Textbox>
-                            <Textbox Name="StudentName2">
-                              <CanGrow>true</CanGrow>
-                              <KeepTogether>true</KeepTogether>
-                              <Paragraphs>
-                                <Paragraph>
-                                  <TextRuns>
-                                    <TextRun>
-                                      <Value>=IIF(Fields!FatherName.Value Is Nothing, Fields!HusbandName.Value, Fields!FatherName.Value)</Value>
-                                      <Style>
-                                        <FontStyle>Italic</FontStyle>
-                                        <FontFamily>Swis721 BT</FontFamily>
-                                        <FontSize>12pt</FontSize>
-                                        <FontWeight>Bold</FontWeight>
-                                      </Style>
-                                    </TextRun>
-                                  </TextRuns>
-                                  <Style>
-                                    <TextAlign>Center</TextAlign>
-                                  </Style>
-                                </Paragraph>
-                              </Paragraphs>
-                              <rd:DefaultName>StudentName</rd:DefaultName>
-                              <Top>1.52353in</Top>
-                              <Left>7.22743in</Left>
-                              <Height>0.25in</Height>
-                              <Width>3.54892in</Width>
-                              <ZIndex>30</ZIndex>
-                              <Style>
-                                <Border>
-                                  <Style>None</Style>
-                                </Border>
-                                <PaddingLeft>2pt</PaddingLeft>
-                                <PaddingRight>2pt</PaddingRight>
-                                <PaddingTop>2pt</PaddingTop>
-                                <PaddingBottom>2pt</PaddingBottom>
-                              </Style>
-                            </Textbox>
-                            <Textbox Name="StudentName3">
-                              <CanGrow>true</CanGrow>
-                              <KeepTogether>true</KeepTogether>
-                              <Paragraphs>
-                                <Paragraph>
-                                  <TextRuns>
-                                    <TextRun>
-                                      <Value>=Fields!CollegeOrSchool.Value</Value>
-                                      <Style>
-                                        <FontStyle>Italic</FontStyle>
-                                        <FontFamily>Swis721 BT</FontFamily>
-                                        <FontSize>12pt</FontSize>
-                                        <FontWeight>Bold</FontWeight>
-                                      </Style>
-                                    </TextRun>
-                                  </TextRuns>
-                                  <Style>
-                                    <TextAlign>Center</TextAlign>
-                                  </Style>
-                                </Paragraph>
-                              </Paragraphs>
-                              <rd:DefaultName>StudentName</rd:DefaultName>
-                              <Top>1.84304in</Top>
-                              <Left>1.74461in</Left>
-                              <Height>0.25in</Height>
-                              <Width>9.07881in</Width>
-                              <ZIndex>31</ZIndex>
-                              <Style>
-                                <Border>
-                                  <Style>None</Style>
-                                </Border>
-                                <PaddingLeft>2pt</PaddingLeft>
-                                <PaddingRight>2pt</PaddingRight>
-                                <PaddingTop>2pt</PaddingTop>
-                                <PaddingBottom>2pt</PaddingBottom>
-                              </Style>
-                            </Textbox>
-                            <Textbox Name="StudentName4">
-                              <CanGrow>true</CanGrow>
-                              <KeepTogether>true</KeepTogether>
-                              <Paragraphs>
-                                <Paragraph>
-                                  <TextRuns>
-                                    <TextRun>
-                                      <Value>=Fields!RegisterationNumber.Value</Value>
-                                      <Style>
-                                        <FontStyle>Italic</FontStyle>
-                                        <FontFamily>Swis721 BT</FontFamily>
-                                        <FontSize>12pt</FontSize>
-                                        <FontWeight>Bold</FontWeight>
-                                      </Style>
-                                    </TextRun>
-                                  </TextRuns>
-                                  <Style>
-                                    <TextAlign>Center</TextAlign>
-                                  </Style>
-                                </Paragraph>
-                              </Paragraphs>
-                              <rd:DefaultName>StudentName</rd:DefaultName>
-                              <Top>2.16103in</Top>
-                              <Left>2.24729in</Left>
-                              <Height>0.25in</Height>
-                              <Width>1.90966in</Width>
-                              <ZIndex>32</ZIndex>
-                              <Style>
-                                <Border>
-                                  <Style>None</Style>
-                                </Border>
-                                <PaddingLeft>2pt</PaddingLeft>
-                                <PaddingRight>2pt</PaddingRight>
-                                <PaddingTop>2pt</PaddingTop>
-                                <PaddingBottom>2pt</PaddingBottom>
-                              </Style>
-                            </Textbox>
-                            <Textbox Name="StudentName5">
-                              <CanGrow>true</CanGrow>
-                              <KeepTogether>true</KeepTogether>
-                              <Paragraphs>
-                                <Paragraph>
-                                  <TextRuns>
-                                    <TextRun>
-                                      <Value>=Fields!ProgramName.Value</Value>
-                                      <Style>
-                                        <FontStyle>Italic</FontStyle>
-                                        <FontFamily>Swis721 BT</FontFamily>
-                                        <FontSize>12pt</FontSize>
-                                        <FontWeight>Bold</FontWeight>
-                                      </Style>
-                                    </TextRun>
-                                  </TextRuns>
-                                  <Style>
-                                    <TextAlign>Center</TextAlign>
-                                  </Style>
-                                </Paragraph>
-                              </Paragraphs>
-                              <rd:DefaultName>StudentName</rd:DefaultName>
-                              <Top>2.14304in</Top>
-                              <Left>4.93951in</Left>
-                              <Height>0.25in</Height>
-                              <Width>5.83684in</Width>
-                              <ZIndex>33</ZIndex>
-                              <Style>
-                                <Border>
-                                  <Style>None</Style>
-                                </Border>
-                                <PaddingLeft>2pt</PaddingLeft>
-                                <PaddingRight>2pt</PaddingRight>
-                                <PaddingTop>2pt</PaddingTop>
-                                <PaddingBottom>2pt</PaddingBottom>
-                              </Style>
-                            </Textbox>
-                            <Textbox Name="StudentName6">
-                              <CanGrow>true</CanGrow>
-                              <KeepTogether>true</KeepTogether>
-                              <Paragraphs>
-                                <Paragraph>
-                                  <TextRuns>
-                                    <TextRun>
-                                      <Value>=Fields!Position.Value</Value>
-                                      <Style>
-                                        <FontStyle>Italic</FontStyle>
-                                        <FontFamily>Swis721 BT</FontFamily>
-                                        <FontSize>12pt</FontSize>
-                                        <FontWeight>Bold</FontWeight>
-                                      </Style>
-                                    </TextRun>
-                                  </TextRuns>
-                                  <Style>
-                                    <TextAlign>Center</TextAlign>
-                                  </Style>
-                                </Paragraph>
-                              </Paragraphs>
-                              <rd:DefaultName>StudentName</rd:DefaultName>
-                              <Top>2.50276in</Top>
-                              <Left>1.49516in</Left>
-                              <Height>0.25in</Height>
-                              <Width>1.05841in</Width>
-                              <ZIndex>34</ZIndex>
-                              <Style>
-                                <Border>
-                                  <Style>None</Style>
-                                </Border>
-                                <PaddingLeft>2pt</PaddingLeft>
-                                <PaddingRight>2pt</PaddingRight>
-                                <PaddingTop>2pt</PaddingTop>
-                                <PaddingBottom>2pt</PaddingBottom>
-                              </Style>
-                            </Textbox>
-                            <Textbox Name="StudentName7">
-                              <CanGrow>true</CanGrow>
-                              <KeepTogether>true</KeepTogether>
-                              <Paragraphs>
-                                <Paragraph>
-                                  <TextRuns>
-                                    <TextRun>
-                                      <Value>=Fields!EventName.Value</Value>
-                                      <Style>
-                                        <FontStyle>Italic</FontStyle>
-                                        <FontFamily>Swis721 BT</FontFamily>
-                                        <FontSize>12pt</FontSize>
-                                        <FontWeight>Bold</FontWeight>
-                                      </Style>
-                                    </TextRun>
-                                  </TextRuns>
-                                  <Style>
-                                    <TextAlign>Center</TextAlign>
-                                  </Style>
-                                </Paragraph>
-                              </Paragraphs>
-                              <rd:DefaultName>StudentName</rd:DefaultName>
-                              <Top>2.49388in</Top>
-                              <Left>6.5241in</Left>
-                              <Height>0.25in</Height>
-                              <Width>4.25225in</Width>
-                              <ZIndex>35</ZIndex>
-                              <Style>
-                                <Border>
-                                  <Style>None</Style>
-                                </Border>
-                                <PaddingLeft>2pt</PaddingLeft>
-                                <PaddingRight>2pt</PaddingRight>
-                                <PaddingTop>2pt</PaddingTop>
-                                <PaddingBottom>2pt</PaddingBottom>
-                              </Style>
-                            </Textbox>
-                            <Textbox Name="StudentName8">
-                              <CanGrow>true</CanGrow>
-                              <KeepTogether>true</KeepTogether>
-                              <Paragraphs>
-                                <Paragraph>
-                                  <TextRuns>
-                                    <TextRun>
-                                      <Value>=Fields!StartDate.Value</Value>
-                                      <Style>
-                                        <FontStyle>Italic</FontStyle>
-                                        <FontFamily>Swis721 BT</FontFamily>
-                                        <FontSize>12pt</FontSize>
-                                        <FontWeight>Bold</FontWeight>
-                                      </Style>
-                                    </TextRun>
-                                  </TextRuns>
-                                  <Style>
-                                    <TextAlign>Center</TextAlign>
-                                  </Style>
-                                </Paragraph>
-                              </Paragraphs>
-                              <rd:DefaultName>StudentName</rd:DefaultName>
-                              <Top>2.79442in</Top>
-                              <Left>1.73508in</Left>
-                              <Height>0.25in</Height>
-                              <Width>1.3764in</Width>
-                              <ZIndex>36</ZIndex>
-                              <Style>
-                                <Border>
-                                  <Style>None</Style>
-                                </Border>
-                                <PaddingLeft>2pt</PaddingLeft>
-                                <PaddingRight>2pt</PaddingRight>
-                                <PaddingTop>2pt</PaddingTop>
-                                <PaddingBottom>2pt</PaddingBottom>
-                              </Style>
-                            </Textbox>
-                            <Textbox Name="StudentName9">
-                              <CanGrow>true</CanGrow>
-                              <KeepTogether>true</KeepTogether>
-                              <Paragraphs>
-                                <Paragraph>
-                                  <TextRuns>
-                                    <TextRun>
-                                      <Value>=Fields!EndDate.Value</Value>
-                                      <Style>
-                                        <FontStyle>Italic</FontStyle>
-                                        <FontFamily>Swis721 BT</FontFamily>
-                                        <FontSize>12pt</FontSize>
-                                        <FontWeight>Bold</FontWeight>
-                                      </Style>
-                                    </TextRun>
-                                  </TextRuns>
-                                  <Style>
-                                    <TextAlign>Center</TextAlign>
-                                  </Style>
-                                </Paragraph>
-                              </Paragraphs>
-                              <rd:DefaultName>StudentName</rd:DefaultName>
-                              <Top>2.79025in</Top>
-                              <Left>3.37511in</Left>
-                              <Height>0.25in</Height>
-                              <Width>1.46238in</Width>
-                              <ZIndex>37</ZIndex>
-                              <Style>
-                                <Border>
-                                  <Style>None</Style>
-                                </Border>
-                                <PaddingLeft>2pt</PaddingLeft>
-                                <PaddingRight>2pt</PaddingRight>
-                                <PaddingTop>2pt</PaddingTop>
-                                <PaddingBottom>2pt</PaddingBottom>
-                              </Style>
-                            </Textbox>
-                            <Textbox Name="StudentName10">
-                              <CanGrow>true</CanGrow>
-                              <KeepTogether>true</KeepTogether>
-                              <Paragraphs>
-                                <Paragraph>
-                                  <TextRuns>
-                                    <TextRun>
-                                      <Value>=Fields!OrganisedBy.Value</Value>
-                                      <Style>
-                                        <FontStyle>Italic</FontStyle>
-                                        <FontFamily>Swis721 BT</FontFamily>
-                                        <FontSize>12pt</FontSize>
-                                        <FontWeight>Bold</FontWeight>
-                                      </Style>
-                                    </TextRun>
-                                  </TextRuns>
-                                  <Style>
-                                    <TextAlign>Center</TextAlign>
-                                  </Style>
-                                </Paragraph>
-                              </Paragraphs>
-                              <rd:DefaultName>StudentName</rd:DefaultName>
-                              <Top>2.78416in</Top>
-                              <Left>6.00737in</Left>
-                              <Height>0.25in</Height>
-                              <Width>4.80377in</Width>
-                              <ZIndex>38</ZIndex>
-                              <Style>
-                                <Border>
-                                  <Style>None</Style>
-                                </Border>
-                                <PaddingLeft>2pt</PaddingLeft>
-                                <PaddingRight>2pt</PaddingRight>
-                                <PaddingTop>2pt</PaddingTop>
-                                <PaddingBottom>2pt</PaddingBottom>
-                              </Style>
-                            </Textbox>
                           </ReportItems>
                           <PageBreak>
                             <BreakLocation>End</BreakLocation>
@@ -1299,6 +868,7 @@
                             </Border>
                           </Style>
                         </Rectangle>
+                        <rd:Selected>true</rd:Selected>
                       </CellContents>
                     </TablixCell>
                   </TablixCells>
@@ -1318,8 +888,8 @@
               </TablixMembers>
             </TablixRowHierarchy>
             <DataSetName>EventsDataSet</DataSetName>
-            <Height>4.79841in</Height>
-            <Width>10.86836in</Width>
+            <Height>4.92206in</Height>
+            <Width>11.00378in</Width>
             <Style>
               <Border>
                 <Style>None</Style>
@@ -1327,17 +897,19 @@
             </Style>
           </Tablix>
         </ReportItems>
-        <Height>4.79841in</Height>
+        <Height>4.92206in</Height>
         <Style>
           <Border>
             <Style>None</Style>
           </Border>
         </Style>
       </Body>
-      <Width>10.91003in</Width>
+      <Width>11.00378in</Width>
       <Page>
-        <PageHeight>8.5in</PageHeight>
+        <PageHeight>6.9in</PageHeight>
         <PageWidth>11in</PageWidth>
+        <LeftMargin>0in</LeftMargin>
+        <RightMargin>0in</RightMargin>
         <TopMargin>1.5in</TopMargin>
         <BottomMargin>0.5in</BottomMargin>
         <Style />

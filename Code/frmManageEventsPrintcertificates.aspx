@@ -1,9 +1,7 @@
-﻿<%@ Page Title="" Language="C#" MasterPageFile="~/MasterPage.master" AutoEventWireup="true" CodeFile="frmEventsManage_PrintCerts.aspx.cs" Inherits="frmEventsManage_PrintCerts" %>
+﻿<%@ Page Title="" Language="C#" MasterPageFile="~/MasterPage.master" AutoEventWireup="true" CodeFile="frmManageEventsPrintCertificates.aspx.cs" Inherits="frmEventsManage_PrintCerts" %>
 <%@ Register Assembly="Telerik.Web.UI" Namespace="Telerik.Web.UI" TagPrefix="telerik" %>
 <%@ Register Assembly="AjaxControlToolkit" Namespace="AjaxControlToolkit" TagPrefix="ajaxToolkit" %>
 
-<asp:Content ID="Content1" ContentPlaceHolderID="head" Runat="Server">
-</asp:Content>
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" Runat="Server">
     <style>
         td { padding: 10px 30px 10px 30px; }
@@ -11,7 +9,6 @@
     <telerik:RadTabStrip ID="RadTabStrip1" runat="server" SelectedIndex="0" MultiPageID="RadMultiPage1">
         <Tabs>
             <telerik:RadTab runat="server" Text="View Events" Font-Bold="true" Selected="True"></telerik:RadTab>
-            <telerik:RadTab runat="server" Text="Print Data" Font-Bold="true"></telerik:RadTab>
         </Tabs>
     </telerik:RadTabStrip>
     <telerik:RadMultiPage ID="RadMultiPage1" runat="server" SelectedIndex="0">
@@ -56,11 +53,7 @@
                 </GroupByExpressions>
                 </MasterTableView>
             </telerik:RadGrid>
-            <asp:SqlDataSource ID="repDS" runat="server" ConnectionString="<%$ ConnectionStrings:TestCS %>" SelectCommand="SELECT em1.EventName[EventName], em1.StartDate[StartDate], em1.EventStatus[EventStatus], em1.OrganisedBy[OrganisedBy], em1.id[id], em2.EventName[ParentEventName] FROM EventMaster em1 INNER JOIN dbo.EventMaster em2 ON em1.parentEventId = em2.id WHERE em1.parentEventID IS NOT null AND em1.EventStatus = 3 AND em1.ExcelName IS NOT NULL"></asp:SqlDataSource>
-        </telerik:RadPageView>
-        <telerik:RadPageView ID="RadPageView2" runat="server">
-
-
+            <asp:SqlDataSource ID="repDS" runat="server" ConnectionString="<%$ ConnectionStrings:NewUmsConnectionString %>" SelectCommand="(SELECT em1.EventName[EventName], em1.StartDate[StartDate], em1.EventStatus[EventStatus], em1.OrganisedBy[OrganisedBy], em1.id[id], em2.EventName[ParentEventName] FROM EventMaster em1 INNER JOIN dbo.EventMaster em2 ON em1.parentEventId = em2.id WHERE em1.EventStatus = 4 AND em1.ExcelName IS NOT NULL AND em1.ParentEventID IS NOT NULL) UNION (SELECT EventName[EventName], StartDate[StartDate], EventStatus[EventStatus], OrganisedBy[OrganisedBy], [id], 'N.A.'[ParentEventName] FROM EventMaster WHERE EventStatus = 4 AND ExcelName IS NOT NULL AND ParentEventID IS NULL)"></asp:SqlDataSource>
         </telerik:RadPageView>
     </telerik:RadMultiPage> 
 </asp:Content>

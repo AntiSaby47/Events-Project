@@ -18,7 +18,7 @@ public partial class TestReportFile : System.Web.UI.Page
             ReportViewer1.ProcessingMode = ProcessingMode.Local;
             ReportViewer1.LocalReport.ReportPath = Server.MapPath("~/Reports/Certificate.rdl");
 
-            string conString = ConfigurationManager.ConnectionStrings["TestCS"].ConnectionString;
+            string conString = ConfigurationManager.ConnectionStrings["NewUmsConnectionString"].ConnectionString;
 
             SqlCommand cmd = new SqlCommand("SELECT * from EventCertificates");
             DataTable table = new DataTable();

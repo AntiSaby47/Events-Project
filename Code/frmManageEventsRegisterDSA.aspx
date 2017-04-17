@@ -1,4 +1,4 @@
-﻿<%@ Page  MasterPageFile="~/MasterPage.master" Language="C#" AutoEventWireup="true" CodeFile="frmRegisterEventDSA.aspx.cs" Inherits="frmRegisterEventDSA" %>
+﻿<%@ Page  MasterPageFile="~/MasterPage.master" Language="C#" AutoEventWireup="true" CodeFile="frmManageEventsRegisterDSA.aspx.cs" Inherits="frmRegisterEventDSA" %>
 
 <%@ Register Assembly="Telerik.Web.UI" Namespace="Telerik.Web.UI" TagPrefix="telerik" %>
 <%@ Register Assembly="AjaxControlToolkit" Namespace="AjaxControlToolkit" TagPrefix="ajaxToolkit" %>
@@ -18,7 +18,6 @@
 
     <telerik:RadMultiPage ID="RadMultiPage1" runat="server" SelectedIndex="0">
         <telerik:RadPageView ID="RadPageView1" runat="server">
-                <h3>Register Events - Division of Student Affairs</h3>
                 <table style="margin-top:30px;">
                     <tr>
                         <td>Event Name</td>
@@ -45,8 +44,7 @@
                 </table>
          </telerik:RadPageView>
          <telerik:RadPageView ID="RadPageView2" runat="server">
-               <h3>Invitation for Registeration</h3>
-               <telerik:RadGrid ID="redSERegRequestRG" runat="server" AllowFilteringByColumn="True" AllowPaging="True" AllowSorting="True" DataSourceID="SERegReqDS" GroupPanelPosition="Top" OnItemCommand="redSERegRequestRG_ItemCommand" OnItemDataBound="redSERegRequestRG_ItemDataBound">
+               <telerik:RadGrid style="margin-top:30px" ID="redSERegRequestRG" runat="server" AllowFilteringByColumn="True" AllowPaging="True" AllowSorting="True" DataSourceID="SERegReqDS" GroupPanelPosition="Top" OnItemCommand="redSERegRequestRG_ItemCommand" OnItemDataBound="redSERegRequestRG_ItemDataBound">
                    <GroupingSettings CollapseAllTooltip="Collapse all groups" />
                    <MasterTableView AutoGenerateColumns="False" DataSourceID="SERegReqDS">
                        <Columns>
@@ -86,6 +84,11 @@
                                     <telerik:RadButton ID="redApproveExcelBtn" runat="server" Text="Approve Excel File" CommandName="ApproveExcel"/>
                                 </ItemTemplate>
                             </telerik:GridTemplateColumn>
+                           <telerik:GridTemplateColumn HeaderText="Reject Excel File" UniqueName="RejectExcelFile"> 
+                                <ItemTemplate>
+                                    <telerik:RadButton ID="redRejectExcelBtn" runat="server" Text="Reject Excel File" CommandName="RejectExcel"/>
+                                </ItemTemplate>
+                            </telerik:GridTemplateColumn>
                        </Columns>
                        <GroupByExpressions>
                         <telerik:GridGroupByExpression>
@@ -99,7 +102,7 @@
                     </GroupByExpressions>
                    </MasterTableView>
                </telerik:RadGrid>
-             <asp:SqlDataSource ID="SERegReqDS" runat="server" ConnectionString="<%$ ConnectionStrings:TestCS %>" SelectCommand="SELECT em1.EventName[EventName], em1.StartDate[StartDate], em1.EventStatus[EventStatus], em1.OrganisedBy[OrganisedBy], em1.id[id], em2.EventName[ParentEventName], em2.id[ParentEventID], em1.ExcelName[ExcelName] FROM EventMaster em1 INNER JOIN dbo.EventMaster em2 ON em1.parentEventId = em2.id WHERE em1.parentEventID IS NOT null AND em1.EventStatus IN (0,2,3)"></asp:SqlDataSource>
+             <asp:SqlDataSource ID="SERegReqDS" runat="server" ConnectionString="<%$ ConnectionStrings:NewUmsConnectionString %>" SelectCommand="SELECT em1.EventName[EventName], em1.StartDate[StartDate], em1.EventStatus[EventStatus], em1.OrganisedBy[OrganisedBy], em1.id[id], em2.EventName[ParentEventName], em2.id[ParentEventID], em1.ExcelName[ExcelName] FROM EventMaster em1 INNER JOIN dbo.EventMaster em2 ON em1.parentEventId = em2.id WHERE em1.parentEventID IS NOT null AND em1.EventStatus IN (1,3)"></asp:SqlDataSource>
          </telerik:RadPageView>
     </telerik:RadMultiPage> 
 </asp:Content>

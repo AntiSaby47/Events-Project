@@ -18,7 +18,7 @@ using Microsoft.Reporting.WebForms;
 public partial class frmEventsManage_PrintCerts : System.Web.UI.Page
 {
     private static int refreshMode = 0;
-    String connectionString = ConfigurationManager.ConnectionStrings["TestCS"].ConnectionString;
+    String connectionString = ConfigurationManager.ConnectionStrings["NewUmsConnectionString"].ConnectionString;
     private string folderOnFTPServer = "test";
 
     protected void Page_Load(object sender, EventArgs e)
@@ -42,7 +42,7 @@ public partial class frmEventsManage_PrintCerts : System.Web.UI.Page
             int ID, pID;
             GridDataItem item = e.Item as GridDataItem;
             ID = Int32.Parse(item["id"].Text);
-            string query = "UPDATE EventMaster SET EventStatus = 4 WHERE id=@ID";
+            string query = "UPDATE EventMaster SET EventStatus = 5 WHERE id=@ID";
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 SqlCommand command = new SqlCommand(query, connection);
@@ -77,11 +77,11 @@ public partial class frmEventsManage_PrintCerts : System.Web.UI.Page
             // Setup the report viewer object and get the array of bytes
             ReportViewer viewer = new ReportViewer();
             viewer.ProcessingMode = ProcessingMode.Local;
-            viewer.LocalReport.ReportPath = Server.MapPath("~/Reports/Certificate.rdl");
+            viewer.LocalReport.ReportPath = Server.MapPath("~/Reports/Exellence.rdl");
 
-            string conString = ConfigurationManager.ConnectionStrings["TestCS"].ConnectionString;
+            string conString = ConfigurationManager.ConnectionStrings["NewUmsConnectionString"].ConnectionString;
 
-            SqlCommand cmd = new SqlCommand("SELECT * from EventCertificates");
+            SqlCommand cmd = new SqlCommand("SELECT em1.EventName, CAST(em1.StartDate AS DATE)[StartDate],CAST(em1.EndDate AS DATE)[EndDate], em1.OrganisedBy, ec.ID, StudentName, FatherName, HusbandName, CollegeOrSchool, RegisterationNumber, ProgramName, EventCategoryID, Position, IsLPUStudent, em1.ParentEventID, em2.EventName[ParentEventName] FROM EventMaster em1 INNER JOIN EventCertificates ec ON em1.id = ec.EventID INNER JOIN EventMaster em2 ON em1.ParentEventID=em2.id");
             DataTable table = new DataTable();
             using (SqlConnection con = new SqlConnection(conString))
             {
@@ -93,8 +93,7 @@ public partial class frmEventsManage_PrintCerts : System.Web.UI.Page
                 }
             }
 
-            System.Diagnostics.Debug.WriteLine("Size: " + table.Rows.Count);
-            ReportDataSource datasource = new ReportDataSource("NewEventsDataSet", table);
+            ReportDataSource datasource = new ReportDataSource("EventsDataSet", table);
             viewer.LocalReport.DataSources.Clear();
             viewer.LocalReport.DataSources.Add(datasource);
 
@@ -108,7 +107,7 @@ public partial class frmEventsManage_PrintCerts : System.Web.UI.Page
             Response.BinaryWrite(bytes); // create the file
             Response.Flush(); // send it to the client to download
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             Debug.WriteLine(ex.Message);
             showPopup("Something went wrong while generating the PDF!");

@@ -11,7 +11,7 @@ using System.Data;
 
 public partial class frmEventsManage_RegisterEvent : System.Web.UI.Page
 {
-    string connectionString = ConfigurationManager.ConnectionStrings["TestCS"].ConnectionString;
+    string connectionString = ConfigurationManager.ConnectionStrings["NewUmsConnectionString"].ConnectionString;
 
     protected void Page_Load(object sender, EventArgs e)
     {

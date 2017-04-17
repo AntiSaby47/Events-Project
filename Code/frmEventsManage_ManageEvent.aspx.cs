@@ -14,7 +14,7 @@ using System.Data.Common;
 
 public partial class frmEventsManage_ManageEvent : System.Web.UI.Page
 {
-    private string connectionString = ConfigurationManager.ConnectionStrings["TestCS"].ConnectionString;
+    private string connectionString = ConfigurationManager.ConnectionStrings["NewUmsConnectionString"].ConnectionString;
     private string TEMP_FOLDER_PATH = "~/Temp/";
     private static int selectedEventId;
 

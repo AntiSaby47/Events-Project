@@ -16,7 +16,7 @@
     <DataSet Name="EventsDataSet">
       <Query>
         <DataSourceName>DataSource1</DataSourceName>
-        <CommandText>SELECT EventName, CAST(StartDate AS DATE)[StartDate],CAST(EndDate AS DATE)[EndDate], OrganisedBy, ec.ID, StudentName, FatherName, HusbandName, CollegeOrSchool, RegisterationNumber, ProgramName, EventCategoryID, Position, IsLPUStudent FROM EventMaster em INNER JOIN EventCertificates ec ON em.id = ec.EventID</CommandText>
+        <CommandText>SELECT em1.EventName, CAST(em1.StartDate AS DATE)[StartDate],CAST(em1.EndDate AS DATE)[EndDate], em1.OrganisedBy, ec.ID, StudentName, FatherName, HusbandName, CollegeOrSchool, RegisterationNumber, ProgramName, EventCategoryID, Position, IsLPUStudent, em1.ParentEventID, em2.EventName[ParentEventName] FROM EventMaster em1 INNER JOIN EventCertificates ec ON em1.id = ec.EventID INNER JOIN EventMaster em2 ON em1.ParentEventID=em2.id</CommandText>
         <rd:UseGenericDesigner>true</rd:UseGenericDesigner>
       </Query>
       <Fields>
@@ -76,6 +76,14 @@
           <DataField>IsLPUStudent</DataField>
           <rd:TypeName>System.Boolean</rd:TypeName>
         </Field>
+        <Field Name="ParentEventID">
+          <DataField>ParentEventID</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
+        <Field Name="ParentEventName">
+          <DataField>ParentEventName</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
       </Fields>
     </DataSet>
   </DataSets>
@@ -87,12 +95,12 @@
             <TablixBody>
               <TablixColumns>
                 <TablixColumn>
-                  <Width>10.86836in</Width>
+                  <Width>10.93086in</Width>
                 </TablixColumn>
               </TablixColumns>
               <TablixRows>
                 <TablixRow>
-                  <Height>4.79841in</Height>
+                  <Height>4.60956in</Height>
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
@@ -116,7 +124,6 @@
                                 </Paragraph>
                               </Paragraphs>
                               <rd:DefaultName>Textbox6</rd:DefaultName>
-                              <Top>0.125in</Top>
                               <Left>8.84322in</Left>
                               <Height>0.23681in</Height>
                               <Width>1.9989in</Width>
@@ -436,9 +443,9 @@
                             </Textbox>
                             <Line Name="Line7">
                               <Top>2.73138in</Top>
-                              <Left>2.90094in</Left>
+                              <Left>2.51974in</Left>
                               <Height>0in</Height>
-                              <Width>2.54419in</Width>
+                              <Width>3.98789in</Width>
                               <ZIndex>12</ZIndex>
                               <Style>
                                 <Border>
@@ -663,8 +670,8 @@
                                 </Paragraph>
                               </Paragraphs>
                               <rd:DefaultName>Textbox30</rd:DefaultName>
-                              <Top>4.41299in</Top>
-                              <Left>0.9038in</Left>
+                              <Top>4.21716in</Top>
+                              <Left>0.97964in</Left>
                               <Height>0.37366in</Height>
                               <Width>2.39361in</Width>
                               <ZIndex>20</ZIndex>
@@ -698,8 +705,8 @@
                                 </Paragraph>
                               </Paragraphs>
                               <rd:DefaultName>Textbox30</rd:DefaultName>
-                              <Top>4.51716in</Top>
-                              <Left>5.07768in</Left>
+                              <Top>4.32133in</Top>
+                              <Left>5.15352in</Left>
                               <Height>0.23592in</Height>
                               <Width>1.54902in</Width>
                               <ZIndex>21</ZIndex>
@@ -747,8 +754,8 @@
                                 </Paragraph>
                               </Paragraphs>
                               <rd:DefaultName>Textbox1</rd:DefaultName>
-                              <Top>4.42341in</Top>
-                              <Left>8.89238in</Left>
+                              <Top>4.22758in</Top>
+                              <Left>8.96822in</Left>
                               <Height>0.36458in</Height>
                               <Width>1.84375in</Width>
                               <ZIndex>22</ZIndex>
@@ -809,7 +816,7 @@
                                 <PaddingBottom>2pt</PaddingBottom>
                               </Style>
                             </Textbox>
-                            <Textbox Name="Textbox14">
+                            <Textbox Name="InTheEventTB">
                               <CanGrow>true</CanGrow>
                               <KeepTogether>true</KeepTogether>
                               <Paragraphs>
@@ -830,16 +837,19 @@
                                   <Style />
                                 </Paragraph>
                               </Paragraphs>
-                              <rd:DefaultName>Textbox2</rd:DefaultName>
-                              <Top>2.52359in</Top>
-                              <Left>5.43454in</Left>
+                              <Top>2.54249in</Top>
+                              <Left>5.48751in</Left>
                               <Height>0.25in</Height>
-                              <Width>1.02012in</Width>
+                              <Width>0.97756in</Width>
                               <ZIndex>24</ZIndex>
+                              <Visibility>
+                                <Hidden>=IIf((Fields!ParentEventID.Value=Nothing), True,False)</Hidden>
+                              </Visibility>
                               <Style>
                                 <Border>
                                   <Style>None</Style>
                                 </Border>
+                                <BackgroundColor>White</BackgroundColor>
                                 <PaddingLeft>2pt</PaddingLeft>
                                 <PaddingRight>2pt</PaddingRight>
                                 <PaddingTop>2pt</PaddingTop>
@@ -870,14 +880,14 @@
                                 </Border>
                               </Style>
                             </Line>
-                            <Textbox Name="Textbox15">
+                            <Textbox Name="inTB">
                               <CanGrow>true</CanGrow>
                               <KeepTogether>true</KeepTogether>
                               <Paragraphs>
                                 <Paragraph>
                                   <TextRuns>
                                     <TextRun>
-                                      <Value> in </Value>
+                                      <Value EvaluationMode="Constant">in</Value>
                                       <Style>
                                         <FontStyle>Italic</FontStyle>
                                         <FontFamily>Swis721 BT</FontFamily>
@@ -891,16 +901,19 @@
                                   <Style />
                                 </Paragraph>
                               </Paragraphs>
-                              <rd:DefaultName>Textbox2</rd:DefaultName>
                               <Top>2.54228in</Top>
                               <Left>2.60912in</Left>
                               <Height>0.25in</Height>
-                              <Width>0.33094in</Width>
+                              <Width>0.26599in</Width>
                               <ZIndex>27</ZIndex>
+                              <Visibility>
+                                <Hidden>=IIf((Fields!ParentEventID.Value=Nothing), True,False)</Hidden>
+                              </Visibility>
                               <Style>
                                 <Border>
                                   <Style>None</Style>
                                 </Border>
+                                <BackgroundColor>White</BackgroundColor>
                                 <PaddingLeft>2pt</PaddingLeft>
                                 <PaddingRight>2pt</PaddingRight>
                                 <PaddingTop>2pt</PaddingTop>
@@ -1168,6 +1181,9 @@
                               <Height>0.25in</Height>
                               <Width>4.25225in</Width>
                               <ZIndex>35</ZIndex>
+                              <Visibility>
+                                <Hidden>=IIf((Fields!ParentEventID.Value=Nothing), True,False)</Hidden>
+                              </Visibility>
                               <Style>
                                 <Border>
                                   <Style>None</Style>
@@ -1289,6 +1305,126 @@
                                 <PaddingBottom>2pt</PaddingBottom>
                               </Style>
                             </Textbox>
+                            <Textbox Name="inTB2">
+                              <CanGrow>true</CanGrow>
+                              <KeepTogether>true</KeepTogether>
+                              <Paragraphs>
+                                <Paragraph>
+                                  <TextRuns>
+                                    <TextRun>
+                                      <Value>in the event</Value>
+                                      <Style>
+                                        <FontStyle>Italic</FontStyle>
+                                        <FontFamily>Swis721 BT</FontFamily>
+                                        <FontSize>12pt</FontSize>
+                                        <FontWeight>Normal</FontWeight>
+                                        <TextDecoration>None</TextDecoration>
+                                        <Color>#000000</Color>
+                                      </Style>
+                                    </TextRun>
+                                  </TextRuns>
+                                  <Style />
+                                </Paragraph>
+                              </Paragraphs>
+                              <Top>2.54249in</Top>
+                              <Left>2.62301in</Left>
+                              <Height>0.25in</Height>
+                              <Width>0.95777in</Width>
+                              <ZIndex>39</ZIndex>
+                              <Visibility>
+                                <Hidden>=IIf((Fields!ParentEventID.Value = Nothing), False, True)</Hidden>
+                              </Visibility>
+                              <Style>
+                                <Border>
+                                  <Style>None</Style>
+                                </Border>
+                                <BackgroundColor>White</BackgroundColor>
+                                <PaddingLeft>2pt</PaddingLeft>
+                                <PaddingRight>2pt</PaddingRight>
+                                <PaddingTop>2pt</PaddingTop>
+                                <PaddingBottom>2pt</PaddingBottom>
+                              </Style>
+                            </Textbox>
+                            <Textbox Name="StudentName11">
+                              <CanGrow>true</CanGrow>
+                              <KeepTogether>true</KeepTogether>
+                              <Paragraphs>
+                                <Paragraph>
+                                  <TextRuns>
+                                    <TextRun>
+                                      <Value>=Fields!EventName.Value</Value>
+                                      <Style>
+                                        <FontStyle>Italic</FontStyle>
+                                        <FontFamily>Swis721 BT</FontFamily>
+                                        <FontSize>12pt</FontSize>
+                                        <FontWeight>Bold</FontWeight>
+                                      </Style>
+                                    </TextRun>
+                                  </TextRuns>
+                                  <Style>
+                                    <TextAlign>Center</TextAlign>
+                                  </Style>
+                                </Paragraph>
+                              </Paragraphs>
+                              <rd:DefaultName>StudentName</rd:DefaultName>
+                              <Top>2.49858in</Top>
+                              <Left>3.58078in</Left>
+                              <Height>0.25in</Height>
+                              <Width>7.19557in</Width>
+                              <ZIndex>40</ZIndex>
+                              <Visibility>
+                                <Hidden>=IIf((Fields!ParentEventID.Value=Nothing), False,True)</Hidden>
+                              </Visibility>
+                              <Style>
+                                <Border>
+                                  <Style>None</Style>
+                                </Border>
+                                <PaddingLeft>2pt</PaddingLeft>
+                                <PaddingRight>2pt</PaddingRight>
+                                <PaddingTop>2pt</PaddingTop>
+                                <PaddingBottom>2pt</PaddingBottom>
+                              </Style>
+                            </Textbox>
+                            <Textbox Name="StudentName12">
+                              <CanGrow>true</CanGrow>
+                              <KeepTogether>true</KeepTogether>
+                              <Paragraphs>
+                                <Paragraph>
+                                  <TextRuns>
+                                    <TextRun>
+                                      <Value>=Fields!ParentEventName.Value</Value>
+                                      <Style>
+                                        <FontStyle>Italic</FontStyle>
+                                        <FontFamily>Swis721 BT</FontFamily>
+                                        <FontSize>12pt</FontSize>
+                                        <FontWeight>Bold</FontWeight>
+                                      </Style>
+                                    </TextRun>
+                                  </TextRuns>
+                                  <Style>
+                                    <TextAlign>Center</TextAlign>
+                                  </Style>
+                                </Paragraph>
+                              </Paragraphs>
+                              <rd:DefaultName>StudentName</rd:DefaultName>
+                              <Top>2.5081in</Top>
+                              <Left>2.94455in</Left>
+                              <Height>0.25in</Height>
+                              <Width>2.54296in</Width>
+                              <ZIndex>41</ZIndex>
+                              <Visibility>
+                                <Hidden>=Microsoft.VisualBasic.Interaction.IIf((Fields!ParentEventID.Value = Nothing), True, False)</Hidden>
+                              </Visibility>
+                              <Style>
+                                <Border>
+                                  <Style>None</Style>
+                                </Border>
+                                <PaddingLeft>2pt</PaddingLeft>
+                                <PaddingRight>2pt</PaddingRight>
+                                <PaddingTop>2pt</PaddingTop>
+                                <PaddingBottom>2pt</PaddingBottom>
+                              </Style>
+                            </Textbox>
                           </ReportItems>
                           <PageBreak>
                             <BreakLocation>End</BreakLocation>
@@ -1318,8 +1454,8 @@
               </TablixMembers>
             </TablixRowHierarchy>
             <DataSetName>EventsDataSet</DataSetName>
-            <Height>4.79841in</Height>
-            <Width>10.86836in</Width>
+            <Height>4.60956in</Height>
+            <Width>10.93086in</Width>
             <Style>
               <Border>
                 <Style>None</Style>
@@ -1327,16 +1463,16 @@
             </Style>
           </Tablix>
         </ReportItems>
-        <Height>4.79841in</Height>
+        <Height>4.64081in</Height>
         <Style>
           <Border>
             <Style>None</Style>
           </Border>
         </Style>
       </Body>
-      <Width>10.91003in</Width>
+      <Width>10.9517in</Width>
       <Page>
-        <PageHeight>8.5in</PageHeight>
+        <PageHeight>6.9in</PageHeight>
         <PageWidth>11in</PageWidth>
         <TopMargin>1.5in</TopMargin>
         <BottomMargin>0.5in</BottomMargin>
