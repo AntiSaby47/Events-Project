@@ -25,23 +25,32 @@ public partial class frmUploadStudentData : System.Web.UI.Page
 
     protected void Page_Load(object sender, EventArgs e)
     {
+        if(refreshMode == 1)
+        {
+            RadTabStrip1.Tabs[1].Selected = true;
+            RadTabStrip1.SelectedIndex = 1;
+            RadPageView2.Selected = true;
+            refreshMode = 0;
+        }
+
         if (links.Count > 0)
         {
             int i = 0;
             foreach (string item in links)
             {
                 Button btn = new Button();
-                btn.ID = ++i + "Nigga";
+                btn.ID = i + "";
                 btn.Text = "Download";
                 btn.Click += new EventHandler(downloadFile);
                 TableRow row = new TableRow();
                 TableCell cellName = new TableCell();
-                cellName.Text = "Nigga";
+                cellName.Text = item;
                 row.Cells.Add(cellName);
                 TableCell cellButton = new TableCell();
                 cellButton.Controls.Add(btn);
                 row.Cells.Add(cellButton);
                 USDFilesTbl.Rows.Add(row);
+                i++;
             }
         }
     }
@@ -49,20 +58,20 @@ public partial class frmUploadStudentData : System.Web.UI.Page
     {
         try
         {
+            FtpService ftpClient = new FtpService();
+            FtpService.FtpCredentials credentials = FtpUserPassword.GetUMSFtpCredentials();
+
             regno = USDRegNotxt.Text;
             ft = USDCertTypeCombo.SelectedValue;
             string fileType = null;
             if (ft == "A") { fileType = "AdmissionDocument"; } else if (ft == "R") { fileType = "AcademicCertificate"; } else if (ft == "E") { fileType = "EventCertificate"; }
             int i = 1;
+            ArrayList filesToUpload = new ArrayList();
             foreach (HttpPostedFile postedFile in USDFileUpload.PostedFiles)
             {
-
-                string ext = Path.GetExtension(postedFile.FileName).ToLower(); 
-
-                string fileName = regno + "_" + fileType + "_" + i + ext;
-
-                FtpService ftpClient = new FtpService();
-                FtpService.FtpCredentials credentials = FtpUserPassword.GetUMSFtpCredentials();
+                string ext = Path.GetExtension(postedFile.FileName).ToLower();
+                string time = DateTime.Now.ToString("HHmmss");
+                string fileName = regno + "_" + fileType + "_" + i + "_" + time + ext;
 
                 byte[] imageData = null;
                 if (!string.IsNullOrEmpty(fileName))
@@ -79,21 +88,35 @@ public partial class frmUploadStudentData : System.Web.UI.Page
                 
                 if (result.Trim().StartsWith("226") || result.Trim().Contains("complete") || result.Trim().Contains("Success"))
                 {
-                    showPopup("Uploaded!");
-                    Debug.WriteLine("Uploaded!");
+                    Debug.WriteLine("Uploaded File: " + i);
+                    i += 1;
+                    filesToUpload.Add(fileName);
                 }
                 else if (result.Trim() == "File Already Exists")
                 {
                     showPopup("A certificate file already exists with the same name. Please change the name of the image file and try again.");
-                    return;
+                    break;
                 }
                 else
                 {
                     Debug.WriteLine(result);
                     showPopup("Something went wrong. Please try again.");
-                    return;
+                    break;
                 }
-                i += 1;
+            }
+
+            if(USDFileUpload.PostedFiles.Count == filesToUpload.Count)
+            {
+                showPopup("Uploaded!");
+            }
+
+            else
+            {
+                foreach(string fileName in filesToUpload)
+                {
+                    string result = ftpClient.DeleteFile(folderOnFTPServer, fileName, credentials);
+                    Debug.WriteLine("Deletion status: " + result);
+                }
             }
         }
         catch (Exception ex)
@@ -124,16 +147,21 @@ public partial class frmUploadStudentData : System.Web.UI.Page
             {
                 if(item.Contains(fileName))
                 {
-                    links.Add(item);
+                    string splitPoint = folderOnFTPServer + "/";
+                    string splitFilename = item.Substring(item.IndexOf(splitPoint) + splitPoint.Length);
+                    links.Add(splitFilename);
                 }
             }
 
             if (links.Count > 0)
             {
+                refreshMode = 1;
                 Response.Redirect(Request.RawUrl);
             }
             else
+            {
                 showPopup("No files could be retrieved.");
+            }
         }
 
         catch(Exception ex)
@@ -144,9 +172,33 @@ public partial class frmUploadStudentData : System.Web.UI.Page
 
     protected void downloadFile(object sender, EventArgs e)
     {
-        Debug.WriteLine("Test");
-        //Button btn = (Button)sender;
-        //Debug.WriteLine("ID ::" + btn.ID);
+        try
+        {
+            Button btn = (Button)sender;
+            int id = Int32.Parse(btn.ID);
+            Debug.WriteLine(id);
+            string fileName = USDFilesTbl.Rows[id + 1].Cells[0].Text;
+            Debug.WriteLine("Filename: " + fileName);
+
+            FtpService ftpClient = new FtpService();
+            FtpService.FtpCredentials credentials = FtpUserPassword.GetUMSFtpCredentials();
+            FtpWebResponse response = ftpClient.DowloadFile(folderOnFTPServer, fileName, FtpUserPassword.GetUMSFtpCredentials());
+
+            using (MemoryStream stream = new MemoryStream())
+            {
+                response.GetResponseStream().CopyTo(stream);
+                Response.AddHeader("content-disposition", "attachment;filename=" + fileName);
+                Response.Cache.SetCacheability(HttpCacheability.NoCache);
+                Response.BinaryWrite(stream.ToArray());
+                Response.End();
+            }
+        }
+        catch(Exception ex)
+        {
+            refreshMode = 0;
+            showPopup("Something went wrong while downloading the file!");
+            Debug.WriteLine(ex.Message);
+        }
     }
 
 
