@@ -10,6 +10,8 @@
         <Tabs>
             <telerik:RadTab runat="server" Text="View Events" Font-Bold="true" Selected="True"></telerik:RadTab>
             <telerik:RadTab runat="server" Text="Search Certificates" Font-Bold="true" Selected="True"></telerik:RadTab>
+            <telerik:RadTab runat="server" Text="Edit Certificate Data" Font-Bold="true"></telerik:RadTab>
+
         </Tabs>
     </telerik:RadTabStrip>
     <telerik:RadMultiPage ID="RadMultiPage1" runat="server" SelectedIndex="0">
@@ -30,6 +32,11 @@
                         </telerik:GridBoundColumn>
                         <telerik:GridBoundColumn DataField="OrganisedBy" FilterControlAltText="Filter OrganisedBy column" HeaderText="OrganisedBy" SortExpression="Organised By" UniqueName="OrganisedBy">
                         </telerik:GridBoundColumn>
+                        <telerik:GridTemplateColumn HeaderText="View Event Data" UniqueName="ViewExcel"> 
+                            <ItemTemplate>
+                                <telerik:RadButton ID="repViewExcelBtn" runat="server" Text="View" CommandName="ViewExcel"/>
+                            </ItemTemplate>
+                        </telerik:GridTemplateColumn>
                         <telerik:GridTemplateColumn HeaderText="Download PDF" UniqueName="DownloadPDF"> 
                             <ItemTemplate>
                                 <telerik:RadButton ID="repDownloadBtn" runat="server" Text="Download PDF" CommandName="DownloadPDF"/>
@@ -109,6 +116,57 @@
                 </MasterTableView>
             </telerik:RadGrid>
         </telerik:RadPageView>
+        <telerik:RadPageView ID="RadPageView3" runat="server">
+            <table>
+                <tr>
+                    <td>Select School: </td>
+                    <td><telerik:RadComboBox ID="MEPCEditLoadSchoolsCB" runat="server" AutoPostBack="true" Width="350" EmptyMessage="Choose Your School" OnSelectedIndexChanged="MEPCEditLoadSchoolsCB_SelectedIndexChanged"></telerik:RadComboBox></td>
+                </tr>
+                <tr>
+                    <td>Select Event: </td>
+                    <td><telerik:RadComboBox ID="MEPCEditLoadEventsCB" runat="server" AutoPostBack="true" Width="350" EmptyMessage="Choose Event" OnSelectedIndexChanged="MEPCEditLoadEventsCB_SelectedIndexChanged"></telerik:RadComboBox></td>
+                </tr>
+                <tr runat="server" id="udrowDDL" visible="false">
+                    <td>Certificate Format: </td>
+                    <td>
+                        <asp:DropDownList ID="MEPCEditCertFormatsDDL" runat="server" Width="250">
+                            <asp:ListItem Value="None">Select Format</asp:ListItem>
+                            <asp:ListItem Value="P">Certificate of Participation</asp:ListItem>
+                            <asp:ListItem Value="M">Certificate of Merit</asp:ListItem>
+                            <asp:ListItem Value="E">Certificate of Excellence</asp:ListItem>
+                            <asp:ListItem Value="R">Certificate of Recognition</asp:ListItem>
+                            <asp:ListItem Value="T">Certificate of Training</asp:ListItem>
+                        </asp:DropDownList>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <telerik:RadButton ID="MEPCEditSearchBtn" runat="server" Text="Search" OnClick="MEPCEditSearchBtn_Click"></telerik:RadButton>
+                    </td>
+                </tr>
+            </table>    
+                <telerik:RadGrid style="margin-top:30px" ID="MEPCEditStudentDataRG" runat="server" CellSpacing="-1" Visible="false">
+                    <MasterTableView AutoGenerateColumns="False">
+                        <Columns>
+                            <telerik:GridBoundColumn DataField="StudentName" FilterControlAltText="Filter StudentName column" HeaderText="Student Name" SortExpression="StudentName" UniqueName="StudentName"></telerik:GridBoundColumn>
+                            <telerik:GridBoundColumn DataField="FatherName" FilterControlAltText="Filter FatherName column" HeaderText="Father Name" SortExpression="FatherName" UniqueName="FatherName"></telerik:GridBoundColumn>
+                            <telerik:GridBoundColumn DataField="HusbandName" FilterControlAltText="Filter HusbandName column" HeaderText="FaHusband Name" SortExpression="HusbandName" UniqueName="HusbandName"></telerik:GridBoundColumn>
+                            <telerik:GridBoundColumn DataField="CollegeOrSchool" FilterControlAltText="Filter CollegeOrSchool column" HeaderText="College or School" SortExpression="CollegeOrSchool" UniqueName="CollegeOrSchool"></telerik:GridBoundColumn>
+                            <telerik:GridBoundColumn DataField="RegisterationNumber" FilterControlAltText="Filter RegisterationNumber column" HeaderText="Registration Number" SortExpression="RegisterationNumber" UniqueName="RegisterationNumber"></telerik:GridBoundColumn>
+                            <telerik:GridBoundColumn DataField="ProgramName" FilterControlAltText="Filter ProgramName column" HeaderText="Program Name" SortExpression="ProgramName" UniqueName="ProgramName"></telerik:GridBoundColumn>
+                            <telerik:GridBoundColumn DataField="Position" FilterControlAltText="Filter Position column" HeaderText="Position" SortExpression="Position" UniqueName="Position"></telerik:GridBoundColumn>
+                            <telerik:GridBoundColumn DataField="IsLPUStudent" FilterControlAltText="Filter IsLPUStudent column" HeaderText="Is LPU Student" SortExpression="IsLPUStudent" UniqueName="IsLPUStudent"></telerik:GridBoundColumn>
+                            <telerik:GridBoundColumn DataField="StartDate" DataType="System.DateTime" FilterControlAltText="Filter StartDate column" HeaderText="StartDate" SortExpression="StartDate" UniqueName="StartDate"></telerik:GridBoundColumn>
+                            <telerik:GridBoundColumn DataField="EndDate" DataType="System.DateTime" FilterControlAltText="Filter EndDate column" HeaderText="EndDate" SortExpression="EndDate" UniqueName="EndDate"></telerik:GridBoundColumn>
+                            <telerik:GridBoundColumn DataField="EventID" FilterControlAltText="Filter EventID column" HeaderText="Event Name" ReadOnly="True" SortExpression="id" UniqueName="EventID"></telerik:GridBoundColumn>
+                            <telerik:GridBoundColumn DataField="EventCategoryID" FilterControlAltText="Filter EventCategoryID column" HeaderText="Sub Event Name" SortExpression="EventCategoryID" UniqueName="EventCategoryID"></telerik:GridBoundColumn>
+                            <telerik:GridBoundColumn DataField="ParentEventID" Display="false" UniqueName="ParentEventID"></telerik:GridBoundColumn>
+                            <telerik:GridTemplateColumn HeaderText="Edit" UniqueName="EditData"> 
+                                <ItemTemplate><telerik:RadButton ID="MEPCEditStudentDataBtn" runat="server" Text="Edit" CommandName="EditData"/></ItemTemplate>
+                            </telerik:GridTemplateColumn>
+                        </Columns>
+                    </MasterTableView>
+                </telerik:RadGrid>
+        </telerik:RadPageView>
     </telerik:RadMultiPage> 
 </asp:Content>
-

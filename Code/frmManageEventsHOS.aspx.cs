@@ -16,21 +16,24 @@ using System.Net;
 using System.IO;
 using System.Data.OleDb;
 using System.Data.Common;
+using Microsoft.ApplicationBlocks.Data;
+
 
 public partial class frmManageEventsHOS : System.Web.UI.Page
 {
     private string connectionString = ConfigurationManager.ConnectionStrings["NewUmsConnectionString"].ConnectionString;
+    System.Data.DataSet dataset = new System.Data.DataSet();
     private static string parentID;
     private static string mode, uploadDataMode;
     private string folderOnFTPServer = "test";
     private static int id = -47;
     private static int refreshMode = 0;
     private string TEMP_FOLDER_PATH = "~/Temp/";
-    private static readonly string[] certificateTypes = { "E", "M", "P", "R", "T" };
+    private static readonly string[] certificateTypes = { "CE", "CM", "CP", "CR", "CT" };
 
     protected void Page_Load(object sender, EventArgs e)
     {
-        if(!IsPostBack)
+        if (!IsPostBack)
         {
             loadSchools(rehSelectSchoolCB);
             loadSchools(rehSelectSchool2CB);
@@ -56,13 +59,12 @@ public partial class frmManageEventsHOS : System.Web.UI.Page
         {
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
-                connection.Open();
-                SqlCommand selectCommand = new SqlCommand("SELECT Name,DivisionSectionCode FROM dbo.eGovWingMaster , eGovDivisionMaster WHERE eGovWingMaster.Type ='F' AND eGovWingMaster.Type= eGovDivisionMaster.WingType  AND  eGovDivisionMaster.IsActive =1 AND eGovWingMaster.Id = eGovDivisionMaster.WingId AND eGovWingMaster.IsActive =1 AND DivisionSectionCode IS NOT NULL ORDER BY 2 ", connection);
-                SqlDataAdapter adapter = new SqlDataAdapter(selectCommand);
+                dataset = SqlHelper.ExecuteDataset(connection, CommandType.StoredProcedure, "[pLoadDataEventCertificates]");
                 DataTable types = new DataTable();
-                adapter.Fill(types);
+                types = dataset.Tables[1];
 
                 List<RadComboBoxItemData> result = new List<RadComboBoxItemData>(types.Rows.Count);
+
                 foreach (DataRow row in types.Rows)
                 {
                     RadComboBoxItem itemData = new RadComboBoxItem();
@@ -83,34 +85,38 @@ public partial class frmManageEventsHOS : System.Web.UI.Page
     {
         try
         {
-            string query = "(SELECT em1.EventName[EventName], em1.StartDate[StartDate], em1.id[id], em2.EventName[ParentEventName], em1.ParentEventID[ParentEventID] FROM EventMaster em1 INNER JOIN dbo.EventMaster em2 ON em1.parentEventId = em2.id WHERE em1.EventStatus = 0 AND em1.HasCategories IS NULL AND em1.organisedby=@school)" +
-                            " UNION " +
-                            "(SELECT EventName[EventName], StartDate[StartDate], id[id], 'N.A.'[ParentEventName], ParentEventID[ParentEventID] FROM EventMaster WHERE EventStatus = 0 AND HasCategories IS NULL AND ParentEventID IS NULL AND organisedby=@school)";
-            DataTable table = new DataTable();
+            //string query = "(SELECT em1.EventName[EventName], em1.StartDate[StartDate], em1.id[id], em2.EventName[ParentEventName], em1.ParentEventID[ParentEventID] FROM EventMaster em1 INNER JOIN dbo.EventMaster em2 ON em1.parentEventId = em2.id WHERE em1.EventStatus = 0 AND em1.HasCategories IS NULL AND em1.organisedby=@school)" +
+            //                " UNION " +
+            //                "(SELECT EventName[EventName], StartDate[StartDate], id[id], 'N.A.'[ParentEventName], ParentEventID[ParentEventID] FROM EventMaster WHERE EventStatus = 0 AND HasCategories IS NULL AND ParentEventID IS NULL AND organisedby=@school)";
+            //DataTable table = new DataTable();
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 connection.Open();
-                SqlCommand selectCommand = new SqlCommand(query, connection);
-                selectCommand.Parameters.Add("@school", SqlDbType.VarChar, 30).Value = rehSelectSchoolCB.SelectedValue;
-                SqlDataAdapter adapter = new SqlDataAdapter(selectCommand);
-                adapter.Fill(table);
-                rehApproveEventsRG.DataSource = table;
+                SqlParameter[] param = new SqlParameter[2];
+                param[0] = new SqlParameter("@organisedBy", rehSelectSchoolCB.SelectedValue);
+                param[1] = new SqlParameter("@ID", id);
+                dataset = SqlHelper.ExecuteDataset(connection, CommandType.StoredProcedure, "[pSchoolwiseDataEventCertificates]", param);
+                rehApproveEventsRG.DataSource = dataset.Tables[0];
+
+
+
+                //SqlCommand selectCommand = new SqlCommand(query, connection);
+                //selectCommand.Parameters.Add("@school", SqlDbType.VarChar, 30).Value = rehSelectSchoolCB.SelectedValue;
+                //SqlDataAdapter adapter = new SqlDataAdapter(selectCommand);
+                //DataTable table = new DataTable();
+                //adapter.Fill(table);
+                //rehApproveEventsRG.DataSource = table;
                 rehApproveEventsRG.DataBind();
                 rehApproveEventsRG.Visible = true;
             }
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             Debug.WriteLine(ex.Message);
             showPopup("Something went wrong while loading data!");
         }
     }
 
-
-    private void showPopup(string text)
-    {
-        Response.Write("<script>alert(' " + text + "');</script>");
-    }
 
     protected void rehApproveEventsRG_ItemCommand(object sender, GridCommandEventArgs e)
     {
@@ -130,15 +136,25 @@ public partial class frmManageEventsHOS : System.Web.UI.Page
                     else
                         status = 1;
                 }
-                string query = null;
-                query = "UPDATE EventMaster SET EventStatus=@ST WHERE id=@ID";
+                //string query = null;
+                //query = "UPDATE EventMaster SET EventStatus=@ST WHERE id=@ID";
                 using (SqlConnection connection = new SqlConnection(connectionString))
                 {
-                    SqlCommand command = new SqlCommand(query, connection);
-                    command.Parameters.Add("@ST", SqlDbType.Int).Value = status;
-                    command.Parameters.Add("@ID", SqlDbType.Int).Value = ID;
+                    SqlParameter[] param = new SqlParameter[2];
+                    param[0] = new SqlParameter("@status", status);
+                    param[1] = new SqlParameter("@id", ID);
+                    SqlCommand command = new SqlCommand("pUpdateEventStatusEventCertificates", connection);
+                    command.Parameters.AddRange(param);
+                    command.CommandType = CommandType.StoredProcedure;
                     connection.Open();
                     int rowsAffected = command.ExecuteNonQuery();
+
+
+                    //SqlCommand command = new SqlCommand(query, connection);
+                    //command.Parameters.Add("@ST", SqlDbType.Int).Value = status;
+                    //command.Parameters.Add("@ID", SqlDbType.Int).Value = ID;
+                    //connection.Open();
+                    //int rowsAffected = command.ExecuteNonQuery();
                     if (rowsAffected <= 0)
                     {
                         showPopup("Something went wrong while approving/rejecting the event.");
@@ -163,18 +179,26 @@ public partial class frmManageEventsHOS : System.Web.UI.Page
     {
         try
         {
-            string query = "(SELECT em1.EventName[EventName],em1.ExcelName[ExcelName], em1.StartDate[StartDate], em1.id[id], em2.EventName[ParentEventName], em1.ParentEventID[ParentEventID] FROM EventMaster em1 INNER JOIN dbo.EventMaster em2 ON em1.parentEventId = em2.id WHERE em1.EventStatus = 2 AND em1.ExcelName IS NOT NULL AND em1.HasCategories IS NULL AND em1.organisedby=@school)" +
-                            " UNION " +
-                            "(SELECT EventName[EventName],ExcelName[ExcelName], StartDate[StartDate], id[id], 'N.A.'[ParentEventName], ParentEventID[ParentEventID] FROM EventMaster WHERE EventStatus = 2 AND HasCategories IS NULL AND ParentEventID IS NULL AND ExcelName IS NOT NULL AND organisedby=@school)";
-            DataTable table = new DataTable();
+            //string query = "(SELECT em1.EventName[EventName],em1.ExcelName[ExcelName], em1.StartDate[StartDate], em1.id[id], em2.EventName[ParentEventName], em1.ParentEventID[ParentEventID] FROM EventMaster em1 INNER JOIN dbo.EventMaster em2 ON em1.parentEventId = em2.id WHERE em1.EventStatus = 2 AND em1.ExcelName IS NOT NULL AND em1.HasCategories IS NULL AND em1.organisedby=@school)" +
+            //                " UNION " +
+            //                "(SELECT EventName[EventName],ExcelName[ExcelName], StartDate[StartDate], id[id], 'N.A.'[ParentEventName], ParentEventID[ParentEventID] FROM EventMaster WHERE EventStatus = 2 AND HasCategories IS NULL AND ParentEventID IS NULL AND ExcelName IS NOT NULL AND organisedby=@school)";
+            //DataTable table = new DataTable();
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 connection.Open();
-                SqlCommand selectCommand = new SqlCommand(query, connection);
-                selectCommand.Parameters.Add("@school", SqlDbType.VarChar).Value = rehSelectSchool2CB.SelectedValue;
-                SqlDataAdapter adapter = new SqlDataAdapter(selectCommand);
-                adapter.Fill(table);
-                rehApproveExcelRG.DataSource = table;
+                SqlParameter[] param = new SqlParameter[2];
+                param[0] = new SqlParameter("@organisedBy", rehSelectSchool2CB.SelectedValue);
+                param[1] = new SqlParameter("@ID", id);
+                dataset = SqlHelper.ExecuteDataset(connection, CommandType.StoredProcedure, "[pSchoolwiseDataEventCertificates]", param);
+                rehApproveExcelRG.DataSource = dataset.Tables[1];
+
+
+                //connection.Open();
+                //SqlCommand selectCommand = new SqlCommand(query, connection);
+                //selectCommand.Parameters.Add("@school", SqlDbType.VarChar).Value = rehSelectSchool2CB.SelectedValue;
+                //SqlDataAdapter adapter = new SqlDataAdapter(selectCommand);
+                //adapter.Fill(table);
+                //rehApproveExcelRG.DataSource = table;
                 rehApproveExcelRG.DataBind();
                 rehApproveExcelRG.Visible = true;
             }
@@ -195,18 +219,26 @@ public partial class frmManageEventsHOS : System.Web.UI.Page
                 GridDataItem item = e.Item as GridDataItem;
                 ID = item["id"].Text;
 
-                string query = "SELECT ExcelName FROM EventMaster " +
-                "WHERE ID = @ID";
+                //string query = "SELECT ExcelName FROM EventMaster " +
+                //"WHERE ID = @ID";
 
                 DataTable data = new DataTable();
                 using (SqlConnection connection = new SqlConnection(connectionString))
                 {
-                    SqlCommand selectCommand = new SqlCommand(query, connection);
-                    selectCommand.Parameters.AddWithValue("@ID", ID);
-                    SqlDataAdapter adapter = new SqlDataAdapter(selectCommand);
                     connection.Open();
-                    adapter.Fill(data);
-                    selectCommand.Dispose();
+                    SqlParameter[] param = new SqlParameter[2];
+                    param[0] = new SqlParameter("@organisedBy", null);
+                    param[1] = new SqlParameter("@ID", ID);
+                    dataset = SqlHelper.ExecuteDataset(connection, CommandType.StoredProcedure, "[pSchoolwiseDataEventCertificates]", param);
+                    data = dataset.Tables[2];
+
+
+                    //SqlCommand selectCommand = new SqlCommand(query, connection);
+                    //selectCommand.Parameters.AddWithValue("@ID", ID);
+                    //SqlDataAdapter adapter = new SqlDataAdapter(selectCommand);
+                    //connection.Open();
+                    //adapter.Fill(data);
+                    //selectCommand.Dispose();
                 }
 
                 string fileName = "";
@@ -259,14 +291,14 @@ public partial class frmManageEventsHOS : System.Web.UI.Page
 
                 if (parentName == "N.A.")
                 {
-                    certificateType = excelName[excelName.IndexOf("_") + 1].ToString();
-                    Debug.WriteLine("Certificate Type: " + certificateType);
+                    //certificateType = excelName[excelName.IndexOf("_") + 1].ToString();
+                    //Debug.WriteLine("Certificate Type: " + certificateType);
 
-                    if (!certificateTypes.Contains(certificateType))
-                    {
-                        showPopup("Something went wrong while verifying certificate type. Please check the excel data sheet.");
-                        return;
-                    }
+                    //if (!certificateTypes.Contains(certificateType))
+                    //{
+                    //    showPopup("Something went wrong while verifying certificate type. Please check the excel data sheet.");
+                    //    return;
+                    //}
 
                     string fileExtension = Path.GetExtension(excelName);
                     FtpService ftpClient = new FtpService();
@@ -312,10 +344,10 @@ public partial class frmManageEventsHOS : System.Web.UI.Page
                         //-----------------------------------------------------------------------------------------------------------------
                         //---------------------------------Main processing-----------------------------------------------------------------
                         //string query = "SELECT *, " + ID + " as [EventID]," + certificateType + "[CertificateType], 0 as EventCategoryID from [Sheet1$]";
-                        string query = "SELECT *, @ID as [EventID], @CT as [CertificateType], 0 as [EventCategoryID] from [Sheet1$]";
+                        string query = "SELECT *, @ID as [EventID], 0 as [EventCategoryID] from [Sheet1$]";
                         OleDbCommand command = new OleDbCommand(query, excelConnection);
                         command.Parameters.Add("@ID", OleDbType.Integer).Value = ID;
-                        command.Parameters.Add("@CT", OleDbType.VarChar).Value = certificateType;
+                        //command.Parameters.Add("@CT", OleDbType.VarChar).Value = certificateType;
 
                         DbDataReader dr = command.ExecuteReader();
 
@@ -349,14 +381,24 @@ public partial class frmManageEventsHOS : System.Web.UI.Page
                 else
                     status = 3;
 
-                string query2 = "UPDATE EventMaster SET EventStatus = @Status WHERE id = @ID AND EventStatus = 2";
+                //string query2 = "UPDATE EventMaster SET EventStatus = @Status WHERE id = @ID AND EventStatus = 2";
                 using (SqlConnection connection = new SqlConnection(connectionString))
                 {
-                    SqlCommand sqlCommand = new SqlCommand(query2, connection);
-                    sqlCommand.Parameters.Add("@ID", SqlDbType.Int).Value = ID;
-                    sqlCommand.Parameters.Add("@Status", SqlDbType.Int).Value = status;
+                    SqlParameter[] param = new SqlParameter[2];
+                    param[0] = new SqlParameter("@status", status);
+                    param[1] = new SqlParameter("@id", ID);
+                    SqlCommand command = new SqlCommand("pUpdateEventStatusEventCertificates", connection);
+                    command.Parameters.AddRange(param);
+                    command.CommandType = CommandType.StoredProcedure;
                     connection.Open();
-                    int rowsAffected = sqlCommand.ExecuteNonQuery();
+                    int rowsAffected = command.ExecuteNonQuery();
+
+
+                    //SqlCommand sqlCommand = new SqlCommand(query2, connection);
+                    //sqlCommand.Parameters.Add("@ID", SqlDbType.Int).Value = ID;
+                    //sqlCommand.Parameters.Add("@Status", SqlDbType.Int).Value = status;
+                    //connection.Open();
+                    //int rowsAffected = sqlCommand.ExecuteNonQuery();
                     if (rowsAffected <= 0)
                         showPopup("Something went wrong while approving the file. Please try again later.");
                     else
@@ -364,7 +406,7 @@ public partial class frmManageEventsHOS : System.Web.UI.Page
                         refreshMode = 2;
                         Response.Redirect(Request.RawUrl);
                     }
-                        
+
                 }
             }
 
@@ -398,4 +440,9 @@ public partial class frmManageEventsHOS : System.Web.UI.Page
             }
         }
     }
+    private void showPopup(string text)
+    {
+        Response.Write("<script>alert(' " + text + "');</script>");
+    }
+
 }

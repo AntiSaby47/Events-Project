@@ -2,7 +2,6 @@
 
 <%@ Register Assembly="Telerik.Web.UI" Namespace="Telerik.Web.UI" TagPrefix="telerik" %>
 <%@ Register Assembly="AjaxControlToolkit" Namespace="AjaxControlToolkit" TagPrefix="ajaxToolkit" %>
-
 <asp:Content ID="Content1" ContentPlaceHolderID="ContentPlaceHolder1" Runat="Server">
     <style>
         td { padding: 10px 30px 10px 10px;}
@@ -58,7 +57,7 @@
                 <table style="margin-top:30px;">
                     <tr>
                         <td>Event Name</td>
-                        <td><telerik:RadComboBox ID="resENameCombo" runat="server" Height="200" Width="375" EmptyMessage="Choose Event" MarkFirstMatch="true" EnableLoadOnDemand="true" ></telerik:RadComboBox></td>
+                        <td><telerik:RadComboBox ID="resENameCombo" runat="server" Height="200" Width="375" EmptyMessage="Choose an Event" MarkFirstMatch="true" EnableLoadOnDemand="true" ></telerik:RadComboBox></td>
                     </tr>
                     <tr>
                         <td>Sub Event Name</td>
@@ -130,6 +129,7 @@
                     <td>Sub-Event</td>
                     <td><telerik:RadComboBox ID="resUDSubEventCB" runat="server" AutoPostBack="true" Width="300" EmptyMessage="Choose Sub-Event"></telerik:RadComboBox></td>
                 </tr>
+                <!--
                 <tr runat="server" id="udrowDDL" visible="false">
                     <td>Certificate Format</td>
                     <td>
@@ -144,6 +144,7 @@
                         <telerik:RadButton id="resDownloadFormatsBtn" runat="server" Text="Download Formats" OnClick="resDownloadFormatsBtn_Click"></telerik:RadButton>
                     </td>
                 </tr>
+                -->
                 <tr runat="server" id="udrowFU" visible="false">
                     <td>Select Data File</td>
                     <td><asp:FileUpload runat="server" id="resUDDataFileFU" /></td>

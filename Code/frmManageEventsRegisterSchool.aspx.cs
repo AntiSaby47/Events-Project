@@ -14,10 +14,12 @@ using FtpClient;
 using System.Text.RegularExpressions;
 using System.Net;
 using System.IO;
+using Microsoft.ApplicationBlocks.Data;
 
 public partial class frmRegisterEventSchool : System.Web.UI.Page
 {
     private string connectionString = ConfigurationManager.ConnectionStrings["NewUmsConnectionString"].ConnectionString;
+    System.Data.DataSet dataset = new System.Data.DataSet();
     private static string parentID;
     private static string mode, uploadDataMode; //Event or Sub Event. Choosen through Combo box
     private string folderOnFTPServer = "test";
@@ -32,7 +34,7 @@ public partial class frmRegisterEventSchool : System.Web.UI.Page
         }
         if (refreshMode == 1)
         {
-            showPopup("Event registered. Note down the Event name and start date. You\\'ll need it while uploading event data.");
+            showPopup("Event registered!");
             refreshMode = 0;
         }
 
@@ -75,11 +77,9 @@ public partial class frmRegisterEventSchool : System.Web.UI.Page
         {
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
-                connection.Open();
-                SqlCommand selectCommand = new SqlCommand("SELECT id,EventName,StartDate,EndDate FROM dbo.EventMaster WHERE HasCategories = 1 AND EventStatus IN (2,3,4)", connection);
-                SqlDataAdapter adapter = new SqlDataAdapter(selectCommand);
+                dataset = SqlHelper.ExecuteDataset(connection, CommandType.StoredProcedure, "[pLoadDataEventCertificates]");
                 DataTable types = new DataTable();
-                adapter.Fill(types);
+                types = dataset.Tables[0];
 
                 List<RadComboBoxItemData> result = new List<RadComboBoxItemData>(types.Rows.Count);
 
@@ -109,11 +109,10 @@ public partial class frmRegisterEventSchool : System.Web.UI.Page
         {
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
-                connection.Open();
-                SqlCommand selectCommand = new SqlCommand("SELECT Name,DivisionSectionCode FROM dbo.eGovWingMaster , eGovDivisionMaster WHERE eGovWingMaster.Type ='F' AND eGovWingMaster.Type= eGovDivisionMaster.WingType  AND  eGovDivisionMaster.IsActive =1 AND eGovWingMaster.Id = eGovDivisionMaster.WingId AND eGovWingMaster.IsActive =1 AND DivisionSectionCode IS NOT NULL ORDER BY 2 ", connection);
-                SqlDataAdapter adapter = new SqlDataAdapter(selectCommand);
+
+                dataset = SqlHelper.ExecuteDataset(connection, CommandType.StoredProcedure, "[pLoadDataEventCertificates]");
                 DataTable types = new DataTable();
-                adapter.Fill(types);
+                types = dataset.Tables[1];
 
                 List<RadComboBoxItemData> result = new List<RadComboBoxItemData>(types.Rows.Count);
 
@@ -217,14 +216,19 @@ public partial class frmRegisterEventSchool : System.Web.UI.Page
         {
             try
             {
+                int hasCategories = 0;
                 connection.Open();
-                SqlCommand cmd = new SqlCommand("SELECT ID FROM dbo.EventMaster WHERE EventName=@EN AND StartDate=@SD AND EndDate=@ED AND OrganisedBy=@OB", connection);
-                cmd.Parameters.Add("@EN", SqlDbType.VarChar).Value = eventName;
-                cmd.Parameters.Add("@SD", SqlDbType.DateTime).Value = startDate;
-                cmd.Parameters.Add("@ED", SqlDbType.DateTime).Value = endDate;
-                cmd.Parameters.Add("@OB", SqlDbType.VarChar).Value = organizedBy;
-                int id = (int)cmd.ExecuteScalar();
-                cmd.Dispose();
+                SqlParameter[] param = new SqlParameter[7];
+                param[0] = new SqlParameter("@eventName", eventName);
+                param[1] = new SqlParameter("@startDate", startDate);
+                param[2] = new SqlParameter("@endDate", endDate);
+                param[3] = new SqlParameter("@eventStatus", DBNull.Value);
+                param[4] = new SqlParameter("@organisedBy", organizedBy);
+                param[5] = new SqlParameter("@parentID", DBNull.Value);
+                param[6] = new SqlParameter("@hasCategories", hasCategories);
+
+                dataset = SqlHelper.ExecuteDataset(connection, CommandType.StoredProcedure, "[pRegisterEventEventCertificates]", param);
+                int id = dataset.Tables[0].Rows.Count;
                 return id;
             }
             catch (NullReferenceException)
@@ -236,50 +240,70 @@ public partial class frmRegisterEventSchool : System.Web.UI.Page
 
     private void registerEvent(string eventName, DateTime startDate, DateTime endDate, string organizedBy, string parentID)
     {
-        if (startDate <= endDate)
+        if (startDate >= DateTime.Now)
         {
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            if (endDate >= DateTime.Now)
             {
+                if (startDate <= endDate)
                 {
-                    SqlCommand cmd = new SqlCommand("INSERT INTO EventMaster(EventName, StartDate, EndDate, EventStatus, OrganisedBy,ParentEventID) VALUES(@EN, @SD, @ED, 0, @OB, @pID)", connection);
-                    cmd.Parameters.Add("@EN", SqlDbType.VarChar).Value = eventName;
-                    cmd.Parameters.Add("@SD", SqlDbType.DateTime).Value = startDate;
-                    cmd.Parameters.Add("@ED", SqlDbType.DateTime).Value = endDate;
-                    cmd.Parameters.Add("@OB", SqlDbType.VarChar).Value = organizedBy;
-
-                    if (!string.IsNullOrEmpty(parentID))
-                        cmd.Parameters.AddWithValue("@pID", parentID);
-                    else
-                        cmd.Parameters.AddWithValue("@pID", DBNull.Value);
-                    connection.Open();
-                    int rowsAffected = cmd.ExecuteNonQuery();
-                    if (rowsAffected <= 0)
+                    using (SqlConnection connection = new SqlConnection(connectionString))
                     {
-                        showPopup("Couldn\\'t register event. Please reopen the page and try again.");
-                    }
+                        {
+                            int hasCategories = 0;
+                            int es = 0;
+                            connection.Open();
+                            SqlParameter[] param = new SqlParameter[7];
+                            param[0] = new SqlParameter("@eventName", eventName);
+                            param[1] = new SqlParameter("@startDate", startDate);
+                            param[2] = new SqlParameter("@endDate", endDate);
+                            param[3] = new SqlParameter("@eventStatus", es);
+                            param[4] = new SqlParameter("@organisedBy", organizedBy);
+                            if (!string.IsNullOrEmpty(parentID))
+                                param[5] = new SqlParameter("@parentID", parentID);
+                            else
+                                param[5] = new SqlParameter("@parentID", null);
+                            param[6] = new SqlParameter("@hasCategories", hasCategories);
 
-                    else
-                    {
-                        refreshMode = 1; //Show Event Registered Popup
-                        Response.Redirect(Request.RawUrl);
+
+                            dataset = SqlHelper.ExecuteDataset(connection, CommandType.StoredProcedure, "[pRegisterEventEventCertificates]", param);
+                            int rowsAffected = dataset.Tables[1].Rows.Count;
+
+                            if (rowsAffected <= 0)
+                            {
+                                showPopup("Couldn\\'t register event. Please reopen the page and try again.");
+                            }
+
+                            else
+                            {
+                                refreshMode = 1; //Show Event Registered Popup
+                                Response.Redirect(Request.RawUrl);
+                            }
+                        }
+
                     }
-                    cmd.Dispose();
                 }
-
+                else
+                {
+                    showPopup("Start Date Should be less than End Date!.");
+                }
             }
+            else
+            {
+                showPopup("End Date should be greater than today\\'s date!");
+            }
+
         }
         else
         {
-            showPopup("Start Date Should be less than End Date!.");
+            showPopup("Start Date should be greater than today\\'s date!");
         }
+
     }
 
 
     protected void resStatusRG_ItemCommand(object sender, Telerik.Web.UI.GridCommandEventArgs e)
     {
-
     }
-
     protected void resStatusRG_ItemDataBound(object sender, GridItemEventArgs e)
     {
         if (e.Item is GridDataItem)
@@ -292,18 +316,16 @@ public partial class frmRegisterEventSchool : System.Web.UI.Page
     private bool checkIfExcelUploaded(int id)
     {
         //check if excel is already uploaded.
-        string query = "SELECT ExcelName FROM EventMaster " +
-            "WHERE ID = @ID";
-
         DataTable data = new DataTable();
         using (SqlConnection connection = new SqlConnection(connectionString))
         {
-            SqlCommand selectCommand = new SqlCommand(query, connection);
-            selectCommand.Parameters.AddWithValue("@ID", id);
-            SqlDataAdapter adapter = new SqlDataAdapter(selectCommand);
             connection.Open();
-            adapter.Fill(data);
-            selectCommand.Dispose();
+            SqlParameter[] param = new SqlParameter[2];
+            param[0] = new SqlParameter("@organisedBy", null);
+            param[1] = new SqlParameter("@ID", ID);
+            dataset = SqlHelper.ExecuteDataset(connection, CommandType.StoredProcedure, "[pSchoolwiseDataEventCertificates]", param);
+            data = dataset.Tables[2];
+
         }
 
         if (data.Rows.Count == 1)
@@ -321,32 +343,28 @@ public partial class frmRegisterEventSchool : System.Web.UI.Page
     {
         try
         {
-            string query = "(SELECT em1.EventName[EventName], em1.StartDate[StartDate], (CASE WHEN em1.EventStatus='0' THEN 'Pending Approvals' WHEN em1.EventStatus='1' THEN 'Pending DSA Approval' WHEN em1.EventStatus='2' THEN 'Active' WHEN em1.EventStatus='3' THEN 'Pending Excel Approval (DSA)' WHEN em1.EventStatus='4' THEN 'Pending Data Printing' WHEN em1.EventStatus='5' THEN 'Closed' WHEN em1.EventStatus='-1' THEN 'Rejected' END)[EventStatus], em1.id[id], em2.EventName[ParentEventName] FROM EventMaster em1 INNER JOIN dbo.EventMaster em2 ON em1.parentEventId = em2.id WHERE em1.organisedby=@school) UNION (SELECT eventname,startdate,(CASE WHEN EventStatus='0' THEN 'Pending Approvals' WHEN EventStatus='1' THEN 'Pending DSA Approval' WHEN EventStatus='2' THEN 'Active' WHEN EventStatus='3' THEN 'Pending Excel Approval (DSA)' WHEN EventStatus='4' THEN 'Pending Data Printing' WHEN EventStatus='5' THEN 'Closed' WHEN EventStatus='-1' THEN 'Rejected' END)[EventStatus], id[id], 'N.A' FROM EventMaster WHERE ParentEventID IS NULL AND HasCategories IS NULL  AND organisedby=@school)";
             DataTable table = new DataTable();
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 connection.Open();
-                SqlCommand selectCommand = new SqlCommand(query, connection);
-                selectCommand.Parameters.Add("@school", SqlDbType.VarChar).Value = SelectSchool.SelectedValue;
-                SqlDataAdapter adapter = new SqlDataAdapter(selectCommand);
-                adapter.Fill(table);
+                SqlParameter[] param = new SqlParameter[2];
+                param[0] = new SqlParameter("@organisedBy", SelectSchool.SelectedValue);
+                param[1] = new SqlParameter("@ID", id);
+                dataset = SqlHelper.ExecuteDataset(connection, CommandType.StoredProcedure, "[pSchoolwiseDataEventCertificates]", param);
+                table = dataset.Tables[3];
+
                 resStatusRG.DataSource = table;
                 resStatusRG.DataBind();
                 resStatusRG.Visible = true;
             }
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             Debug.WriteLine(ex.Message);
             showPopup("Something went wrong while load data.");
         }
 
     }
-    private void showPopup(string text)
-    {
-        Response.Write("<script>alert(' " + text + "');</script>");
-    }
-
     protected void resDownloadFormatsBtn_Click(object sender, EventArgs e)
     {
         try
@@ -365,7 +383,7 @@ public partial class frmRegisterEventSchool : System.Web.UI.Page
                 Response.End();
             }
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             Debug.WriteLine(ex.Message);
             showPopup("Something went wrong while downloading certificate formats!");
@@ -390,15 +408,14 @@ public partial class frmRegisterEventSchool : System.Web.UI.Page
         {
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
-                connection.Open(); string query = "";
-                if (uploadDataMode == "Event")
-                    query = "SELECT id, EventName, StartDate, EndDate FROM EventMaster WHERE ParentEventID IS NULL AND HasCategories IS NULL AND EventStatus = 2";
-                else
-                    query = "SELECT id, EventName, StartDate, EndDate FROM EventMaster WHERE ParentEventID IS NULL AND HasCategories = 1 AND EventStatus = 2";
-                SqlCommand selectCommand = new SqlCommand(query, connection);
-                SqlDataAdapter adapter = new SqlDataAdapter(selectCommand);
+                connection.Open();
+                dataset = SqlHelper.ExecuteDataset(connection, CommandType.StoredProcedure, "[pLoadDataEventCertificates]");
                 DataTable types = new DataTable();
-                adapter.Fill(types);
+                if (uploadDataMode == "Event")
+                    types = dataset.Tables[2];
+                else
+                    types = dataset.Tables[3];
+
                 if (types.Rows.Count <= 0)
                 {
                     refreshMode = 2;
@@ -444,7 +461,9 @@ public partial class frmRegisterEventSchool : System.Web.UI.Page
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 connection.Open();
-                SqlCommand selectCommand = new SqlCommand("SELECT id, EventName FROM EventMaster WHERE ParentEventID = @PID AND EventStatus = 2", connection);
+                SqlCommand selectCommand = new SqlCommand();
+                selectCommand.CommandText = string.Format("SELECT id, EventName FROM {0} WHERE ParentEventID = @PID AND EventStatus = 2", "EventMaster");
+                selectCommand.Connection = connection;
                 selectCommand.Parameters.Add("@PID", SqlDbType.Int).Value = eventID;
                 SqlDataAdapter adapter = new SqlDataAdapter(selectCommand);
                 DataTable types = new DataTable();
@@ -479,14 +498,14 @@ public partial class frmRegisterEventSchool : System.Web.UI.Page
         {
             string eventID = resUDEventCB.SelectedValue;
             string subEventID = resUDSubEventCB.SelectedValue;
-            string certificateType = null;
+            //string certificateType = null;
             int id = Int32.Parse(uploadDataMode == "Event" ? eventID : subEventID);
-            certificateType = resUDCertFormatsDDL.SelectedValue;
-            if (certificateType == "None")
-            {
-                showPopup("Select a Certificate Format!");
-                return;
-            }
+            //certificateType = resUDCertFormatsDDL.SelectedValue;
+            //if (certificateType == "None")
+            //{
+            //    showPopup("Select a Certificate Format!");
+            //    return;
+            //}
 
             string fileName = resUDDataFileFU.FileName;
             if (String.IsNullOrEmpty(fileName))
@@ -503,7 +522,8 @@ public partial class frmRegisterEventSchool : System.Web.UI.Page
 
             fileName = System.Text.RegularExpressions.Regex.Replace(fileName, "[^a-zA-Z0-9.]", "_");
             fileName = fileName.Replace(' ', '_');
-            fileName = id + "_" + certificateType + "_" + fileName;
+            //fileName = id + "_" + certificateType + "_" + fileName;
+            fileName = id + "_" + fileName;
             FtpService ftpClient = new FtpService();
             FtpService.FtpCredentials credentials = FtpUserPassword.GetUMSFtpCredentials();
             byte[] fileData = null;
@@ -531,7 +551,9 @@ public partial class frmRegisterEventSchool : System.Web.UI.Page
 
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
-                SqlCommand cmd = new SqlCommand("UPDATE EventMaster SET ExcelName = @EN WHERE ID = @ID AND EventStatus = 2", connection);
+                SqlCommand cmd = new SqlCommand();
+                cmd.CommandText = string.Format("UPDATE {0} SET ExcelName = @EN WHERE ID = @ID AND EventStatus = 2", "EventMaster");
+                cmd.Connection = connection;
                 cmd.Parameters.Add("@EN", SqlDbType.VarChar).Value = fileName;
                 cmd.Parameters.Add("@ID", SqlDbType.Int).Value = id;
                 connection.Open();
@@ -553,4 +575,9 @@ public partial class frmRegisterEventSchool : System.Web.UI.Page
         }
 
     }
+    private void showPopup(string text)
+    {
+        Response.Write("<script>alert(' " + text + "');</script>");
+    }
+
 }

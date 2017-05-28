@@ -14,16 +14,23 @@ using FtpClient;
 using System.Net;
 using System.IO;
 using Microsoft.Reporting.WebForms;
+using Microsoft.ApplicationBlocks.Data;
+
 
 public partial class frmEventsManage_PrintCerts : System.Web.UI.Page
 {
     private static int refreshMode = 0;
     String connectionString = ConfigurationManager.ConnectionStrings["NewUmsConnectionString"].ConnectionString;
+    System.Data.DataSet dataset = new System.Data.DataSet();
     private string folderOnFTPServer = "test";
     private static string mode = null;
 
     protected void Page_Load(object sender, EventArgs e)
     {
+        if(!IsPostBack)
+        {
+            loadSchools(MEPCEditLoadSchoolsCB);
+        }
         if (refreshMode == 1)
         {
             showPopup("Data updated!");
@@ -33,23 +40,88 @@ public partial class frmEventsManage_PrintCerts : System.Web.UI.Page
 
     protected void repPrintCertsRG_ItemCommand(object sender, Telerik.Web.UI.GridCommandEventArgs e)
     {
+        if (e.CommandName == "ViewExcel")
+        {
+            try
+            {
+                string ID;
+                GridDataItem item = e.Item as GridDataItem;
+                ID = item["id"].Text;
+
+                DataTable data = new DataTable();
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                {
+                    connection.Open();
+                    SqlParameter[] param = new SqlParameter[2];
+                    param[0] = new SqlParameter("@organisedBy", null);
+                    param[1] = new SqlParameter("@ID", ID);
+                    dataset = SqlHelper.ExecuteDataset(connection, CommandType.StoredProcedure, "[pSchoolwiseDataEventCertificates]", param);
+                    data = dataset.Tables[2];
+
+                }
+
+                string fileName = "";
+                if (data.Rows.Count == 1)
+                {
+                    if (data.Rows[0]["ExcelName"] != System.DBNull.Value)
+                        fileName = (string)data.Rows[0]["ExcelName"];
+                    else
+                    {
+                        showPopup("Something went wrong while fetching the file. Please try again.[1]");
+                        return;
+                    }
+                }
+
+                else
+                {
+                    showPopup("Something went wrong while fetching the file. Please try again.[2]");
+                    return;
+                }
+
+                FtpService ftpClient = new FtpService();
+                FtpService.FtpCredentials credentials = FtpUserPassword.GetUMSFtpCredentials();
+                FtpWebResponse response = ftpClient.DowloadFile(folderOnFTPServer, fileName, FtpUserPassword.GetUMSFtpCredentials());
+
+                using (MemoryStream stream = new MemoryStream())
+                {
+                    response.GetResponseStream().CopyTo(stream);
+                    Response.AddHeader("content-disposition", "attachment;filename=" + fileName);
+                    Response.Cache.SetCacheability(HttpCacheability.NoCache);
+                    Response.BinaryWrite(stream.ToArray());
+                    Response.End();
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("Exception: " + ex.Message);
+                showPopup("Something went wrong while fetching the file. Please try again [3].");
+            }
+        }
+
         if (e.CommandName == "DownloadPDF")
         {
-            CreatePDF("report");
+            string ID;
+            GridDataItem item = e.Item as GridDataItem;
+            ID = item["id"].Text;
+            CreatePDF(ID);
         }
 
         else if (e.CommandName == "MarkPrinted")
         {
-            int ID, pID;
+            int ID;
             GridDataItem item = e.Item as GridDataItem;
             ID = Int32.Parse(item["id"].Text);
-            string query = "UPDATE EventMaster SET EventStatus = 5 WHERE id=@ID";
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
-                SqlCommand command = new SqlCommand(query, connection);
-                command.Parameters.Add("@ID", SqlDbType.Int).Value = ID;
+                int status = 5;
+                SqlParameter[] param = new SqlParameter[2];
+                param[0] = new SqlParameter("@status", status);
+                param[1] = new SqlParameter("@id", ID);
+                SqlCommand command = new SqlCommand("pUpdateEventStatusEventCertificates", connection);
+                command.CommandType = CommandType.StoredProcedure;
                 connection.Open();
                 int rowsAffected = command.ExecuteNonQuery();
+
                 if (rowsAffected <= 0)
                 {
                     Response.Write("<script>alert('Something went wrong while updating data!');</script>");
@@ -63,7 +135,7 @@ public partial class frmEventsManage_PrintCerts : System.Web.UI.Page
         }
     }
 
-    private void CreatePDF(string fileName)
+    private void CreatePDF(string ID)
     {
         try
         {
@@ -78,25 +150,47 @@ public partial class frmEventsManage_PrintCerts : System.Web.UI.Page
             // Setup the report viewer object and get the array of bytes
             ReportViewer viewer = new ReportViewer();
             viewer.ProcessingMode = ProcessingMode.Local;
-            viewer.LocalReport.ReportPath = Server.MapPath("~/Reports/Cert.rdl");
+            viewer.LocalReport.ReportPath = Server.MapPath("~/AllCerts.rdl");
 
             string conString = ConfigurationManager.ConnectionStrings["NewUmsConnectionString"].ConnectionString;
-
-            SqlCommand cmd = new SqlCommand("SELECT em1.EventName, CAST(em1.StartDate AS DATE)[StartDate],CAST(em1.EndDate AS DATE)[EndDate], em1.OrganisedBy, ec.ID, StudentName, FatherName, HusbandName, CollegeOrSchool, RegisterationNumber, ProgramName, EventCategoryID, Position, IsLPUStudent, em1.ParentEventID, em2.EventName[ParentEventName] FROM EventMaster em1 INNER JOIN EventCertificates ec ON em1.id = ec.EventID INNER JOIN EventMaster em2 ON em1.ParentEventID=em2.id");
+            //EDDDDDDDDDDDDDDDDDIIIIIIIIIITTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
+            //DataTable temp = new DataTable();
+            //SqlCommand cmd = new SqlCommand("SELECT TOP 1 CertificateType from EventCertificates WHERE EventID = " + ID);
+            Debug.WriteLine("Here");
+            //using (SqlConnection con = new SqlConnection(conString))
+            //{
+            //    con.Open();
+            //    using (SqlDataAdapter sda = new SqlDataAdapter())
+            //    {
+            //        cmd.Connection = con;
+            //        sda.SelectCommand = cmd;
+            //        sda.Fill(temp);
+            //    }
+            //}
+            //Debug.WriteLine("SIZE: " + temp.Rows.Count);
+            //Debug.WriteLine("CertificateType: " + temp.Rows[0]["CertificateType"]);
             DataTable table = new DataTable();
             using (SqlConnection con = new SqlConnection(conString))
             {
-                using (SqlDataAdapter sda = new SqlDataAdapter())
-                {
-                    cmd.Connection = con;
-                    sda.SelectCommand = cmd;
-                    sda.Fill(table);
-                }
+                con.Open();
+                SqlParameter[] param = new SqlParameter[2];
+                param[0] = new SqlParameter("@eid", ID);
+                //param[1] = new SqlParameter("@certificateType", temp.Rows[0]["CertificateType"]);
+                dataset = SqlHelper.ExecuteDataset(con, CommandType.StoredProcedure, "[pEventCertificateData]", param);
+                table = dataset.Tables[0];
             }
 
-            ReportDataSource datasource = new ReportDataSource("EventsDataSet", table);
+            string eid = ID;
+            //string certificateType = temp.Rows[0]["CertificateType"].ToString();
+            //Debug.WriteLine("EID: " + eid + "   CERT: " + certificateType);
+            ReportParameter[] parms = new ReportParameter[2];
+            parms[0] = new ReportParameter("eid", eid);
+            //parms[1] = new ReportParameter("certificateType", certificateType);
+
+            ReportDataSource datasource = new ReportDataSource("DataSet1", table);
             viewer.LocalReport.DataSources.Clear();
             viewer.LocalReport.DataSources.Add(datasource);
+            viewer.LocalReport.SetParameters(parms);
 
             byte[] bytes = viewer.LocalReport.Render("PDF", null, out mimeType, out encoding, out extension, out streamIds, out warnings);
 
@@ -104,7 +198,7 @@ public partial class frmEventsManage_PrintCerts : System.Web.UI.Page
             Response.Buffer = true;
             Response.Clear();
             Response.ContentType = mimeType;
-            Response.AddHeader("content-disposition", "attachment; filename=" + fileName + "." + extension);
+            Response.AddHeader("content-disposition", "attachment; filename=" + "report" + "." + extension);
             Response.BinaryWrite(bytes); // create the file
             Response.Flush(); // send it to the client to download
         }
@@ -115,10 +209,6 @@ public partial class frmEventsManage_PrintCerts : System.Web.UI.Page
         }
     }
 
-    private void showPopup(String text)
-    {
-        Response.Write("<script>alert(' " + text + "');</script>");
-    }
     protected void StudentType_CheckedChanged(object sender, EventArgs e)
     {
         if (repLPUStudentRB.Checked)
@@ -179,7 +269,7 @@ public partial class frmEventsManage_PrintCerts : System.Web.UI.Page
     }
     protected void repCertInfoRG_ItemCommand(object sender, GridCommandEventArgs e)
     {
-        if(e.CommandName == "DownloadSample")
+        if (e.CommandName == "DownloadSample")
         {
             try
             {
@@ -204,6 +294,107 @@ public partial class frmEventsManage_PrintCerts : System.Web.UI.Page
                 Debug.WriteLine(ex.Message);
                 showPopup("Something went wrong while downloading certificate formats!");
             }
+        }
+    }
+    private void showPopup(String text)
+    {
+        Response.Write("<script>alert(' " + text + "');</script>");
+    }
+    private void loadSchools(RadComboBox combobox)
+    {
+        Debug.WriteLine("Nigga");
+        combobox.Items.Clear();
+        try
+        {
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                dataset = SqlHelper.ExecuteDataset(connection, CommandType.StoredProcedure, "[pLoadDataEventCertificates]");
+                DataTable types = new DataTable();
+                types = dataset.Tables[1];
+
+                List<RadComboBoxItemData> result = new List<RadComboBoxItemData>(types.Rows.Count);
+
+                foreach (DataRow row in types.Rows)
+                {
+                    RadComboBoxItem itemData = new RadComboBoxItem();
+                    itemData.Value = row["DivisionSectionCode"].ToString();
+                    string text = row["DivisionSectionCode"] + " :: " + row["Name"];
+                    itemData.Text = text;
+                    combobox.Items.Add(itemData);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine(ex.Message);
+            showPopup("Something went wrong while loading schools!");
+        }
+    }
+    private void loadEvents(RadComboBox combobox)
+    {
+        combobox.Items.Clear(); //Clear the Combo items to make sure duplicates are not made
+        try
+        {
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                System.Diagnostics.Debug.WriteLine("AAAAAAAAAAAAAAAAa " + MEPCEditLoadSchoolsCB.SelectedValue);
+                connection.Open();
+                SqlParameter[] param = new SqlParameter[2];
+                param[0] = new SqlParameter("@organisedBy", MEPCEditLoadSchoolsCB.SelectedValue);
+                param[1] = new SqlParameter("@ID", null);
+                dataset = SqlHelper.ExecuteDataset(connection, CommandType.StoredProcedure, "[pSchoolwiseDataEventCertificates]", param);
+                
+                DataTable types = new DataTable();
+                types = dataset.Tables[4];
+                Debug.WriteLine(dataset.Tables[4].Columns.Count);
+                List<RadComboBoxItemData> result = new List<RadComboBoxItemData>(types.Rows.Count);
+
+                foreach (DataRow row in types.Rows)
+                {
+                    RadComboBoxItem itemData = new RadComboBoxItem();
+                    itemData.Value = row["id"].ToString();
+                    string sqlFormattedstartDate = ((DateTime)row["StartDate"]).ToString("dd-MM-yyyy");
+                    string sqlFormattedEndDate = ((DateTime)row["EndDate"]).ToString("dd-MM-yyyy");
+                    string text = row["EventName"] + " :: " + sqlFormattedstartDate + " to " + sqlFormattedEndDate;
+                    itemData.Text = text;
+                    combobox.Items.Add(itemData);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine(ex.Message);
+            showPopup("Something went wrong while loading events!");
+        }
+    }
+    protected void MEPCEditLoadSchoolsCB_SelectedIndexChanged(object sender, RadComboBoxSelectedIndexChangedEventArgs e)
+    {
+        loadEvents(MEPCEditLoadEventsCB);
+    }
+    protected void MEPCEditLoadEventsCB_SelectedIndexChanged(object sender, RadComboBoxSelectedIndexChangedEventArgs e)
+    {
+
+    }
+
+    protected void MEPCEditSearchBtn_Click(object sender, EventArgs e)
+    {
+        string eid = MEPCEditLoadEventsCB.SelectedValue;
+        try
+        {
+            DataTable table = new DataTable();
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+                SqlParameter[] param = new SqlParameter[2];
+                param[0] = new SqlParameter("@eid", eid);
+                dataset = SqlHelper.ExecuteDataset(connection, CommandType.StoredProcedure, "[pEventCertificateData]", param);
+                MEPCEditStudentDataRG.DataSource = dataset.Tables[0];
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine(ex.Message);
+            showPopup("Something went wrong while loading data!");
         }
     }
 }
