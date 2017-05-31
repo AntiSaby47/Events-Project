@@ -15,7 +15,7 @@ using System.Net;
 using System.IO;
 using Microsoft.Reporting.WebForms;
 using Microsoft.ApplicationBlocks.Data;
-
+using Ionic.Zip;
 
 public partial class frmEventsManage_PrintCerts : System.Web.UI.Page
 {
@@ -25,9 +25,18 @@ public partial class frmEventsManage_PrintCerts : System.Web.UI.Page
     private string folderOnFTPServer = "test";
     private static string mode = null;
 
+    enum CertTypes : int
+    {
+        CP,
+        CE,
+        CM,
+        CR,
+        CT
+    };
+
     protected void Page_Load(object sender, EventArgs e)
     {
-        if(!IsPostBack)
+        if (!IsPostBack)
         {
             loadSchools(MEPCEditLoadSchoolsCB);
         }
@@ -153,22 +162,7 @@ public partial class frmEventsManage_PrintCerts : System.Web.UI.Page
             viewer.LocalReport.ReportPath = Server.MapPath("~/AllCerts.rdl");
 
             string conString = ConfigurationManager.ConnectionStrings["NewUmsConnectionString"].ConnectionString;
-            //EDDDDDDDDDDDDDDDDDIIIIIIIIIITTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-            //DataTable temp = new DataTable();
-            //SqlCommand cmd = new SqlCommand("SELECT TOP 1 CertificateType from EventCertificates WHERE EventID = " + ID);
             Debug.WriteLine("Here");
-            //using (SqlConnection con = new SqlConnection(conString))
-            //{
-            //    con.Open();
-            //    using (SqlDataAdapter sda = new SqlDataAdapter())
-            //    {
-            //        cmd.Connection = con;
-            //        sda.SelectCommand = cmd;
-            //        sda.Fill(temp);
-            //    }
-            //}
-            //Debug.WriteLine("SIZE: " + temp.Rows.Count);
-            //Debug.WriteLine("CertificateType: " + temp.Rows[0]["CertificateType"]);
             DataTable table = new DataTable();
             using (SqlConnection con = new SqlConnection(conString))
             {
@@ -176,31 +170,65 @@ public partial class frmEventsManage_PrintCerts : System.Web.UI.Page
                 SqlParameter[] param = new SqlParameter[2];
                 param[0] = new SqlParameter("@eid", ID);
                 //param[1] = new SqlParameter("@certificateType", temp.Rows[0]["CertificateType"]);
-                dataset = SqlHelper.ExecuteDataset(con, CommandType.StoredProcedure, "[pEventCertificateData]", param);
+                dataset = SqlHelper.ExecuteDataset(con, CommandType.StoredProcedure, "[pEventCertificateData_WO]", param);
                 table = dataset.Tables[0];
             }
 
-            string eid = ID;
-            //string certificateType = temp.Rows[0]["CertificateType"].ToString();
-            //Debug.WriteLine("EID: " + eid + "   CERT: " + certificateType);
-            ReportParameter[] parms = new ReportParameter[2];
-            parms[0] = new ReportParameter("eid", eid);
-            //parms[1] = new ReportParameter("certificateType", certificateType);
+            DataTable[] tableArray = new DataTable[5];
+            for (int i = 0; i < 5; i++)
+                tableArray[i] = table.Clone();
 
-            ReportDataSource datasource = new ReportDataSource("DataSet1", table);
-            viewer.LocalReport.DataSources.Clear();
-            viewer.LocalReport.DataSources.Add(datasource);
-            viewer.LocalReport.SetParameters(parms);
+            foreach(DataRow row in table.Rows)
+            {
+                if (((string)row["certificateType"]) == "CP")
+                    tableArray[(int)CertTypes.CP].ImportRow(row);
+                else if (((string)row["certificateType"]) == "CR")
+                    tableArray[(int)CertTypes.CR].ImportRow(row);
+                else if (((string)row["certificateType"]) == "CE")
+                    tableArray[(int)CertTypes.CE].ImportRow(row);
+                else if (((string)row["certificateType"]) == "CM")
+                    tableArray[(int)CertTypes.CM].ImportRow(row);
+                else if (((string)row["certificateType"]) == "CT")
+                    tableArray[(int)CertTypes.CT].ImportRow(row);
+            }
 
-            byte[] bytes = viewer.LocalReport.Render("PDF", null, out mimeType, out encoding, out extension, out streamIds, out warnings);
+            foreach(DataTable tempTable in tableArray)
+            {
+                Debug.WriteLine("Size: " + tempTable.Rows.Count);
+            }
 
-            // Now that you have all the bytes representing the PDF report, buffer it and send it to the client.
-            Response.Buffer = true;
-            Response.Clear();
-            Response.ContentType = mimeType;
-            Response.AddHeader("content-disposition", "attachment; filename=" + "report" + "." + extension);
-            Response.BinaryWrite(bytes); // create the file
-            Response.Flush(); // send it to the client to download
+            Response.ClearContent();
+            Response.ClearHeaders();
+            Response.ContentType = "application/zip";
+            Response.AppendHeader("content-disposition", "attachment; filename=Reports.zip");
+
+            using (ZipFile zipFile = new ZipFile())
+            {
+                foreach (DataTable tempTable in tableArray)
+                {
+                    if (tempTable.Rows.Count != 0)
+                    {
+                        string certType = (string)tempTable.Rows[0]["certificateType"];
+                        string eid = ID;
+                        ReportParameter[] parms = new ReportParameter[2];
+                        parms[0] = new ReportParameter("eid", eid);
+                        parms[1] = new ReportParameter("certificateType", certType);
+
+                        ReportDataSource datasource = new ReportDataSource("DataSet1", tempTable);
+                        viewer.LocalReport.DataSources.Clear();
+                        viewer.LocalReport.DataSources.Add(datasource);
+                        viewer.LocalReport.SetParameters(parms);
+
+                        byte[] bytes = viewer.LocalReport.Render("PDF", null, out mimeType, out encoding, out extension, out streamIds, out warnings);
+                        MemoryStream byteStream = new MemoryStream(bytes);
+                        byteStream.Seek(0, SeekOrigin.Begin);
+
+                        string fileName = certType + ".pdf";
+                        zipFile.AddEntry(fileName, byteStream);
+                    }
+                }
+                zipFile.Save(Response.OutputStream);
+            }
         }
         catch (Exception ex)
         {
@@ -302,7 +330,6 @@ public partial class frmEventsManage_PrintCerts : System.Web.UI.Page
     }
     private void loadSchools(RadComboBox combobox)
     {
-        Debug.WriteLine("Nigga");
         combobox.Items.Clear();
         try
         {
@@ -337,16 +364,14 @@ public partial class frmEventsManage_PrintCerts : System.Web.UI.Page
         {
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
-                System.Diagnostics.Debug.WriteLine("AAAAAAAAAAAAAAAAa " + MEPCEditLoadSchoolsCB.SelectedValue);
                 connection.Open();
                 SqlParameter[] param = new SqlParameter[2];
                 param[0] = new SqlParameter("@organisedBy", MEPCEditLoadSchoolsCB.SelectedValue);
                 param[1] = new SqlParameter("@ID", null);
                 dataset = SqlHelper.ExecuteDataset(connection, CommandType.StoredProcedure, "[pSchoolwiseDataEventCertificates]", param);
-                
+
                 DataTable types = new DataTable();
                 types = dataset.Tables[4];
-                Debug.WriteLine(dataset.Tables[4].Columns.Count);
                 List<RadComboBoxItemData> result = new List<RadComboBoxItemData>(types.Rows.Count);
 
                 foreach (DataRow row in types.Rows)
@@ -371,13 +396,10 @@ public partial class frmEventsManage_PrintCerts : System.Web.UI.Page
     {
         loadEvents(MEPCEditLoadEventsCB);
     }
-    protected void MEPCEditLoadEventsCB_SelectedIndexChanged(object sender, RadComboBoxSelectedIndexChangedEventArgs e)
-    {
-
-    }
 
     protected void MEPCEditSearchBtn_Click(object sender, EventArgs e)
     {
+        Debug.WriteLine("AAAAAAAAAAAAAAAAAAAA" + MEPCEditLoadEventsCB.SelectedValue);
         string eid = MEPCEditLoadEventsCB.SelectedValue;
         try
         {
@@ -385,16 +407,26 @@ public partial class frmEventsManage_PrintCerts : System.Web.UI.Page
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 connection.Open();
-                SqlParameter[] param = new SqlParameter[2];
+                SqlParameter[] param = new SqlParameter[1];
                 param[0] = new SqlParameter("@eid", eid);
                 dataset = SqlHelper.ExecuteDataset(connection, CommandType.StoredProcedure, "[pEventCertificateData]", param);
+                Debug.WriteLine("TOTAL: " + dataset.Tables[0].Columns.Count);
                 MEPCEditStudentDataRG.DataSource = dataset.Tables[0];
+                MEPCEditStudentDataRG.Visible = true;
+                MEPCEditStudentDataRG.Rebind();
             }
         }
         catch (Exception ex)
         {
             Debug.WriteLine(ex.Message);
             showPopup("Something went wrong while loading data!");
+        }
+    }
+    protected void MEPCEditStudentDataRG_ItemCommand(object sender, GridCommandEventArgs e)
+    {
+        if (e.CommandName == "EditData")
+        {
+            PopUp.Show();
         }
     }
 }

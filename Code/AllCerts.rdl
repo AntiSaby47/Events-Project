@@ -29,6 +29,10 @@
         <rd:UseGenericDesigner>true</rd:UseGenericDesigner>
       </Query>
       <Fields>
+        <Field Name="CertificateNumber">
+          <DataField>CertificateNumber</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
         <Field Name="StudentName">
           <DataField>StudentName</DataField>
           <rd:TypeName>System.String</rd:TypeName>
@@ -79,6 +83,10 @@
         </Field>
         <Field Name="OrganisedBy">
           <DataField>OrganisedBy</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="certificateType">
+          <DataField>certificateType</DataField>
           <rd:TypeName>System.String</rd:TypeName>
         </Field>
       </Fields>
@@ -1291,7 +1299,7 @@
                 <Height>5.63405in</Height>
                 <Width>10.92853in</Width>
                 <Visibility>
-                  <Hidden>=Microsoft.VisualBasic.Interaction.iif(Parameters!certificateType.Value = "CE", False, True)</Hidden>
+                  <Hidden>=Microsoft.VisualBasic.Interaction.iif(Fields!certificateType.Value = "CE", False, True)</Hidden>
                 </Visibility>
                 <Style>
                   <Border>
@@ -2501,7 +2509,7 @@
                 <Width>10.92853in</Width>
                 <ZIndex>1</ZIndex>
                 <Visibility>
-                  <Hidden>=Microsoft.VisualBasic.Interaction.iif(Parameters!certificateType.Value = "CM", False, True)</Hidden>
+                  <Hidden>=Microsoft.VisualBasic.Interaction.iif(Fields!certificateType.Value = "CM", False, True)</Hidden>
                 </Visibility>
                 <Style>
                   <Border>
@@ -3624,7 +3632,7 @@
                 <Width>10.92853in</Width>
                 <ZIndex>2</ZIndex>
                 <Visibility>
-                  <Hidden>=Microsoft.VisualBasic.Interaction.iif(Parameters!certificateType.Value = "CP", False, True)</Hidden>
+                  <Hidden>=Microsoft.VisualBasic.Interaction.iif(Fields!certificateType.Value = "CP", False, True)</Hidden>
                 </Visibility>
                 <Style>
                   <Border>
@@ -4834,7 +4842,7 @@
                 <Width>10.92853in</Width>
                 <ZIndex>3</ZIndex>
                 <Visibility>
-                  <Hidden>=Microsoft.VisualBasic.Interaction.iif(Parameters!certificateType.Value = "CR", False, True)</Hidden>
+                  <Hidden>=Microsoft.VisualBasic.Interaction.iif(Fields!certificateType.Value = "CR", False, True)</Hidden>
                 </Visibility>
                 <Style>
                   <Border>
@@ -6093,7 +6101,7 @@
                 <Width>10.92853in</Width>
                 <ZIndex>4</ZIndex>
                 <Visibility>
-                  <Hidden>=Microsoft.VisualBasic.Interaction.iif(Parameters!certificateType.Value = "CT", False, True)</Hidden>
+                  <Hidden>=Microsoft.VisualBasic.Interaction.iif(Fields!certificateType.Value = "CT", False, True)</Hidden>
                 </Visibility>
                 <Style>
                   <Border>
@@ -6107,7 +6115,7 @@
             </PageBreak>
             <Top>0.00251in</Top>
             <Left>0.00897in</Left>
-            <Height>5.63405in</Height>
+            <Height>5.64446in</Height>
             <Width>10.92853in</Width>
             <Style>
               <Border>
@@ -6116,7 +6124,7 @@
             </Style>
           </Rectangle>
         </ReportItems>
-        <Height>5.63656in</Height>
+        <Height>5.64697in</Height>
         <Style>
           <Border>
             <Style>None</Style>
@@ -6140,7 +6148,7 @@
     </ReportParameter>
     <ReportParameter Name="certificateType">
       <DataType>String</DataType>
-      <Prompt>certificate Type</Prompt>
+      <Prompt>certificateType</Prompt>
     </ReportParameter>
   </ReportParameters>
   <rd:ReportUnitType>Inch</rd:ReportUnitType>
