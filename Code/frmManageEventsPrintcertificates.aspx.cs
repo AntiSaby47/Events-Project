@@ -155,14 +155,12 @@ public partial class frmEventsManage_PrintCerts : System.Web.UI.Page
             string encoding = string.Empty;
             string extension = string.Empty;
 
-
             // Setup the report viewer object and get the array of bytes
             ReportViewer viewer = new ReportViewer();
             viewer.ProcessingMode = ProcessingMode.Local;
             viewer.LocalReport.ReportPath = Server.MapPath("~/AllCerts.rdl");
 
             string conString = ConfigurationManager.ConnectionStrings["NewUmsConnectionString"].ConnectionString;
-            Debug.WriteLine("Here");
             DataTable table = new DataTable();
             using (SqlConnection con = new SqlConnection(conString))
             {
@@ -190,11 +188,6 @@ public partial class frmEventsManage_PrintCerts : System.Web.UI.Page
                     tableArray[(int)CertTypes.CM].ImportRow(row);
                 else if (((string)row["certificateType"]) == "CT")
                     tableArray[(int)CertTypes.CT].ImportRow(row);
-            }
-
-            foreach(DataTable tempTable in tableArray)
-            {
-                Debug.WriteLine("Size: " + tempTable.Rows.Count);
             }
 
             Response.ClearContent();
@@ -225,10 +218,14 @@ public partial class frmEventsManage_PrintCerts : System.Web.UI.Page
 
                         string fileName = certType + ".pdf";
                         zipFile.AddEntry(fileName, byteStream);
+                        //byteStream.Dispose();
                     }
                 }
                 zipFile.Save(Response.OutputStream);
             }
+            //HttpContext.Current.ApplicationInstance.CompleteRequest();
+            //HttpContext.Current.Response.Flush();
+            //HttpContext.Current.Response.End();
         }
         catch (Exception ex)
         {

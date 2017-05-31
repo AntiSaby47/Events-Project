@@ -25,11 +25,14 @@ public partial class frmManageEventsHOS : System.Web.UI.Page
     System.Data.DataSet dataset = new System.Data.DataSet();
     private static string parentID;
     private static string mode, uploadDataMode;
-    private string folderOnFTPServer = "test";
-    private static int id = -47;
+    private static int id = -47; //If id = -47, it means event hasn't been fetched properly
     private static int refreshMode = 0;
-    private string TEMP_FOLDER_PATH = "~/Temp/";
     private static readonly string[] certificateTypes = { "CE", "CM", "CP", "CR", "CT" };
+
+    //---------Keep check----------------------------
+    private string folderOnFTPServer = "test";
+    private string TEMP_FOLDER_PATH = "~/Temp/";
+    //-----------------------------------------------
 
     protected void Page_Load(object sender, EventArgs e)
     {
@@ -50,6 +53,15 @@ public partial class frmManageEventsHOS : System.Web.UI.Page
             showPopup("Data updated!");
             refreshMode = 0;
         }
+
+        //------Delete the temporary files---------------------------------
+        string[] filePaths = Directory.GetFiles(Server.MapPath(TEMP_FOLDER_PATH));
+        foreach (string filePath in filePaths)
+        {
+            if (filePath.Contains("EC_TMP_"))
+                File.Delete(filePath);
+        }
+
     }
 
     private void loadSchools(RadComboBox combobox)
@@ -305,7 +317,7 @@ public partial class frmManageEventsHOS : System.Web.UI.Page
                     FtpService.FtpCredentials credentials = FtpUserPassword.GetUMSFtpCredentials();
                     FtpWebResponse response = ftpClient.DowloadFile(folderOnFTPServer, excelName, FtpUserPassword.GetUMSFtpCredentials());
 
-                    string tempFilePath = TEMP_FOLDER_PATH + "/" + "TMP_" + excelName;
+                    string tempFilePath = TEMP_FOLDER_PATH + "/" + "EC_TMP_" + excelName;
                     tempFilePath = Server.MapPath(tempFilePath);
                     using (FileStream fileStream = File.Create(tempFilePath))
                     {
@@ -338,7 +350,7 @@ public partial class frmManageEventsHOS : System.Web.UI.Page
 
                         if (excelSheets.Length > 1 || excelSheets[0] != "Sheet1$")
                         {
-                            showPopup("Excel file must only have 1 sheet with the name of `Sheet1`");
+                            showPopup("Excel file must only have 1 sheet with name `Sheet1`");
                             return;
                         }
                         //-----------------------------------------------------------------------------------------------------------------
@@ -350,7 +362,6 @@ public partial class frmManageEventsHOS : System.Web.UI.Page
                         //command.Parameters.Add("@CT", OleDbType.VarChar).Value = certificateType;
 
                         DbDataReader dr = command.ExecuteReader();
-
                         using (SqlConnection connection = new SqlConnection(connectionString))
                         {
                             connection.Open();
@@ -372,6 +383,10 @@ public partial class frmManageEventsHOS : System.Web.UI.Page
                         dr.Dispose();
                         command.Dispose();
                         dt.Dispose();
+                        response.Dispose();
+                        excelConnection.Close();
+                        excelConnection.Dispose();
+                        File.Delete(tempFilePath);
                     }
                 }
 
@@ -392,8 +407,6 @@ public partial class frmManageEventsHOS : System.Web.UI.Page
                     command.CommandType = CommandType.StoredProcedure;
                     connection.Open();
                     int rowsAffected = command.ExecuteNonQuery();
-
-
                     //SqlCommand sqlCommand = new SqlCommand(query2, connection);
                     //sqlCommand.Parameters.Add("@ID", SqlDbType.Int).Value = ID;
                     //sqlCommand.Parameters.Add("@Status", SqlDbType.Int).Value = status;
@@ -423,6 +436,12 @@ public partial class frmManageEventsHOS : System.Web.UI.Page
         {
             GridDataItem item = e.Item as GridDataItem;
             string ID = item["id"].Text;
+            string excelName = item["ExcelName"].Text;
+            FtpService ftpClient = new FtpService();
+            FtpService.FtpCredentials credentials = FtpUserPassword.GetUMSFtpCredentials();
+            string response = ftpClient.DeleteFile(folderOnFTPServer, excelName, FtpUserPassword.GetUMSFtpCredentials());
+            Debug.WriteLine("Res: " + response);
+
             string query2 = "UPDATE EventMaster SET ExcelName = 'REJECTED' WHERE id = @ID";
             using (SqlConnection connection = new SqlConnection(connectionString))
             {

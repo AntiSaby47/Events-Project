@@ -22,9 +22,12 @@ public partial class frmRegisterEventDSA : System.Web.UI.Page
     private static int refreshMode = 0;
     string connectionString = ConfigurationManager.ConnectionStrings["NewUmsConnectionString"].ConnectionString;
     System.Data.DataSet dataset = new System.Data.DataSet();
+    private static readonly string[] certificateTypes = { "CE", "CM", "CP", "CR", "CT" };
+
+    //---------Keep check----------------------------
     private string folderOnFTPServer = "test";
     private string TEMP_FOLDER_PATH = "~/Temp/";
-    private static readonly string[] certificateTypes = { "CE", "CM", "CP", "CR", "CT" };
+    //-----------------------------------------------
 
     protected void Page_Load(object sender, EventArgs e)
     {
@@ -37,6 +40,19 @@ public partial class frmRegisterEventDSA : System.Web.UI.Page
         {
             showPopup("Data updated!");
             refreshMode = 0;
+        }
+        else if (refreshMode == 3)
+        {
+            showPopup("Event registered. Note down the Event name and start date. You\\'ll need it while uploading event data.");
+            refreshMode = 0;
+        }
+
+        //------Delete the temporary files---------------------------------
+        string[] filePaths = Directory.GetFiles(Server.MapPath(TEMP_FOLDER_PATH));
+        foreach (string filePath in filePaths)
+        {
+            if (filePath.Contains("EC_TMP_"))
+                File.Delete(filePath);
         }
     }
 
@@ -174,7 +190,8 @@ public partial class frmRegisterEventDSA : System.Web.UI.Page
 
                             else
                             {
-                                showPopup("Event registered. Note down the Event name and start date. You\\'ll need it while uploading event data.");
+                                refreshMode = 3;
+                                Response.Redirect(Request.RawUrl);
                             }
                             //cmd.Dispose();
                         }
@@ -348,7 +365,7 @@ public partial class frmRegisterEventDSA : System.Web.UI.Page
                 FtpService.FtpCredentials credentials = FtpUserPassword.GetUMSFtpCredentials();
                 FtpWebResponse response = ftpClient.DowloadFile(folderOnFTPServer, excelName, FtpUserPassword.GetUMSFtpCredentials());
 
-                string tempFilePath = TEMP_FOLDER_PATH + "/" + "TMP_" + excelName;
+                string tempFilePath = TEMP_FOLDER_PATH + "/" + "EC_TMP_" + excelName;
                 tempFilePath = Server.MapPath(tempFilePath);
                 using (FileStream fileStream = File.Create(tempFilePath))
                 {
@@ -393,7 +410,6 @@ public partial class frmRegisterEventDSA : System.Web.UI.Page
                     //command.Parameters.Add("@CT", OleDbType.VarChar).Value = certificateType;
 
                     DbDataReader dr = command.ExecuteReader();
-
                     using (SqlConnection connection = new SqlConnection(connectionString))
                     {
                         connection.Open();
@@ -415,6 +431,10 @@ public partial class frmRegisterEventDSA : System.Web.UI.Page
                     dr.Dispose();
                     command.Dispose();
                     dt.Dispose();
+                    response.Dispose();
+                    excelConnection.Close();
+                    excelConnection.Dispose();
+                    File.Delete(tempFilePath);
                 }
 
                 //string query2 = string.Format("UPDATE {0} SET {1} = 4 WHERE {2} = @ID AND {1} = 3", "EventMaster", "EventStatus", "id");
@@ -457,6 +477,12 @@ public partial class frmRegisterEventDSA : System.Web.UI.Page
         {
             GridDataItem item = e.Item as GridDataItem;
             string ID = item["id"].Text;
+            string excelName = item["ExcelName"].Text;
+            FtpService ftpClient = new FtpService();
+            FtpService.FtpCredentials credentials = FtpUserPassword.GetUMSFtpCredentials();
+            string response = ftpClient.DeleteFile(folderOnFTPServer, excelName, FtpUserPassword.GetUMSFtpCredentials());
+            Debug.WriteLine("Res: " + response);
+
             string query2 = string.Format("UPDATE {0} SET {1} = 'REJECTED', {2} = 2 WHERE {3} = @ID", "EventMaster", "ExcelName", "EventStatus", "id");
             using (SqlConnection connection = new SqlConnection(connectionString))
             {

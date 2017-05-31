@@ -15,6 +15,8 @@ using System.Text.RegularExpressions;
 using System.Net;
 using System.IO;
 using Microsoft.ApplicationBlocks.Data;
+using System.Data.OleDb;
+using System.Data.Common;
 
 public partial class frmRegisterEventSchool : System.Web.UI.Page
 {
@@ -22,9 +24,15 @@ public partial class frmRegisterEventSchool : System.Web.UI.Page
     System.Data.DataSet dataset = new System.Data.DataSet();
     private static string parentID;
     private static string mode, uploadDataMode; //Event or Sub Event. Choosen through Combo box
-    private string folderOnFTPServer = "test";
     private static int id = -47;
     private static int refreshMode = 0;
+
+    //---------Keep check----------------------------
+    private string folderOnFTPServer = "test";
+    private string TEMP_FOLDER_PATH = "~/Temp/";
+    //-----------------------------------------------
+
+
     protected void Page_Load(object sender, EventArgs e)
     {
         if (!IsPostBack)
@@ -48,6 +56,26 @@ public partial class frmRegisterEventSchool : System.Web.UI.Page
         {
             showPopup("File Uploaded Successfully!");
             refreshMode = 0;
+        }
+
+        else if (refreshMode == 4)
+        {
+            showPopup("File data is not correct. Please check the data and upload the file again.");
+            string[] filePaths = Directory.GetFiles(Server.MapPath(TEMP_FOLDER_PATH));
+            foreach (string filePath in filePaths)
+            {
+                if (filePath.Contains("EC_TMP_"))
+                    File.Delete(filePath);
+            }
+            refreshMode = 0;
+        }
+
+        //------Delete the temporary files---------------------------------
+        string[] files = Directory.GetFiles(Server.MapPath(TEMP_FOLDER_PATH));
+        foreach (string filePath in files)
+        {
+            if (filePath.Contains("EC_TMP_"))
+                File.Delete(filePath);
         }
     }
 
@@ -513,8 +541,8 @@ public partial class frmRegisterEventSchool : System.Web.UI.Page
                 showPopup("Select a file to upload!");
                 return;
             }
-            String ext = System.IO.Path.GetExtension(fileName);
-            if (ext.ToLower() != ".xls" && ext.ToLower() != ".xlsx")
+            String fileExtension = System.IO.Path.GetExtension(fileName);
+            if (fileExtension.ToLower() != ".xls" && fileExtension.ToLower() != ".xlsx")
             {
                 showPopup("Select a valid excel file to upload!");
                 return;
@@ -531,6 +559,79 @@ public partial class frmRegisterEventSchool : System.Web.UI.Page
             {
                 fileData = binaryReader.ReadBytes(resUDDataFileFU.PostedFile.ContentLength);
             }
+
+            string tempFilePath = TEMP_FOLDER_PATH + "/" + "EC_TMP_" + fileName;
+            tempFilePath = Server.MapPath(tempFilePath);
+
+            MemoryStream byteStream = new MemoryStream(fileData);
+            byteStream.Seek(0, SeekOrigin.Begin);
+            using (FileStream fileStream = File.Create(tempFilePath))
+            {
+                byteStream.CopyTo(fileStream);
+            }
+            
+            string excelConnString = null;
+            if (fileExtension == ".xls")
+                excelConnString = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source={0};Extended Properties=\"Excel 8.0;HDR=Yes;IMEX=2\"";
+            else if (fileExtension == ".xlsx")
+                excelConnString = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source={0};Extended Properties=\"Excel 12.0;HDR=Yes;IMEX=2\"";
+
+            excelConnString = String.Format(excelConnString, tempFilePath);
+            using (OleDbConnection excelConnection = new OleDbConnection(excelConnString))
+            {
+                excelConnection.Open();
+                //-------------------This block of code checks if the excel file has 1 sheet with name "Sheet1" or not-------------
+                DataTable dt = new DataTable();
+                dt = excelConnection.GetOleDbSchemaTable(OleDbSchemaGuid.Tables, null);
+                if (dt == null)
+                {
+                    showPopup("No data found in excel sheet!");
+                    return;
+                }
+                String[] excelSheets = new String[dt.Rows.Count];
+                for (int i = 0; i < dt.Rows.Count; i++)
+                    excelSheets[i] = dt.Rows[i]["TABLE_NAME"].ToString();
+
+                if (excelSheets.Length > 1 || excelSheets[0] != "Sheet1$")
+                {
+                    showPopup("Excel file must only have 1 sheet with name `Sheet1`");
+                    return;
+                }
+                //-----------------------------------------------------------------------------------------------------------------
+                //---------------------------------Main processing-----------------------------------------------------------------
+                //string query = "SELECT *, " + ID + " as [EventID]," + certificateType + "[CertificateType], 0 as EventCategoryID from [Sheet1$]";
+                string query = "SELECT * from [Sheet1$]";
+                OleDbCommand command = new OleDbCommand(query, excelConnection);
+                DbDataReader dr = command.ExecuteReader();
+                while (dr.Read())
+                {
+                    string regNo = dr["Reg No"].ToString();
+                    string studentName = dr["Student Name"].ToString();
+                    string fatherName = dr["Father Name"].ToString();
+                    string husbandName = dr["Husband Name"].ToString();
+                    string programName = dr["Program Name"].ToString();
+                    string school = dr["College/School"].ToString();
+                    string position = dr["Position"].ToString();
+                    string isLPUStudent = dr["Is LPU Student"].ToString();
+                    string certType = dr["CertificateType"].ToString();
+
+                    if (studentName.Trim().Length <= 2 || fatherName.Trim().Length <= 2 || certType.Trim().Length <= 1 || school.Trim().Length <= 1 || position.Trim().Length == 0 || isLPUStudent.Trim().Length == 0)
+                    {
+                        refreshMode = 4;
+                        dr.Dispose();
+                        command.Dispose();
+                        dt.Dispose();
+                        Response.Redirect(Request.RawUrl);
+                        return;
+                    }
+                }
+
+                dr.Dispose();
+                command.Dispose();
+                dt.Dispose();
+            }
+
+            File.Delete(tempFilePath);
 
             string result = ftpClient.UploadFile(folderOnFTPServer, fileName, fileData, credentials);
             if (result.Trim().StartsWith("226") || result.Trim().Contains("Success") || result.Trim().Contains("complete"))
