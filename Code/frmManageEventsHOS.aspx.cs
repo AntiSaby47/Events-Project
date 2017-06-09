@@ -31,7 +31,7 @@ public partial class frmManageEventsHOS : System.Web.UI.Page
 
     //---------Keep check----------------------------
     private string folderOnFTPServer = "test";
-    private string TEMP_FOLDER_PATH = "~/Temp/";
+    private string TEMP_FOLDER_PATH = "~/Static Information/";
     //-----------------------------------------------
 
     protected void Page_Load(object sender, EventArgs e)

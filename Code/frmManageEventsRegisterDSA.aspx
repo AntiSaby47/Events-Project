@@ -1,4 +1,4 @@
-﻿<%@ Page  MasterPageFile="~/MasterPage.master" Language="C#" AutoEventWireup="true" CodeFile="frmManageEventsRegisterDSA.aspx.cs" Inherits="frmRegisterEventDSA" %>
+﻿<%@ Page  Title="DSA Event Management" MasterPageFile="Main.master" Language="C#" AutoEventWireup="true" CodeFile="frmManageEventsRegisterDSA.aspx.cs" Inherits="frmRegisterEventDSA" %>
 
 <%@ Register Assembly="Telerik.Web.UI" Namespace="Telerik.Web.UI" TagPrefix="telerik" %>
 <%@ Register Assembly="AjaxControlToolkit" Namespace="AjaxControlToolkit" TagPrefix="ajaxToolkit" %>

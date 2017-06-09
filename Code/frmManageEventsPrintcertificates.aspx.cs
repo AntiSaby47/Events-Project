@@ -38,7 +38,7 @@ public partial class frmEventsManage_PrintCerts : System.Web.UI.Page
     {
         if (!IsPostBack)
         {
-            loadSchools(MEPCEditLoadSchoolsCB);
+            loadSchools(mepcEditLoadSchoolsCB);
         }
         if (refreshMode == 1)
         {
@@ -363,7 +363,7 @@ public partial class frmEventsManage_PrintCerts : System.Web.UI.Page
             {
                 connection.Open();
                 SqlParameter[] param = new SqlParameter[2];
-                param[0] = new SqlParameter("@organisedBy", MEPCEditLoadSchoolsCB.SelectedValue);
+                param[0] = new SqlParameter("@organisedBy", mepcEditLoadSchoolsCB.SelectedValue);
                 param[1] = new SqlParameter("@ID", null);
                 dataset = SqlHelper.ExecuteDataset(connection, CommandType.StoredProcedure, "[pSchoolwiseDataEventCertificates]", param);
 
@@ -389,15 +389,15 @@ public partial class frmEventsManage_PrintCerts : System.Web.UI.Page
             showPopup("Something went wrong while loading events!");
         }
     }
-    protected void MEPCEditLoadSchoolsCB_SelectedIndexChanged(object sender, RadComboBoxSelectedIndexChangedEventArgs e)
+    protected void mepcEditLoadSchoolsCB_SelectedIndexChanged(object sender, RadComboBoxSelectedIndexChangedEventArgs e)
     {
-        loadEvents(MEPCEditLoadEventsCB);
+        loadEvents(mepcEditLoadEventsCB);
     }
 
-    protected void MEPCEditSearchBtn_Click(object sender, EventArgs e)
+    protected void mepcEditSearchBtn_Click(object sender, EventArgs e)
     {
-        Debug.WriteLine("AAAAAAAAAAAAAAAAAAAA" + MEPCEditLoadEventsCB.SelectedValue);
-        string eid = MEPCEditLoadEventsCB.SelectedValue;
+        Debug.WriteLine("AAAAAAAAAAAAAAAAAAAA" + mepcEditLoadEventsCB.SelectedValue);
+        string eid = mepcEditLoadEventsCB.SelectedValue;
         try
         {
             DataTable table = new DataTable();
@@ -408,9 +408,9 @@ public partial class frmEventsManage_PrintCerts : System.Web.UI.Page
                 param[0] = new SqlParameter("@eid", eid);
                 dataset = SqlHelper.ExecuteDataset(connection, CommandType.StoredProcedure, "[pEventCertificateData]", param);
                 Debug.WriteLine("TOTAL: " + dataset.Tables[0].Columns.Count);
-                MEPCEditStudentDataRG.DataSource = dataset.Tables[0];
-                MEPCEditStudentDataRG.Visible = true;
-                MEPCEditStudentDataRG.Rebind();
+                mepcEditStudentDataRG.DataSource = dataset.Tables[0];
+                mepcEditStudentDataRG.Visible = true;
+                mepcEditStudentDataRG.Rebind();
             }
         }
         catch (Exception ex)
@@ -419,7 +419,7 @@ public partial class frmEventsManage_PrintCerts : System.Web.UI.Page
             showPopup("Something went wrong while loading data!");
         }
     }
-    protected void MEPCEditStudentDataRG_ItemCommand(object sender, GridCommandEventArgs e)
+    protected void mepcEditStudentDataRG_ItemCommand(object sender, GridCommandEventArgs e)
     {
         if (e.CommandName == "EditData")
         {

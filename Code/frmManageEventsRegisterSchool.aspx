@@ -1,4 +1,4 @@
-﻿<%@ Page Title="" Language="C#" MasterPageFile="Masterpage.master" AutoEventWireup="true" CodeFile="frmManageEventsRegisterSchool.aspx.cs" Inherits="frmRegisterEventSchool" %>
+﻿<%@ Page Title="Event Registration" Language="C#" MasterPageFile="~/MasterPage.master" AutoEventWireup="true" CodeFile="frmManageEventsRegisterSchool.aspx.cs" Inherits="frmRegisterEventSchool" %>
 
 <%@ Register Assembly="Telerik.Web.UI" Namespace="Telerik.Web.UI" TagPrefix="telerik" %>
 <%@ Register Assembly="AjaxControlToolkit" Namespace="AjaxControlToolkit" TagPrefix="ajaxToolkit" %>
@@ -46,7 +46,26 @@
                     </tr>
                     <tr>
                         <td>Organized By</td>
+                        <td>
+                            <telerik:RadComboBox ID="resDepOrSchoolCB" runat="server" AutoPostBack="true" Width="300" EmptyMessage="Department/School" OnSelectedIndexChanged="resDepOrSchoolCB_SelectedIndexChanged">
+                                <Items>
+                                    <telerik:RadComboBoxItem runat="server" Text="Department" Value="D"/>
+                                    <telerik:RadComboBoxItem runat="server" Text="School" Value="S"/>
+                                </Items>
+                            </telerik:RadComboBox>
+                        </td>
+                    </tr>
+                    <tr runat="server" id="panelESchoolsRow" Visible="false">
+                        <td></td>
                         <td><telerik:RadComboBox ID="resEOrganizedBy" runat="server" AutoPostBack="true" Width="250" EmptyMessage="Choose Your School"></telerik:RadComboBox></td>
+                    </tr>
+                    <tr runat="server" id="panelEDepartmentsRow" Visible="false">
+                        <td></td>
+                        <td><telerik:RadComboBox ID="resEOrganizedByDepartment" runat="server" AutoPostBack="true" Width="250" EmptyMessage="Choose Your Department" OnSelectedIndexChanged="resEOrganizedByDepartment_SelectedIndexChanged"></telerik:RadComboBox></td>
+                    </tr>
+                    <tr runat="server" id="panelESubDivisionsRow" Visible="false">
+                        <td></td>
+                        <td><telerik:RadComboBox ID="resEOrganizedBySubDivision" runat="server" Width="250" EmptyMessage="Choose Your Sub-Division"></telerik:RadComboBox></td>
                     </tr>
                     <tr><td colspan="2"><telerik:RadButton runat="server" Text="Register" OnClick="resRegisterBtn_Click"></telerik:RadButton></td></tr>
                 </table>
@@ -65,7 +84,26 @@
                     </tr>
                     <tr>
                         <td>Organized By</td>
+                        <td>
+                            <telerik:RadComboBox ID="resSEDepOrSchoolCB" runat="server" AutoPostBack="true" Width="300" EmptyMessage="Department/School" OnSelectedIndexChanged="resSEDepOrSchoolCB_SelectedIndexChanged">
+                                <Items>
+                                    <telerik:RadComboBoxItem runat="server" Text="Department" Value="D"/>
+                                    <telerik:RadComboBoxItem runat="server" Text="School" Value="S"/>
+                                </Items>
+                            </telerik:RadComboBox>
+                        </td>
+                    </tr>
+                    <tr runat="server" id="panelSESchoolsRow" Visible="false">
+                        <td></td>
                         <td><telerik:RadComboBox ID="resSEOrganizedByCombo" runat="server"  AutoPostBack="true" Width="250" EmptyMessage="Choose Your School"></telerik:RadComboBox></td>
+                    </tr>
+                    <tr runat="server" id="panelSEDepartmentsRow" Visible="false">
+                        <td></td>
+                        <td><telerik:RadComboBox ID="resSEOrganizedByDepartmentCombo" runat="server"  AutoPostBack="true" Width="250" EmptyMessage="Choose Your Department" OnSelectedIndexChanged="resSEOrganizedByDepartmentCombo_SelectedIndexChanged"></telerik:RadComboBox></td>
+                    </tr>
+                    <tr runat="server" id="panelSESubDivisionsRow" Visible="false">
+                        <td></td>
+                        <td><telerik:RadComboBox ID="resSEOrganizedBySubDivisionsCombo" runat="server" Width="250" EmptyMessage="Choose Your Sub-Division"></telerik:RadComboBox></td>
                     </tr>
                     <tr>
                         <td colspan="2"><telerik:RadButton runat="server" Text="Register" OnClick="resRegisterBtn_Click"></telerik:RadButton></td>
@@ -76,7 +114,11 @@
             </telerik:RadPageView>
         <telerik:RadPageView ID="RadPageView2" runat="server">
             <div style="padding:30px;">
-                Select School: <telerik:RadComboBox ID="SelectSchool" runat="server" AutoPostBack="true" Width="350" EmptyMessage="Choose Your School" OnSelectedIndexChanged="SelectSchool_SelectedIndexChanged"></telerik:RadComboBox>
+                <table>
+                    <tr><td>Select School : </td><td><telerik:RadComboBox ID="SelectSchool" runat="server" AutoPostBack="true" Width="350" EmptyMessage="Choose Your School" OnSelectedIndexChanged="SelectSchool_SelectedIndexChanged"></telerik:RadComboBox></td></tr>
+                    <tr><td colspan="2">OR</td></tr>
+                    <tr><td>Select Department :</td><td><telerik:RadComboBox ID="SelectDepartment" runat="server" AutoPostBack="true" Width="350" EmptyMessage="Choose Your Department" OnSelectedIndexChanged="SelectDepartment_SelectedIndexChanged"></telerik:RadComboBox></td></tr>
+                 </table>
                 <telerik:RadGrid style="margin-top:30px" ID="resStatusRG" runat="server" CellSpacing="-1" GridLines="Both" GroupPanelPosition="Top" OnItemCommand="resStatusRG_ItemCommand" OnItemDataBound="resStatusRG_ItemDataBound" ShowGroupPanel="True" Visible="false">
                     <GroupingSettings CollapseAllTooltip="Collapse all groups" />
                     <ClientSettings AllowDragToGroup="True">

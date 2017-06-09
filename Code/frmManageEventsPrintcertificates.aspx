@@ -1,4 +1,4 @@
-﻿<%@ Page Title="" Language="C#" MasterPageFile="~/MasterPage.master" AutoEventWireup="true" CodeFile="frmManageEventsPrintCertificates.aspx.cs" Inherits="frmEventsManage_PrintCerts" %>
+﻿<%@ Page Title="Print Event Certificates" Language="C#" MasterPageFile="Main.master" AutoEventWireup="true" CodeFile="frmManageEventsPrintCertificates.aspx.cs" Inherits="frmEventsManage_PrintCerts" %>
 <%@ Register Assembly="Telerik.Web.UI" Namespace="Telerik.Web.UI" TagPrefix="telerik" %>
 <%@ Register Assembly="AjaxControlToolkit" Namespace="AjaxControlToolkit" TagPrefix="ajaxToolkit" %>
 
@@ -142,16 +142,16 @@
             <table>
                 <tr>
                     <td>Select School: </td>
-                    <td><telerik:RadComboBox ID="MEPCEditLoadSchoolsCB" runat="server" AutoPostBack="true" Width="350" EmptyMessage="Choose Your School" OnSelectedIndexChanged="MEPCEditLoadSchoolsCB_SelectedIndexChanged"></telerik:RadComboBox></td>
+                    <td><telerik:RadComboBox ID="mepcEditLoadSchoolsCB" runat="server" AutoPostBack="true" Width="350" EmptyMessage="Choose Your School" OnSelectedIndexChanged="mepcEditLoadSchoolsCB_SelectedIndexChanged"></telerik:RadComboBox></td>
                 </tr>
                 <tr>
                     <td>Select Event: </td>
-                    <td><telerik:RadComboBox ID="MEPCEditLoadEventsCB" runat="server" Width="350" EmptyMessage="Choose Event"></telerik:RadComboBox></td>
+                    <td><telerik:RadComboBox ID="mepcEditLoadEventsCB" runat="server" Width="350" EmptyMessage="Choose Event"></telerik:RadComboBox></td>
                 </tr>
                 <tr runat="server" id="udrowDDL" visible="false">
                     <td>Certificate Format: </td>
                     <td>
-                        <asp:DropDownList ID="MEPCEditCertFormatsDDL" runat="server" Width="250">
+                        <asp:DropDownList ID="mepcEditCertFormatsDDL" runat="server" Width="250">
                             <asp:ListItem Value="None">Select Format</asp:ListItem>
                             <asp:ListItem Value="P">Certificate of Participation</asp:ListItem>
                             <asp:ListItem Value="M">Certificate of Merit</asp:ListItem>
@@ -163,11 +163,11 @@
                 </tr>
                 <tr>
                     <td colspan="2">
-                        <telerik:RadButton ID="MEPCEditSearchBtn" runat="server" Text="Search" OnClick="MEPCEditSearchBtn_Click"></telerik:RadButton>
+                        <telerik:RadButton ID="mepcEditSearchBtn" runat="server" Text="Search" OnClick="mepcEditSearchBtn_Click"></telerik:RadButton>
                     </td>
                 </tr>
             </table>    <!--style="margin-top:30px"-->
-                <telerik:RadGrid ID="MEPCEditStudentDataRG" runat="server" AllowFilteringByColumn="True" AllowPaging="True" AllowSorting="True" GroupPanelPosition="Top" OnItemCommand="MEPCEditStudentDataRG_ItemCommand" CellSpacing="-1" GridLines="Both">
+                <telerik:RadGrid ID="mepcEditStudentDataRG" runat="server" AllowFilteringByColumn="True" Width="800px" AllowPaging="True" AllowSorting="True" GroupPanelPosition="Top" OnItemCommand="mepcEditStudentDataRG_ItemCommand" CellSpacing="-1" GridLines="Both">
                     <GroupingSettings CollapseAllTooltip="Collapse all groups" />
                     <MasterTableView AutoGenerateColumns="False">
                         <Columns>
@@ -186,17 +186,21 @@
                             <telerik:GridBoundColumn DataField="EndDate" FilterControlAltText="Filter EndDate column" HeaderText="EndDate" ReadOnly="True" SortExpression="EndDate" UniqueName="EndDate" DataType="System.DateTime"></telerik:GridBoundColumn>
                             <telerik:GridBoundColumn DataField="EventID" FilterControlAltText="Filter EventID column" HeaderText="EventID" SortExpression="EventID" UniqueName="EventID" ReadOnly="True"></telerik:GridBoundColumn>
                             <telerik:GridBoundColumn DataField="eventCategoryID" UniqueName="eventCategoryID" FilterControlAltText="Filter eventCategoryID column" HeaderText="eventCategoryID" ReadOnly="True" SortExpression="eventCategoryID"></telerik:GridBoundColumn>
-                            <telerik:GridBoundColumn DataField="OrganisedBy" FilterControlAltText="Filter OrganisedBy column" HeaderText="OrganisedBy" ReadOnly="True" SortExpression="OrganisedBy" UniqueName="OrganisedBy">
-                            </telerik:GridBoundColumn>
+                            <telerik:GridBoundColumn DataField="OrganisedBy" FilterControlAltText="Filter OrganisedBy column" HeaderText="OrganisedBy" ReadOnly="True" SortExpression="OrganisedBy" UniqueName="OrganisedBy"></telerik:GridBoundColumn>
+                            <telerik:GridTemplateColumn HeaderText="Edit Student Data">  
+                                <ItemTemplate>
+                                    <telerik:RadButton ID="mepcEditBtn" runat="server" Text="edit.." CommandName="EditData" />
+                                </ItemTemplate>
+                            </telerik:GridTemplateColumn>
                         </Columns>
                     </MasterTableView>
                 </telerik:RadGrid>
                 
-                <asp:SqlDataSource ID="SqlDataSource1" runat="server" ConnectionString="<%$ ConnectionStrings:NewUmsConnectionString %>" SelectCommand="pEventCertificateData" SelectCommandType="StoredProcedure">
+<%--                <asp:SqlDataSource ID="SqlDataSource1" runat="server" ConnectionString="<%$ ConnectionStrings:NewUmsConnectionString %>" SelectCommand="pEventCertificateData" SelectCommandType="StoredProcedure">
                     <SelectParameters>
                         <asp:Parameter DefaultValue="188" Name="eid" Type="String" />
                     </SelectParameters>
-            </asp:SqlDataSource>
+            </asp:SqlDataSource>--%>
                 
                 <asp:Panel ID="PopupPanel" runat="server" CssClass="modalPopup" style = "display:none">
                     <telerik:RadButton ID="ButtonOk" runat="server" Text="OK" />

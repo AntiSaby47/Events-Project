@@ -29,7 +29,7 @@ public partial class frmRegisterEventSchool : System.Web.UI.Page
 
     //---------Keep check----------------------------
     private string folderOnFTPServer = "test";
-    private string TEMP_FOLDER_PATH = "~/Temp/";
+    private string TEMP_FOLDER_PATH = "~/temp/";
     //-----------------------------------------------
 
 
@@ -39,6 +39,7 @@ public partial class frmRegisterEventSchool : System.Web.UI.Page
         {
             SelectSchool.SelectedIndex = 0;
             loadSchools(SelectSchool);
+            loadDepartments(SelectDepartment);
         }
         if (refreshMode == 1)
         {
@@ -76,6 +77,37 @@ public partial class frmRegisterEventSchool : System.Web.UI.Page
         {
             if (filePath.Contains("EC_TMP_"))
                 File.Delete(filePath);
+        }
+    }
+
+    private void loadDepartments(RadComboBox combobox)
+    {
+        combobox.Items.Clear(); //Clear the Combo items to make sure duplicates are not made
+        try
+        {
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+
+                dataset = SqlHelper.ExecuteDataset(connection, CommandType.StoredProcedure, "[pLoadDataEventCertificates]");
+                DataTable types = new DataTable();
+                types = dataset.Tables[4];
+                Debug.WriteLine("Total Departments: " + types.Rows.Count);
+                List<RadComboBoxItemData> result = new List<RadComboBoxItemData>(types.Rows.Count);
+
+                foreach (DataRow row in types.Rows)
+                {
+                    RadComboBoxItem itemData = new RadComboBoxItem();
+                    itemData.Value = row["id"].ToString();
+                    string text = row["Name"].ToString();
+                    itemData.Text = text;
+                    combobox.Items.Add(itemData);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine(ex.Message);
+            showPopup("Something went wrong while loading departments!");
         }
     }
 
@@ -147,7 +179,7 @@ public partial class frmRegisterEventSchool : System.Web.UI.Page
                 foreach (DataRow row in types.Rows)
                 {
                     RadComboBoxItem itemData = new RadComboBoxItem();
-                    itemData.Value = row["DivisionSectionCode"].ToString();
+                    itemData.Value = row["Name"].ToString();
                     string text = row["DivisionSectionCode"] + " :: " + row["Name"];
                     itemData.Text = text;
                     resEOrganizedBy.Items.Add(itemData);
@@ -185,10 +217,23 @@ public partial class frmRegisterEventSchool : System.Web.UI.Page
             catch (InvalidOperationException ex)
             {
                 showPopup("Select a valid date.");
-                return;
+                return; 
             }
-            organizedBy = resEOrganizedBy.SelectedItem.Value;
             parentID = null;
+
+            if (resDepOrSchoolCB.SelectedValue == "D")
+            {
+                if (resEOrganizedBySubDivision.SelectedIndex == -1)
+                    organizedBy = resEOrganizedByDepartment.SelectedItem.Text;
+                else
+                    organizedBy = resEOrganizedBySubDivision.SelectedItem.Text + " , " + resEOrganizedByDepartment.SelectedItem.Text;
+            }
+            else
+            {
+                organizedBy = resEOrganizedBy.SelectedItem.Text;
+                int pos = organizedBy.LastIndexOf(":: ") + ":: ".Length;
+                organizedBy = organizedBy.Substring(pos, organizedBy.Length - pos);
+            }
         }
         else if (mode == "Sub Event")
         {
@@ -219,7 +264,15 @@ public partial class frmRegisterEventSchool : System.Web.UI.Page
             { data = St.Substring(pTo + tobesearched.Length); }
             endDate = DateTime.ParseExact(St.Substring(pFrom, pTo - pFrom), "dd-MM-yyyy", System.Globalization.CultureInfo.InvariantCulture);
             parentID = resENameCombo.SelectedItem.Value;
-            organizedBy = resSEOrganizedByCombo.SelectedItem.Value;
+
+            if (resSEDepOrSchoolCB.SelectedValue == "D")
+                organizedBy = resSEOrganizedBySubDivisionsCombo.SelectedItem.Text + " , " + resSEOrganizedByDepartmentCombo.SelectedItem.Text;
+            else
+            {
+                organizedBy = resSEOrganizedByCombo.SelectedItem.Text;
+                int pos = organizedBy.LastIndexOf(":: ") + ":: ".Length;
+                organizedBy = organizedBy.Substring(pos, organizedBy.Length - pos);
+            }
         }
 
         organizedBy.Trim();
@@ -377,6 +430,7 @@ public partial class frmRegisterEventSchool : System.Web.UI.Page
                 connection.Open();
                 SqlParameter[] param = new SqlParameter[2];
                 param[0] = new SqlParameter("@organisedBy", SelectSchool.SelectedValue);
+                Debug.WriteLine("A :" + SelectSchool.SelectedValue);
                 param[1] = new SqlParameter("@ID", id);
                 dataset = SqlHelper.ExecuteDataset(connection, CommandType.StoredProcedure, "[pSchoolwiseDataEventCertificates]", param);
                 table = dataset.Tables[3];
@@ -569,7 +623,7 @@ public partial class frmRegisterEventSchool : System.Web.UI.Page
             {
                 byteStream.CopyTo(fileStream);
             }
-            
+
             string excelConnString = null;
             if (fileExtension == ".xls")
                 excelConnString = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source={0};Extended Properties=\"Excel 8.0;HDR=Yes;IMEX=2\"";
@@ -681,4 +735,102 @@ public partial class frmRegisterEventSchool : System.Web.UI.Page
         Response.Write("<script>alert(' " + text + "');</script>");
     }
 
+    protected void resDepOrSchoolCB_SelectedIndexChanged(object sender, RadComboBoxSelectedIndexChangedEventArgs e)
+    {
+        try
+        {
+            string selectedValue = resDepOrSchoolCB.SelectedValue;
+            if (selectedValue == "D")
+            {
+                loadDepartments(resEOrganizedByDepartment);
+                panelEDepartmentsRow.Visible = true;
+                panelESchoolsRow.Visible = false;
+            }
+            else
+            {
+                panelESchoolsRow.Visible = true;
+                panelEDepartmentsRow.Visible = false;
+                panelESubDivisionsRow.Visible = false;
+            }
+        }
+        catch (Exception ex)
+        {
+            showPopup("Something went wrong while setting Department/School.");
+            Debug.WriteLine("Exception: " + ex.Message);
+        }
+    }
+    protected void resSEDepOrSchoolCB_SelectedIndexChanged(object sender, RadComboBoxSelectedIndexChangedEventArgs e)
+    {
+        try
+        {
+            string selectedValue = resSEDepOrSchoolCB.SelectedValue;
+            if (selectedValue == "D")
+            {
+                loadDepartments(resSEOrganizedByDepartmentCombo);
+                panelSEDepartmentsRow.Visible = true;
+                panelSESchoolsRow.Visible = false;
+            }
+            else
+            {
+                panelSESchoolsRow.Visible = true;
+                panelSEDepartmentsRow.Visible = false;
+                panelSESubDivisionsRow.Visible = false;
+            }
+        }
+        catch (Exception ex)
+        {
+            showPopup("Something went wrong while setting Department/School[1].");
+            Debug.WriteLine("Exception: " + ex.Message);
+        }
+    }
+    protected void resEOrganizedByDepartment_SelectedIndexChanged(object sender, RadComboBoxSelectedIndexChangedEventArgs e)
+    {
+        loadSubDivisions(resEOrganizedByDepartment,resEOrganizedBySubDivision);
+        panelESubDivisionsRow.Visible = true;
+    }
+    protected void resSEOrganizedByDepartmentCombo_SelectedIndexChanged(object sender, RadComboBoxSelectedIndexChangedEventArgs e)
+    {
+        loadSubDivisions(resSEOrganizedByDepartmentCombo,resSEOrganizedBySubDivisionsCombo);
+        panelSESubDivisionsRow.Visible = true;
+    }
+    protected void loadSubDivisions(RadComboBox departments, RadComboBox divisions)
+    {
+        resEOrganizedBySubDivision.Items.Clear();
+        try
+        {
+            string selectedText=departments.SelectedItem.Text;
+            string selectedValue = departments.SelectedValue;
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+                SqlParameter[] param = new SqlParameter[1];
+                param[0] = new SqlParameter("@id", selectedValue);
+                dataset = SqlHelper.ExecuteDataset(connection, CommandType.StoredProcedure, "[pLoadDivisionsEventCertificates]", param);
+
+                DataTable types = new DataTable();
+                types = dataset.Tables[0];
+
+                List<RadComboBoxItemData> result = new List<RadComboBoxItemData>(types.Rows.Count);
+
+                foreach (DataRow row in types.Rows)
+                {
+                    RadComboBoxItem itemData = new RadComboBoxItem();
+                    itemData.Value = row["dept_name"].ToString()+" , "+selectedText;
+                    string text = row["dept_name"].ToString();
+                    itemData.Text = text;
+                    divisions.Items.Add(itemData);
+                }
+            }
+
+        }
+        catch (Exception ex)
+        {
+            showPopup("Something went wrong while setting Department/School[1].");
+            Debug.WriteLine("Exception: " + ex.Message);
+        }
+    }
+    protected void SelectDepartment_SelectedIndexChanged(object sender, RadComboBoxSelectedIndexChangedEventArgs e)
+    {
+
+    }
 }

@@ -1,4 +1,4 @@
-﻿<%@ Page Title="" Language="C#" MasterPageFile="~/MasterPage.master" AutoEventWireup="true" CodeFile="frmManageEventsHOS.aspx.cs" Inherits="frmManageEventsHOS" %>
+﻿<%@ Page Title="Event Approval" Language="C#" MasterPageFile="Main.master" AutoEventWireup="true" CodeFile="frmManageEventsHOS.aspx.cs" Inherits="frmManageEventsHOS" %>
 <%@ Register Assembly="Telerik.Web.UI" Namespace="Telerik.Web.UI" TagPrefix="telerik" %>
 <%@ Register Assembly="AjaxControlToolkit" Namespace="AjaxControlToolkit" TagPrefix="ajaxToolkit" %>
 
